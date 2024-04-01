@@ -1,8 +1,6 @@
 package durikkiri.project.controller;
 
-import durikkiri.project.entity.dto.post.PostAddDto;
-import durikkiri.project.entity.dto.post.PostGetDto;
-import durikkiri.project.entity.dto.post.PostUpdateDto;
+import durikkiri.project.entity.dto.post.*;
 import durikkiri.project.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,11 +19,11 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
     private final PostService postService;
 
-//    @GetMapping
-//    public ResponseEntity<Page<PostsGetDto>> getPosts(@PageableDefault Pageable pageable, @RequestBody(required = false) PostSearchContent postSearchContent) {
-//        Page<PostsGetDto> posts = postService.getPosts(pageable, postSearchContent);
-//        return ResponseEntity.ok(posts);
-//    }
+    @GetMapping
+    public ResponseEntity<Page<PostsGetDto>> getPosts(@PageableDefault Pageable pageable, @RequestBody(required = false) PostSearchContent postSearchContent) {
+        Page<PostsGetDto> posts = postService.getPosts(pageable, postSearchContent);
+        return ResponseEntity.ok(posts);
+    }
     @PostMapping
     public ResponseEntity<String> addPost(@Valid @RequestBody PostAddDto postAddDto) {
         return new ResponseEntity<>(postService.addPost(postAddDto));
