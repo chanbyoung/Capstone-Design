@@ -22,7 +22,7 @@ public class DslPostRepository {
     public Page<Post> getPosts(Pageable pageable, PostSearchContent postSearchContent) {
         BooleanBuilder builder = new BooleanBuilder();
 
-        if (postSearchContent.getTitle() != null) {
+        if (postSearchContent != null) {
             builder.and(post.title.contains(postSearchContent.getTitle()));
         }
 
