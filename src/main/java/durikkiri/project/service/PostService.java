@@ -2,9 +2,8 @@ package durikkiri.project.service;
 
 import durikkiri.project.entity.dto.post.*;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-
-import java.awt.print.Pageable;
 
 public interface PostService {
 

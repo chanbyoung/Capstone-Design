@@ -8,11 +8,11 @@ import durikkiri.project.repository.DslPostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.awt.print.Pageable;
 import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.*;
@@ -23,7 +23,7 @@ import static org.springframework.http.HttpStatus.*;
 @Slf4j
 public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
-//    private final DslPostRepository dslPostRepository;
+    private final DslPostRepository dslPostRepository;
 
     @Override
     @Transactional
@@ -34,8 +34,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Page<PostsGetDto> getPosts(Pageable pageable, PostSearchContent postSearchContent) {
-        return null;
-//        return dslPostRepository.getPosts(pageable, postSearchContent).map(PostsGetDto::toDto);
+        return dslPostRepository.getPosts(pageable, postSearchContent).map(PostsGetDto::toDto);
     }
 
     @Override
