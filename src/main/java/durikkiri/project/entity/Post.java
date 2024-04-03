@@ -28,4 +28,8 @@ public class Post extends BaseEntity{
         this.title = postUpdateDto.getTitle();
         this.content = postUpdateDto.getContent();
     }
+
+    public void updateViewCount() {
+        this.viewCount ++;
+    }
 }

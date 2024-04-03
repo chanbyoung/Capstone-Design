@@ -38,9 +38,14 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PostGetDto getPost(Long postId) {
-        Optional<Post> findPost = postRepository.findById(postId);
-        return findPost.map(PostGetDto::toDto).orElse(null);
+    @Transactional
+    public PostGetDto getPost(Long postId, boolean flag) {
+        return postRepository.findById(postId).map(post -> {
+            if (flag) {
+                post.updateViewCount();
+            }
+            return PostGetDto.toDto(post);
+        }).orElse(null);
     }
 
     @Override
