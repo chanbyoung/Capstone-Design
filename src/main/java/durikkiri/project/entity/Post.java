@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Builder
@@ -18,6 +20,8 @@ public class Post extends BaseEntity{
     private Long id;
     @Enumerated(EnumType.STRING)
     private Category category;
+    @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Field> fieldList;
     private String title;
     private String content;
     private Long viewCount;
