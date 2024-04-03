@@ -11,7 +11,7 @@ public interface PostService {
 
     Page<PostsGetDto> getPosts(Pageable pageable, PostSearchContent postSearchContent);
 
-    PostGetDto getPost(Long postId);
+    PostGetDto getPost(Long postId, boolean flag);
 
     HttpStatus updatePost(Long postId, PostUpdateDto postUpdateDto);
 

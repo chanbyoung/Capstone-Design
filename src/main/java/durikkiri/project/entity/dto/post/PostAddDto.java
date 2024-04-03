@@ -3,6 +3,7 @@ package durikkiri.project.entity.dto.post;
 import durikkiri.project.entity.Category;
 import durikkiri.project.entity.Post;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,6 +14,7 @@ public class PostAddDto {
     @NotBlank
     private String title;
 
+    @NotNull
     private Category category;
 
     @NotBlank
