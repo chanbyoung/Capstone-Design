@@ -9,13 +9,13 @@ import lombok.Setter;
 @Getter
 @Builder
 public class FieldGetDto {
-    private FieldCategory fieldCategory;
+    private String fieldCategory;
     private int currentRecruitment;
     private int totalRecruitment;
 
     static public FieldGetDto toDto(Field field) {
         return FieldGetDto.builder()
-                .fieldCategory(field.getFieldCategory())
+                .fieldCategory(field.getFieldCategory().getValue())
                 .currentRecruitment(field.getCurrentRecruitment())
                 .totalRecruitment(field.getTotalRecruitment())
                 .build();
