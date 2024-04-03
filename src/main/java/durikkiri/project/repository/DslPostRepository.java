@@ -20,11 +20,7 @@ public class DslPostRepository {
     private final JPAQueryFactory query;
 
     public Page<Post> getPosts(Pageable pageable, PostSearchContent postSearchContent) {
-        BooleanBuilder builder = new BooleanBuilder();
-
-        if (postSearchContent != null) {
-            builder.and(post.title.contains(postSearchContent.getTitle()));
-        }
+        BooleanBuilder builder = searchCondition(postSearchContent);
 
         List<Post> posts = query.select(post)
                 .from(post)
@@ -38,5 +34,22 @@ public class DslPostRepository {
                 .where(builder)
                 .fetchOne();
         return new PageImpl<>(posts,pageable,count);
+    }
+
+    private static BooleanBuilder searchCondition(PostSearchContent postSearchContent) {
+        BooleanBuilder builder = new BooleanBuilder();
+
+        if (postSearchContent != null) {
+            if (postSearchContent.getCategory() != null) {
+                builder.and(post.category.eq(postSearchContent.getCategory()));
+            }
+            if (postSearchContent.getTitle() != null) {
+                builder.and(post.title.contains(postSearchContent.getTitle()));
+            }
+//            if (postSearchContent.getMemberName() != null) {
+//                
+//            }
+        }
+        return builder;
     }
 }
