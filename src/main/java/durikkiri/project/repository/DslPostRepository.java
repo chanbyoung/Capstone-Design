@@ -2,6 +2,7 @@ package durikkiri.project.repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import durikkiri.project.entity.Category;
 import durikkiri.project.entity.Post;
 import durikkiri.project.entity.dto.post.PostSearchContent;
 import lombok.RequiredArgsConstructor;
@@ -51,5 +52,16 @@ public class DslPostRepository {
 //            }
         }
         return builder;
+    }
+
+    public List<Post> getHome() {
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(post.category.notIn(Category.GENERAL));
+        return query.select(post)
+                .from(post)
+                .where(builder)
+                .orderBy(post.likeCount.desc())
+                .limit(5)
+                .fetch();
     }
 }

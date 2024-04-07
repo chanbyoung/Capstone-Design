@@ -1,6 +1,7 @@
 package durikkiri.project.service.impl;
 
 import durikkiri.project.entity.Post;
+import durikkiri.project.entity.dto.HomeGetDto;
 import durikkiri.project.entity.dto.post.*;
 import durikkiri.project.repository.PostRepository;
 import durikkiri.project.service.PostService;
@@ -13,7 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -69,5 +72,11 @@ public class PostServiceImpl implements PostService {
             return OK;
         }
         return NOT_FOUND;
+    }
+
+    @Override
+    public List<HomeGetDto> getHome() {
+        return dslPostRepository.getHome().stream().map(HomeGetDto::toDto).toList();
+
     }
 }
