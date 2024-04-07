@@ -24,7 +24,7 @@ public class PostAddDto {
     @NotBlank
     private String content;
 
-    private List<FieldAddDto> fieldList;
+    private List<FieldAddDto> fieldList= new ArrayList<>();
 
 
     public Post toEntity() {
