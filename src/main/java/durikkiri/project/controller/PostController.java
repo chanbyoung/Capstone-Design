@@ -1,5 +1,6 @@
 package durikkiri.project.controller;
 
+import durikkiri.project.entity.Field;
 import durikkiri.project.entity.dto.post.*;
 import durikkiri.project.service.PostService;
 import jakarta.servlet.http.Cookie;
@@ -14,6 +15,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

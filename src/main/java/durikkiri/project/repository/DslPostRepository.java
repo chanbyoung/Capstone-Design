@@ -25,7 +25,7 @@ public class DslPostRepository {
         List<Post> posts = query.select(post)
                 .from(post)
                 .where(builder)
-                .orderBy(post.id.desc())
+                .orderBy(post.createdAt.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .distinct().fetch();

@@ -9,5 +9,4 @@ import lombok.Setter;
 public class PostSearchContent {
     private Category category;
     private String title;
-    private String memberName;
 }
