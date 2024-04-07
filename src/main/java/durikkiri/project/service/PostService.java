@@ -1,9 +1,12 @@
 package durikkiri.project.service;
 
+import durikkiri.project.entity.dto.HomeGetDto;
 import durikkiri.project.entity.dto.post.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+
+import java.util.List;
 
 public interface PostService {
 
@@ -16,4 +19,6 @@ public interface PostService {
     HttpStatus updatePost(Long postId, PostUpdateDto postUpdateDto);
 
     HttpStatus deletePost(Long postId);
+
+    List<HomeGetDto> getHome();
 }
