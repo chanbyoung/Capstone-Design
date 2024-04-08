@@ -4,6 +4,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import durikkiri.project.entity.Category;
 import durikkiri.project.entity.Post;
+import durikkiri.project.entity.RecruitmentStatus;
 import durikkiri.project.entity.dto.post.PostSearchContent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,7 +23,6 @@ public class DslPostRepository {
 
     public Page<Post> getPosts(Pageable pageable, PostSearchContent postSearchContent) {
         BooleanBuilder builder = searchCondition(postSearchContent);
-
         List<Post> posts = query.select(post)
                 .from(post)
                 .where(builder)
@@ -39,7 +39,7 @@ public class DslPostRepository {
 
     private static BooleanBuilder searchCondition(PostSearchContent postSearchContent) {
         BooleanBuilder builder = new BooleanBuilder();
-
+        builder.and(post.status.eq(RecruitmentStatus.Y));
         if (postSearchContent != null) {
             if (postSearchContent.getCategory() != null) {
                 builder.and(post.category.eq(postSearchContent.getCategory()));
