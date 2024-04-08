@@ -24,6 +24,8 @@ public class Post extends BaseEntity{
     private List<Field> fieldList;
     private String title;
     private String content;
+    @Enumerated(EnumType.STRING)
+    private RecruitmentStatus status; //모집현황
     private Long viewCount;
     private Long likeCount;
 
