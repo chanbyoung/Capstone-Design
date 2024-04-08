@@ -34,6 +34,7 @@ public class PostAddDto {
         Post post = Post.builder()
                 .title(title)
                 .category(category)
+                .commentList(new ArrayList<>())
                 .fieldList(new ArrayList<>()) // 빈 리스트로 초기화
                 .content(content)
                 .status(Y)

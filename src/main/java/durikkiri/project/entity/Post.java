@@ -22,6 +22,9 @@ public class Post extends BaseEntity{
     private Category category;
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Field> fieldList;
+
+    @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Comment> commentList;
     private String title;
     private String content;
     @Enumerated(EnumType.STRING)
@@ -37,5 +40,9 @@ public class Post extends BaseEntity{
 
     public void updateViewCount() {
         this.viewCount ++;
+    }
+
+    public void updateComment(Comment comment) {
+        this.commentList.add(comment);
     }
 }
