@@ -1,8 +1,11 @@
 package durikkiri.project.service.impl;
 
+import durikkiri.project.entity.Comment;
 import durikkiri.project.entity.Post;
 import durikkiri.project.entity.dto.HomeGetDto;
+import durikkiri.project.entity.dto.comment.CommentDto;
 import durikkiri.project.entity.dto.post.*;
+import durikkiri.project.repository.CommentRepository;
 import durikkiri.project.repository.PostRepository;
 import durikkiri.project.service.PostService;
 import durikkiri.project.repository.DslPostRepository;
@@ -16,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -27,6 +29,8 @@ import static org.springframework.http.HttpStatus.*;
 public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final DslPostRepository dslPostRepository;
+    private final CommentRepository commentRepository;
+
 
     @Override
     @Transactional
@@ -78,5 +82,40 @@ public class PostServiceImpl implements PostService {
     public List<HomeGetDto> getHome() {
         return dslPostRepository.getHome().stream().map(HomeGetDto::toDto).toList();
 
+    }
+
+    @Override
+    @Transactional
+    public HttpStatus addComment(Long postId, CommentDto commentDto) {
+        Optional<Post> findPost = postRepository.findById(postId);
+        if (findPost.isPresent()) {
+            Post post = findPost.get();
+            post.updateComment(commentDto.toEntity(post));
+            return OK;
+
+        }
+        return NOT_FOUND;
+    }
+
+    @Override
+    @Transactional
+    public HttpStatus updateComment(Long commentId, CommentDto commentDto) {
+        Optional<Comment> findComment = commentRepository.findById(commentId);
+        if (findComment.isPresent()) {
+            findComment.get().updateComment(commentDto);
+            return OK;
+        }
+        return NOT_FOUND;
+    }
+
+    @Override
+    @Transactional
+    public HttpStatus deleteComment(Long commentId) {
+        Optional<Comment> findComment = commentRepository.findById(commentId);
+        if (findComment.isPresent()) {
+            commentRepository.delete(findComment.get());
+            return OK;
+        }
+        return NOT_FOUND;
     }
 }

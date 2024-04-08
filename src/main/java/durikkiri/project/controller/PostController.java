@@ -1,6 +1,7 @@
 package durikkiri.project.controller;
 
-import durikkiri.project.entity.Field;
+import durikkiri.project.entity.Comment;
+import durikkiri.project.entity.dto.comment.CommentDto;
 import durikkiri.project.entity.dto.post.*;
 import durikkiri.project.service.PostService;
 import jakarta.servlet.http.Cookie;
@@ -15,8 +16,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,6 +32,7 @@ public class PostController {
         Page<PostsGetDto> posts = postService.getPosts(pageable, postSearchContent);
         return ResponseEntity.ok(posts);
     }
+
     @PostMapping
     public ResponseEntity<String> addPost(@Valid @RequestBody PostAddDto postAddDto) {
         return new ResponseEntity<>(postService.addPost(postAddDto));
@@ -82,4 +82,18 @@ public class PostController {
         return new ResponseEntity<>(postService.deletePost(postId));
     }
 
+    @PostMapping("/{postId}/comment")
+    public ResponseEntity<String> addComment(@PathVariable Long postId, @RequestBody CommentDto commentDto) {
+        return new ResponseEntity<>(postService.addComment(postId, commentDto));
+    }
+
+    @PatchMapping("/{postId}/comment/{commentId}")
+    public ResponseEntity<String> updateComment(@PathVariable Long commentId, @RequestBody CommentDto commentDto) {
+        return new ResponseEntity<>(postService.updateComment(commentId, commentDto));
+    }
+
+    @DeleteMapping("/{postId}/comment/{commentId}")
+    public ResponseEntity<String> deleteComment(@PathVariable Long commentId) {
+        return new ResponseEntity<>(postService.deleteComment(commentId));
+    }
 }
