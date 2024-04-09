@@ -53,7 +53,7 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public PostGetDto getPost(Long postId, boolean flag) {
-        return postRepository.findById(postId).map(post -> {
+        return postRepository.findPostWithField(postId).map(post -> {
             if (flag) {
                 post.updateViewCount();
             }
@@ -64,7 +64,7 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public HttpStatus updatePost(Long postId, PostUpdateDto postUpdateDto) {
-        Optional<Post> findPost = postRepository.findById(postId);
+        Optional<Post> findPost = postRepository.findPostWithField(postId);
         if (findPost.isPresent()) {
             findPost.get().updatePost(postUpdateDto);
             return OK;
