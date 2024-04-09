@@ -1,5 +1,6 @@
 package durikkiri.project.service.impl;
 
+import durikkiri.project.entity.Category;
 import durikkiri.project.entity.Comment;
 import durikkiri.project.entity.Post;
 import durikkiri.project.entity.dto.HomeGetDto;
@@ -35,6 +36,11 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public HttpStatus addPost(PostAddDto postAddDto) {
+        if (!postAddDto.getCategory().equals(Category.GENERAL)) {
+            if (postAddDto.getFieldList().isEmpty()) {
+                return BAD_REQUEST;
+            }
+        }
         postRepository.save(postAddDto.toEntity());
         return OK;
     }
@@ -47,7 +53,7 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public PostGetDto getPost(Long postId, boolean flag) {
-        return postRepository.findById(postId).map(post -> {
+        return postRepository.findPostWithField(postId).map(post -> {
             if (flag) {
                 post.updateViewCount();
             }
@@ -58,7 +64,7 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public HttpStatus updatePost(Long postId, PostUpdateDto postUpdateDto) {
-        Optional<Post> findPost = postRepository.findById(postId);
+        Optional<Post> findPost = postRepository.findPostWithField(postId);
         if (findPost.isPresent()) {
             findPost.get().updatePost(postUpdateDto);
             return OK;

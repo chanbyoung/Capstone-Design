@@ -1,6 +1,7 @@
 package durikkiri.project.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import durikkiri.project.entity.dto.post.FieldUpdateDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,8 +25,7 @@ public class Field {
     private int currentRecruitment;
     private int totalRecruitment;
 
-
-    public void updatePost(Post post) {
-        this.post = post;
+    public void updateField(FieldUpdateDto fieldUpdateDto) {
+        this.totalRecruitment = fieldUpdateDto.getTotalRecruitment();
     }
 }
