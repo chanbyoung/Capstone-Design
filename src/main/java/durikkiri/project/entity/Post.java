@@ -39,8 +39,9 @@ public class Post extends BaseEntity{
     public void updatePost(PostUpdateDto postUpdateDto) {
         this.title = postUpdateDto.getTitle();
         this.content = postUpdateDto.getContent();
-        fieldUpdate(postUpdateDto);
-
+        if (!postUpdateDto.getCategory().equals(Category.GENERAL)) { //일반글일 경우 필드 수정 로직 실행 안함
+            fieldUpdate(postUpdateDto);
+        }
     }
 
     private void fieldUpdate(PostUpdateDto postUpdateDto) {
