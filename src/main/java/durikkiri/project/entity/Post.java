@@ -8,8 +8,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -37,6 +39,13 @@ public class Post extends BaseEntity{
     public void updatePost(PostUpdateDto postUpdateDto) {
         this.title = postUpdateDto.getTitle();
         this.content = postUpdateDto.getContent();
+        if (!postUpdateDto.getCategory().equals(Category.GENERAL)) { //일반글일 경우 필드 수정 로직 실행 안함
+            fieldUpdate(postUpdateDto);
+        }
+    }
+
+    private void fieldUpdate(PostUpdateDto postUpdateDto) {
+        Set<FieldCategory> processedFieldCategories = new HashSet<>();
         for (FieldUpdateDto fieldUpdateDto : postUpdateDto.getFieldList()) {
             Optional<Field> matchingField = fieldList.stream()
                     .filter(field -> field.getFieldCategory().equals(fieldUpdateDto.getFieldCategory()))
@@ -48,8 +57,9 @@ public class Post extends BaseEntity{
                 Field newField = fieldUpdateDto.toEntity(this);
                 this.fieldList.add(newField);
             }
+            processedFieldCategories.add(fieldUpdateDto.getFieldCategory());
         }
-
+        this.fieldList.removeIf(field -> !processedFieldCategories.contains(field.getFieldCategory()));
     }
 
     public void updateViewCount() {

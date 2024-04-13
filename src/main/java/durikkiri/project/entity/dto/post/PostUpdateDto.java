@@ -1,5 +1,6 @@
 package durikkiri.project.entity.dto.post;
 
+import durikkiri.project.entity.Category;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,6 +13,7 @@ import java.util.List;
 public class PostUpdateDto {
     @NotBlank
     private String title;
+    private Category category;
     @NotBlank
     private String content;
     private List<FieldUpdateDto> fieldList = new ArrayList<>();
