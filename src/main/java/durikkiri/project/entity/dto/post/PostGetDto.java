@@ -2,6 +2,7 @@ package durikkiri.project.entity.dto.post;
 
 import durikkiri.project.entity.Field;
 import durikkiri.project.entity.Post;
+import durikkiri.project.entity.TechnologyStack;
 import durikkiri.project.entity.dto.comment.CommentGetDto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
@@ -18,6 +19,7 @@ public class PostGetDto {
     private String category;
     @NotBlank
     private String content;
+    private List<TechnologyStack> technologyStackList;
     private List<CommentGetDto> commentList;
     private List<FieldGetDto> fieldList;
     private Long viewCount;
@@ -37,6 +39,7 @@ public class PostGetDto {
                 .title(post.getTitle())
                 .category(post.getCategory().getValue())
                 .content(post.getContent())
+                .technologyStackList(post.getTechnologyStackList())
                 .commentList(commentGetDtoList)
                 .fieldList(fieldGetDtoList) // 변환된 FieldGetDto 리스트 설정
                 .viewCount(post.getViewCount())
