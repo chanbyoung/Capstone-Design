@@ -12,12 +12,11 @@ public class FieldAddDto {
     private FieldCategory fieldCategory;
     private int totalRecruitment;
 
-    public Field toEntity(Post post) {
+    public Field toValue() {
         return Field.builder()
                 .fieldCategory(fieldCategory)
                 .currentRecruitment(0)
                 .totalRecruitment(totalRecruitment)
-                .post(post)
                 .build();
     }
 }
