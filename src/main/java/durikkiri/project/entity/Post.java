@@ -33,12 +33,15 @@ public class Post extends BaseEntity{
     private String content;
     @Enumerated(EnumType.STRING)
     private RecruitmentStatus status; //모집현황
+    @Enumerated(EnumType.STRING)
+    private List<TechnologyStack> technologyStackList;
     private Long viewCount;
     private Long likeCount;
 
     public void updatePost(PostUpdateDto postUpdateDto) {
         this.title = postUpdateDto.getTitle();
         this.content = postUpdateDto.getContent();
+        this.technologyStackList =postUpdateDto.getTechnologyStackList();
         if (!postUpdateDto.getCategory().equals(Category.GENERAL)) { //일반글일 경우 필드 수정 로직 실행 안함
             fieldUpdate(postUpdateDto);
         }

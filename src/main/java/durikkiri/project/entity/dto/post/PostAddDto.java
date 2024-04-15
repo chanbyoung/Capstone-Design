@@ -1,9 +1,6 @@
 package durikkiri.project.entity.dto.post;
 
-import durikkiri.project.entity.Category;
-import durikkiri.project.entity.Field;
-import durikkiri.project.entity.Post;
-import durikkiri.project.entity.RecruitmentStatus;
+import durikkiri.project.entity.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -27,6 +24,8 @@ public class PostAddDto {
     @NotBlank
     private String content;
 
+    private List<TechnologyStack> technologyStackList = new ArrayList<>();
+
     private List<FieldAddDto> fieldList= new ArrayList<>();
 
 
@@ -35,6 +34,7 @@ public class PostAddDto {
                 .title(title)
                 .category(category)
                 .commentList(new ArrayList<>())
+                .technologyStackList(technologyStackList)
                 .fieldList(new ArrayList<>()) // 빈 리스트로 초기화
                 .content(content)
                 .status(Y)
