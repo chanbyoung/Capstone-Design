@@ -1,11 +1,10 @@
 package durikkiri.project.entity.dto.apply;
 
-import durikkiri.project.entity.Apply;
-import durikkiri.project.entity.Field;
-import durikkiri.project.entity.FieldCategory;
-import durikkiri.project.entity.Post;
+import durikkiri.project.entity.*;
 import lombok.Builder;
 import lombok.Getter;
+
+import static durikkiri.project.entity.ApplyStatus.*;
 
 @Getter
 @Builder
@@ -21,6 +20,7 @@ public class ApplyAddDto {
                         .fieldCategory(fieldCategory)
                         .post(post)
                         .content(content)
+                        .applyStatus(UNREAD)
                         .build())
                 .orElse(null);
     }

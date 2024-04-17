@@ -2,6 +2,12 @@ package durikkiri.project.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Optional;
+
+import static durikkiri.project.entity.ApplyStatus.*;
 
 @Entity
 @Getter
@@ -16,8 +22,27 @@ public class Apply {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private FieldCategory fieldCategory;
+    @Enumerated(EnumType.STRING)
+    private ApplyStatus applyStatus;
 
+    public void updateStatus(ApplyStatus applyStatus) {
+        this.applyStatus = applyStatus;
+    }
 
+    public HttpStatus postFieldUpdate() {
+        Field field = post.getFieldList().stream()
+                .filter(f -> f.getFieldCategory().equals(fieldCategory))
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Field not found"));
+        try {
+            field.updateCurrentRecruitment();
+            this.applyStatus = ACCEPT;
+            return HttpStatus.OK;
+        } catch (IllegalArgumentException e) {
+            // 추가적인 예외 처리 (예: 로깅)를 여기에 넣을 수 있습니다.
+            return HttpStatus.BAD_REQUEST;
+        }
+    }
 }

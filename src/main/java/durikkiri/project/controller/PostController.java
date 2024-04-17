@@ -1,6 +1,5 @@
 package durikkiri.project.controller;
 
-import durikkiri.project.entity.Comment;
 import durikkiri.project.entity.dto.comment.CommentDto;
 import durikkiri.project.entity.dto.post.*;
 import durikkiri.project.service.PostService;
@@ -96,4 +95,5 @@ public class PostController {
     public ResponseEntity<String> deleteComment(@PathVariable Long commentId) {
         return new ResponseEntity<>(postService.deleteComment(commentId));
     }
+
 }

@@ -1,20 +1,23 @@
 package durikkiri.project.service.impl;
 
 import durikkiri.project.entity.Apply;
-import durikkiri.project.entity.Field;
+import durikkiri.project.entity.ApplyStatus;
 import durikkiri.project.entity.Post;
 import durikkiri.project.entity.dto.apply.ApplyAddDto;
 import durikkiri.project.repository.ApplyRepository;
-import durikkiri.project.repository.DslPostRepository;
 import durikkiri.project.repository.PostRepository;
+import durikkiri.project.entity.dto.apply.ApplyGetDto;
 import durikkiri.project.service.ApplyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
 import java.util.Optional;
+
+import static durikkiri.project.entity.ApplyStatus.*;
+import static org.springframework.http.HttpStatus.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -30,9 +33,38 @@ public class ApplyServiceImpl implements ApplyService {
             Apply apply = applyAddDto.toEntity(findPost.get());
             if (apply != null) {
                 applyRepository.save(apply);
-                return HttpStatus.OK;
+                return OK;
             }
         }
-        return HttpStatus.NOT_FOUND;
+        return NOT_FOUND;
+    }
+
+    @Override
+    public ApplyGetDto getApply(Long applyId) {
+        Optional<Apply> findApply = applyRepository.findById(applyId);
+        if (findApply.isPresent()) {
+            Apply apply = findApply.get();
+            if (apply.getApplyStatus().equals(UNREAD)) {
+                apply.updateStatus(READ);
+            }
+            return ApplyGetDto.toDto(apply);
+        }
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public void acceptApply(Long applyId, ApplyStatus applyStatus) {
+        Apply apply = applyRepository.findApplyWithPost(applyId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Apply not found"));
+
+        if (applyStatus.equals(ACCEPT)) {
+            HttpStatus status = apply.postFieldUpdate();
+            if (!status.equals(HttpStatus.OK)) {
+                throw new ResponseStatusException(status, "Failed to update field");
+            }
+        } else {
+            apply.updateStatus(applyStatus);
+        }
     }
 }
