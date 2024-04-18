@@ -56,14 +56,10 @@ public class ApplyServiceImpl implements ApplyService {
     @Transactional
     public void acceptApply(Long applyId, ApplyStatus applyStatus) {
         Apply apply = applyRepository.findApplyWithPost(applyId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Apply not found"));
-
+                .orElseThrow(() -> new IllegalArgumentException("Apply not found"));
         if (applyStatus.equals(ACCEPT)) {
-            HttpStatus status = apply.postFieldUpdate();
-            if (!status.equals(HttpStatus.OK)) {
-                throw new ResponseStatusException(status, "Failed to update field");
-            }
-        } else {
+            apply.postFieldUpdate();
+        }else {
             apply.updateStatus(applyStatus);
         }
     }

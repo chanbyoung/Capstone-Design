@@ -9,11 +9,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
+@Entity
 @Builder
-@Embeddable
 @NoArgsConstructor
 @AllArgsConstructor
 public class Field {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Post post;
     @Enumerated(EnumType.STRING)
     private FieldCategory fieldCategory;
     private int currentRecruitment;

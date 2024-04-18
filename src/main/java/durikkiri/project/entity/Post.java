@@ -25,7 +25,7 @@ public class Post extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private Category category;
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Field> fieldList;
 
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
@@ -58,7 +58,7 @@ public class Post extends BaseEntity{
                 matchingField.get().updateField(fieldUpdateDto);
             }
             else {
-                Field newField = fieldUpdateDto.toValue();
+                Field newField = fieldUpdateDto.toEntity(this);
                 this.fieldList.add(newField);
             }
             processedFieldCategories.add(fieldUpdateDto.getFieldCategory());

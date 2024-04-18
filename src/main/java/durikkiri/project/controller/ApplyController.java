@@ -10,12 +10,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static org.springframework.http.HttpStatus.*;
+
 @RestController
-@RequestMapping("/api/apply")
+@RequestMapping("/api/applies")
 @RequiredArgsConstructor
 public class ApplyController {
     private final ApplyService applyService;
-    @PostMapping("/{postId}/apply")
+    @PostMapping("/apply/{postId}")
     public ResponseEntity<String> addApply(@PathVariable Long postId, @RequestBody ApplyAddDto applyAddDto) {
         return new ResponseEntity<>(applyService.addApply(postId, applyAddDto));
     }
@@ -24,15 +26,19 @@ public class ApplyController {
     public ResponseEntity<ApplyGetDto> getApply(@PathVariable Long applyId) {
         ApplyGetDto apply = applyService.getApply(applyId);
         if (apply != null) {
-            return new ResponseEntity<>(apply, HttpStatus.OK);
+            return new ResponseEntity<>(apply, OK);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(NOT_FOUND);
     }
 
     @PostMapping("/{applyId}")
-    public ResponseEntity<Void> acceptApply(@PathVariable Long applyId, @RequestBody ApplyPostDto applyPostDto) {
-        applyService.acceptApply(applyId, applyPostDto.getApplyStatus());
-        return ResponseEntity.ok().build(); // 성공 시 200 OK 상태 코드 반환
+    public ResponseEntity<String> acceptApply(@PathVariable Long applyId, @RequestBody ApplyPostDto applyPostDto) {
+        try {
+            applyService.acceptApply(applyId, applyPostDto.getApplyStatus());
+            return ResponseEntity.ok().build(); // 성공 시 200 OK 상태 코드 반환
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(NOT_FOUND);
+        }
     }
 
 }

@@ -31,18 +31,17 @@ public class Apply {
         this.applyStatus = applyStatus;
     }
 
-    public HttpStatus postFieldUpdate() {
+    public void postFieldUpdate() {
         Field field = post.getFieldList().stream()
                 .filter(f -> f.getFieldCategory().equals(fieldCategory))
                 .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Field not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Field not found"));
         try {
             field.updateCurrentRecruitment();
             this.applyStatus = ACCEPT;
-            return HttpStatus.OK;
         } catch (IllegalArgumentException e) {
             // 추가적인 예외 처리 (예: 로깅)를 여기에 넣을 수 있습니다.
-            return HttpStatus.BAD_REQUEST;
+            throw new IllegalArgumentException("apply deadline");
         }
     }
 }

@@ -9,6 +9,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface ApplyRepository extends JpaRepository<Apply, Long> {
-    @Query("select a from Apply a join fetch a.post where a.id = :id")
+    @Query("select a from Apply a join fetch a.post join fetch a.post.fieldList where a.id = :id")
     Optional<Apply> findApplyWithPost(@Param("id") Long id);
 }
