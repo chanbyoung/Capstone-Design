@@ -44,7 +44,7 @@ public class PostAddDto {
 
         // fieldList의 각 Field에 현재 Post를 설정
         for (FieldAddDto fieldAddDto : fieldList) {
-            Field field = fieldAddDto.toValue();
+            Field field = fieldAddDto.toEntity(post);
             post.getFieldList().add(field);
         }
 

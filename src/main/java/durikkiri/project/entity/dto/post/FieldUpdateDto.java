@@ -13,8 +13,9 @@ import lombok.ToString;
 public class FieldUpdateDto {
     private FieldCategory fieldCategory;
     private int totalRecruitment;
-    public Field toValue() {
+    public Field toEntity(Post post) {
         return Field.builder()
+                .post(post)
                 .fieldCategory(fieldCategory)
                 .currentRecruitment(0)
                 .totalRecruitment(totalRecruitment)
