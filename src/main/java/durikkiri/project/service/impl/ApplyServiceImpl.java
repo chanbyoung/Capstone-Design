@@ -1,5 +1,6 @@
 package durikkiri.project.service.impl;
 
+import durikkiri.project.entity.dto.apply.AppliesGetsDto;
 import durikkiri.project.controller.ApplyUpdateDto;
 import durikkiri.project.entity.Apply;
 import durikkiri.project.entity.ApplyStatus;
@@ -13,8 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Optional;
 
 import static durikkiri.project.entity.ApplyStatus.*;
@@ -26,6 +27,13 @@ import static org.springframework.http.HttpStatus.*;
 public class ApplyServiceImpl implements ApplyService {
     private final ApplyRepository applyRepository;
     private final PostRepository postRepository;
+
+
+    @Override
+    public List<AppliesGetsDto> getApplies() {
+         return applyRepository.findApply().stream().map(AppliesGetsDto::toDto).toList();
+    }
+
     @Override
     @Transactional
     public HttpStatus addApply(Long postId, ApplyAddDto applyAddDto) {
@@ -78,6 +86,7 @@ public class ApplyServiceImpl implements ApplyService {
     }
 
     @Override
+    @Transactional
     public HttpStatus deleteApply(Long applyId) {
         Optional<Apply> findApply = applyRepository.findById(applyId);
         if (findApply.isPresent()) {

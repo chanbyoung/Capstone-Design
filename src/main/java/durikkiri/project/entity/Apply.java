@@ -15,7 +15,7 @@ import static durikkiri.project.entity.ApplyStatus.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Apply {
+public class Apply extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "apply_id")
     private Long id;

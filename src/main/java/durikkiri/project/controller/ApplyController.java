@@ -1,5 +1,6 @@
 package durikkiri.project.controller;
 
+import durikkiri.project.entity.dto.apply.AppliesGetsDto;
 import durikkiri.project.entity.dto.apply.ApplyAddDto;
 import durikkiri.project.entity.dto.apply.ApplyGetDto;
 import durikkiri.project.entity.dto.apply.ApplyPostDto;
@@ -9,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static org.springframework.http.HttpStatus.*;
 
 @RestController
@@ -16,6 +19,13 @@ import static org.springframework.http.HttpStatus.*;
 @RequiredArgsConstructor
 public class ApplyController {
     private final ApplyService applyService;
+
+    @GetMapping
+    public ResponseEntity<List<AppliesGetsDto>> getApplies() {
+        List<AppliesGetsDto> applies = applyService.getApplies();
+        return ResponseEntity.ok(applies);
+    }
+
     @PostMapping("/apply/{postId}")
     public ResponseEntity<String> addApply(@PathVariable Long postId, @RequestBody ApplyAddDto applyAddDto) {
         return new ResponseEntity<>(applyService.addApply(postId, applyAddDto));
