@@ -1,5 +1,6 @@
 package durikkiri.project.entity;
 
+import durikkiri.project.controller.ApplyUpdateDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.http.HttpStatus;
@@ -43,5 +44,9 @@ public class Apply {
             // 추가적인 예외 처리 (예: 로깅)를 여기에 넣을 수 있습니다.
             throw new IllegalArgumentException("apply deadline");
         }
+    }
+
+    public void updateContent(ApplyUpdateDto applyUpdateDto) {
+        this.content = applyUpdateDto.getContent();
     }
 }

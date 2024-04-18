@@ -1,5 +1,6 @@
 package durikkiri.project.service.impl;
 
+import durikkiri.project.controller.ApplyUpdateDto;
 import durikkiri.project.entity.Apply;
 import durikkiri.project.entity.ApplyStatus;
 import durikkiri.project.entity.Post;
@@ -62,5 +63,27 @@ public class ApplyServiceImpl implements ApplyService {
         }else {
             apply.updateStatus(applyStatus);
         }
+    }
+
+    @Override
+    @Transactional
+    public HttpStatus updateApply(Long applyId, ApplyUpdateDto applyUpdateDto) {
+        Optional<Apply> findApply = applyRepository.findById(applyId);
+        if (findApply.isPresent()) {
+            Apply apply = findApply.get();
+            apply.updateContent(applyUpdateDto);
+            return OK;
+        }
+        return NOT_FOUND;
+    }
+
+    @Override
+    public HttpStatus deleteApply(Long applyId) {
+        Optional<Apply> findApply = applyRepository.findById(applyId);
+        if (findApply.isPresent()) {
+            applyRepository.delete(findApply.get());
+            return OK;
+        }
+        return NOT_FOUND;
     }
 }

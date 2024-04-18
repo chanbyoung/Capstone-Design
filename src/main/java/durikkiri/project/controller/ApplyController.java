@@ -1,6 +1,5 @@
 package durikkiri.project.controller;
 
-import durikkiri.project.entity.ApplyStatus;
 import durikkiri.project.entity.dto.apply.ApplyAddDto;
 import durikkiri.project.entity.dto.apply.ApplyGetDto;
 import durikkiri.project.entity.dto.apply.ApplyPostDto;
@@ -39,6 +38,24 @@ public class ApplyController {
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(NOT_FOUND);
         }
+    }
+
+    @PatchMapping("/{applyId}")
+    public ResponseEntity<String> updateApply(@PathVariable Long applyId, @RequestBody ApplyUpdateDto applyUpdateDto) {
+        HttpStatus httpStatus = applyService.updateApply(applyId, applyUpdateDto);
+        if (httpStatus.equals(OK)) {
+            return new ResponseEntity<>(httpStatus);
+        }
+        return new ResponseEntity<>("지원서를 찾을 수 없습니다.", NOT_FOUND);
+    }
+
+    @DeleteMapping("/{applyId}")
+    public ResponseEntity<String> deleteApply(@PathVariable Long applyId) {
+        HttpStatus httpStatus = applyService.deleteApply(applyId);
+        if (httpStatus.equals(OK)) {
+            return new ResponseEntity<>(httpStatus);
+        }
+        return new ResponseEntity<>("지원서를 찾을 수 없습니다.", NOT_FOUND);
     }
 
 }
