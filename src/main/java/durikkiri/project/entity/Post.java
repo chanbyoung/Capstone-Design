@@ -30,6 +30,10 @@ public class Post extends BaseEntity{
 
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Comment> commentList;
+
+    @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Apply> appliesList;
+
     private String title;
     private String content;
     @Enumerated(EnumType.STRING)
