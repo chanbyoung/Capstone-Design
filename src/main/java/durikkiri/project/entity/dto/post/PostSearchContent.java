@@ -1,6 +1,6 @@
 package durikkiri.project.entity.dto.post;
 
-import durikkiri.project.entity.Category;
+import durikkiri.project.entity.post.Category;
 import lombok.Getter;
 import lombok.Setter;
 

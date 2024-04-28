@@ -1,11 +1,9 @@
 package durikkiri.project.entity.dto.post;
 
-import durikkiri.project.entity.Post;
-import durikkiri.project.entity.TechnologyStack;
-import jakarta.validation.constraints.NotBlank;
+import durikkiri.project.entity.post.Post;
+import durikkiri.project.entity.post.TechnologyStack;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.List;
 

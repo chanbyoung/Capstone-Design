@@ -1,12 +1,11 @@
 package durikkiri.project.entity;
 
 import durikkiri.project.controller.ApplyUpdateDto;
+import durikkiri.project.entity.post.Field;
+import durikkiri.project.entity.post.FieldCategory;
+import durikkiri.project.entity.post.Post;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Optional;
 
 import static durikkiri.project.entity.ApplyStatus.*;
 

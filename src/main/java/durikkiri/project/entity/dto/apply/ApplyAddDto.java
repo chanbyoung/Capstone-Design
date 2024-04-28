@@ -1,6 +1,8 @@
 package durikkiri.project.entity.dto.apply;
 
 import durikkiri.project.entity.*;
+import durikkiri.project.entity.post.FieldCategory;
+import durikkiri.project.entity.post.Post;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;

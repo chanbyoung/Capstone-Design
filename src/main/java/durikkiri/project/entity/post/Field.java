@@ -1,6 +1,5 @@
-package durikkiri.project.entity;
+package durikkiri.project.entity.post;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import durikkiri.project.entity.dto.post.FieldUpdateDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

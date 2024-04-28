@@ -1,6 +1,6 @@
 package durikkiri.project.entity.dto.comment;
 
-import durikkiri.project.entity.Comment;
+import durikkiri.project.entity.post.Comment;
 import lombok.Builder;
 import lombok.Getter;
 

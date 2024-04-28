@@ -4,7 +4,7 @@ import durikkiri.project.entity.dto.apply.AppliesGetsDto;
 import durikkiri.project.controller.ApplyUpdateDto;
 import durikkiri.project.entity.Apply;
 import durikkiri.project.entity.ApplyStatus;
-import durikkiri.project.entity.Post;
+import durikkiri.project.entity.post.Post;
 import durikkiri.project.entity.dto.apply.ApplyAddDto;
 import durikkiri.project.repository.ApplyRepository;
 import durikkiri.project.repository.PostRepository;

@@ -1,5 +1,6 @@
-package durikkiri.project.entity;
+package durikkiri.project.entity.post;
 
+import durikkiri.project.entity.BaseEntity;
 import durikkiri.project.entity.dto.comment.CommentDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Comment extends BaseEntity{
+public class Comment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_id")

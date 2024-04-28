@@ -1,8 +1,8 @@
 package durikkiri.project.service.impl;
 
-import durikkiri.project.entity.Category;
-import durikkiri.project.entity.Comment;
-import durikkiri.project.entity.Post;
+import durikkiri.project.entity.post.Category;
+import durikkiri.project.entity.post.Comment;
+import durikkiri.project.entity.post.Post;
 import durikkiri.project.entity.dto.HomeGetDto;
 import durikkiri.project.entity.dto.comment.CommentDto;
 import durikkiri.project.entity.dto.post.*;
