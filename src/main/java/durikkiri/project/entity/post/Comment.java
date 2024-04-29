@@ -1,6 +1,7 @@
 package durikkiri.project.entity.post;
 
 import durikkiri.project.entity.BaseEntity;
+import durikkiri.project.entity.Member;
 import durikkiri.project.entity.dto.comment.CommentDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -21,6 +22,9 @@ public class Comment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
     private String content;
 
     public void updateComment(CommentDto commentDto) {

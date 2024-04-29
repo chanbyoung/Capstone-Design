@@ -22,6 +22,9 @@ public class Apply extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
     @Enumerated(EnumType.STRING)
     private FieldCategory fieldCategory;
     @Enumerated(EnumType.STRING)

@@ -4,6 +4,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Post;
+import durikkiri.project.entity.post.QPost;
 import durikkiri.project.entity.post.RecruitmentStatus;
 import durikkiri.project.entity.dto.post.PostSearchContent;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-import static durikkiri.project.entity.QPost.*;
+import static durikkiri.project.entity.post.QPost.post;
 
 @Repository
 @RequiredArgsConstructor

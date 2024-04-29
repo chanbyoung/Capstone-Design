@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/members")
 @Slf4j
 public class MemberController {
-    private static MemberService memberService;
+    private final MemberService memberService;
 
     @PostMapping("/sign-up")
     public ResponseEntity<String> signUp(@RequestBody SignUpDto signUpDto) {
