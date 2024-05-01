@@ -2,6 +2,9 @@ package durikkiri.project.repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import durikkiri.project.entity.ApplyStatus;
+import durikkiri.project.entity.Member;
+import durikkiri.project.entity.QApply;
 import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.entity.post.QPost;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import static durikkiri.project.entity.QApply.*;
 import static durikkiri.project.entity.post.QPost.post;
 
 @Repository
@@ -64,5 +68,20 @@ public class DslPostRepository {
                 .orderBy(post.likeCount.desc())
                 .limit(5)
                 .fetch();
+    }
+
+    public List<Post> progressProject(Member member) {
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(apply.createdBy.eq(member.getLoginId()));
+        builder.and(apply.applyStatus.eq(ApplyStatus.ACCEPT));
+        builder.and(post.status.eq(RecruitmentStatus.N));
+        List<Post> progressProject = query.select(post)
+                .from(post)
+                .leftJoin(post.appliesList, apply)
+                .fetchJoin()
+                .where(builder)
+                .fetch();
+
+        return progressProject;
     }
 }

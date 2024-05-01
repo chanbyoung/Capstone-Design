@@ -26,14 +26,24 @@ public class MemberController {
 
     @PostMapping("/sign-in")
     public JwtToken signIn(@RequestBody SignInDto signInDto) {
+        log.info("{} {}",signInDto.getLoginId(),signInDto.getPassword());
         JwtToken jwtToken = memberService.signIn(signInDto);
         log.info("jwtToken accessToken = {}, refreshToken = {}", jwtToken.getAccessToken(), jwtToken.getRefreshToken());
         return jwtToken;
     }
 
+    @GetMapping("/{memberId}")
+    public ResponseEntity<MemberGetDto> getMember(@PathVariable Long memberId) {
+        MemberGetDto member = memberService.getMember(memberId);
+        if (member == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(member, HttpStatus.OK);
+    }
+
     @GetMapping("/member")
-    public ResponseEntity<MemberGetDto> getMember() {
-        MemberGetDto member = memberService.getMember();
+    public ResponseEntity<MemberGetDto> getMyInfo() {
+        MemberGetDto member = memberService.getMyInfo();
         if (member == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

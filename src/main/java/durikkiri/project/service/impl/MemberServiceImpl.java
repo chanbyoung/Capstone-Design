@@ -57,9 +57,17 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public MemberGetDto getMember() {
+    public MemberGetDto getMember(Long memberId) {
+        Optional<Member> findMember = memberRepository.findById(memberId);
+
+        return findMember.map(MemberGetDto::toDto).orElse(null);
+    }
+    @Override
+    public MemberGetDto getMyInfo() {
         String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<Member> findMember = memberRepository.findByLoginId(memberLoginId);
         return findMember.map(MemberGetDto::toDto).orElse(null);
     }
+
+
 }

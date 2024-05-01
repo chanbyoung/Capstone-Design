@@ -1,5 +1,6 @@
 package durikkiri.project.entity.dto.post;
 
+import durikkiri.project.entity.Member;
 import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Field;
 import durikkiri.project.entity.post.Post;
@@ -32,10 +33,11 @@ public class PostAddDto {
     private List<FieldAddDto> fieldList= new ArrayList<>();
 
 
-    public Post toEntity() {
+    public Post toEntity(Member member) {
         Post post = Post.builder()
                 .title(title)
                 .category(category)
+                .member(member)
                 .commentList(new ArrayList<>())
                 .technologyStackList(technologyStackList)
                 .fieldList(new ArrayList<>()) // 빈 리스트로 초기화

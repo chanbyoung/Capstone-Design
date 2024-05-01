@@ -1,5 +1,6 @@
 package durikkiri.project.service.impl;
 
+import durikkiri.project.entity.Member;
 import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Comment;
 import durikkiri.project.entity.post.Post;
@@ -7,6 +8,7 @@ import durikkiri.project.entity.dto.HomeGetDto;
 import durikkiri.project.entity.dto.comment.CommentDto;
 import durikkiri.project.entity.dto.post.*;
 import durikkiri.project.repository.CommentRepository;
+import durikkiri.project.repository.MemberRepository;
 import durikkiri.project.repository.PostRepository;
 import durikkiri.project.service.PostService;
 import durikkiri.project.repository.DslPostRepository;
@@ -15,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,17 +34,24 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final DslPostRepository dslPostRepository;
     private final CommentRepository commentRepository;
+    private final MemberRepository memberRepository;
 
 
     @Override
     @Transactional
     public HttpStatus addPost(PostAddDto postAddDto) {
+        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        log.info("{}", memberLoginId);
+        Optional<Member> findMember = memberRepository.findByLoginId(memberLoginId);
+        if (findMember.isEmpty()) {
+            return FORBIDDEN;
+        }
         if (!postAddDto.getCategory().equals(Category.GENERAL)) {
             if (postAddDto.getFieldList().isEmpty()) {
                 return BAD_REQUEST;
             }
         }
-        postRepository.save(postAddDto.toEntity());
+        postRepository.save(postAddDto.toEntity(findMember.get()));
         return OK;
     }
 
