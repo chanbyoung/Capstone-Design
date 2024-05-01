@@ -4,6 +4,8 @@ import durikkiri.project.entity.Member;
 import durikkiri.project.entity.dto.member.MemberGetDto;
 import durikkiri.project.entity.dto.member.SignInDto;
 import durikkiri.project.entity.dto.member.SignUpDto;
+import durikkiri.project.entity.post.Post;
+import durikkiri.project.repository.DslPostRepository;
 import durikkiri.project.repository.MemberRepository;
 import durikkiri.project.security.JwtToken;
 import durikkiri.project.security.JwtTokenProvider;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -26,6 +29,7 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
+    private final DslPostRepository dslPostRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
@@ -59,15 +63,27 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public MemberGetDto getMember(Long memberId) {
         Optional<Member> findMember = memberRepository.findById(memberId);
-
-        return findMember.map(MemberGetDto::toDto).orElse(null);
+        if (findMember.isPresent()) {
+            Member member = findMember.get();
+            List<Post> progressProject = dslPostRepository.progressProject(member);
+            List<Post> recruitingProject = dslPostRepository.myRecruitingProject(member);
+            return MemberGetDto.toDto(member, progressProject, recruitingProject);
+        }
+        return null;
     }
     @Override
     public MemberGetDto getMyInfo() {
         String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<Member> findMember = memberRepository.findByLoginId(memberLoginId);
-        return findMember.map(MemberGetDto::toDto).orElse(null);
+        if (findMember.isPresent()) {
+            Member member = findMember.get();
+            List<Post> progressProject = dslPostRepository.progressProject(member);
+            List<Post> recruitingProject = dslPostRepository.myRecruitingProject(member);
+            return MemberGetDto.toDto(member, progressProject,recruitingProject);
+        }
+        return null;
     }
+
 
 
 }

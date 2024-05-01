@@ -5,6 +5,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import durikkiri.project.entity.ApplyStatus;
 import durikkiri.project.entity.Member;
 import durikkiri.project.entity.QApply;
+import durikkiri.project.entity.QMember;
 import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.entity.post.QPost;
@@ -69,19 +70,34 @@ public class DslPostRepository {
                 .limit(5)
                 .fetch();
     }
-
+    //마이페이지에서 현재 진행중인 프로젝트/스터디를 찾는 로직
     public List<Post> progressProject(Member member) {
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(apply.createdBy.eq(member.getLoginId()));
-        builder.and(apply.applyStatus.eq(ApplyStatus.ACCEPT));
-        builder.and(post.status.eq(RecruitmentStatus.N));
-        List<Post> progressProject = query.select(post)
+        addCondition(member, builder);
+
+        return query.select(post)
                 .from(post)
                 .leftJoin(post.appliesList, apply)
                 .fetchJoin()
                 .where(builder)
                 .fetch();
+    }
 
-        return progressProject;
+    private static void addCondition(Member member, BooleanBuilder builder) {
+        builder.and(apply.createdBy.eq(member.getLoginId()));
+        builder.and(apply.applyStatus.eq(ApplyStatus.ACCEPT));
+        builder.and(post.status.eq(RecruitmentStatus.N));
+    }
+
+    public List<Post> myRecruitingProject(Member member) {
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(post.member.eq(member));
+        builder.and(post.status.eq(RecruitmentStatus.Y));
+        return query.select(post)
+                .from(post)
+                .leftJoin(post.member, QMember.member)
+                .fetchJoin()
+                .where(builder)
+                .fetch();
     }
 }
