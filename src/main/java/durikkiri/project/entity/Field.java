@@ -29,7 +29,7 @@ public class Field {
     }
 
     public void updateCurrentRecruitment() {
-        if (currentRecruitment + 1 != totalRecruitment) {
+        if (currentRecruitment + 1 <= totalRecruitment) {
             currentRecruitment++;
         } else {
             throw new IllegalArgumentException();

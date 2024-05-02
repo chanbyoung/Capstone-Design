@@ -57,6 +57,7 @@ public class PostServiceImpl implements PostService {
             if (flag) {
                 post.updateViewCount();
             }
+            post.updateStatus();
             return PostGetDto.toDto(post);
         }).orElse(null);
     }
