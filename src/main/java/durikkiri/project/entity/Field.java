@@ -25,6 +25,9 @@ public class Field {
     private int totalRecruitment;
 
     public void updateField(FieldUpdateDto fieldUpdateDto) {
+        if (fieldUpdateDto.getTotalRecruitment() < currentRecruitment) {
+            throw new IllegalArgumentException();
+        }
         this.totalRecruitment = fieldUpdateDto.getTotalRecruitment();
     }
 
