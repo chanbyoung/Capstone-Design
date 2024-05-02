@@ -24,12 +24,5 @@ public class Member {
     private String password;
     private String email;
     private String major;
-    @OneToMany(mappedBy = "member", orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<Post> postList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<Comment> commentList = new ArrayList<>();
-
-    @OneToMany(mappedBy = "member", orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<Apply> appliesList = new ArrayList<>();
 }
