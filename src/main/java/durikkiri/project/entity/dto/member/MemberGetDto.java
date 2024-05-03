@@ -18,14 +18,17 @@ public class MemberGetDto {
     private String nickname;
     private List<PostsGetDto> progressProject;
     private List<PostsGetDto> recruitingProject;
+    private List<PostsGetDto> myApplyProject;
 
-    static public MemberGetDto toDto(Member member, List<Post> progressProject,List<Post> recruitingProject) {
+    static public MemberGetDto toDto(Member member,
+                                     List<Post> progressProject,List<Post> recruitingProject, List<Post> myApplyProject) {
         return MemberGetDto.builder()
                 .id(member.getId())
                 .username(member.getUsername())
                 .nickname(member.getNickname())
                 .progressProject(postToDto(progressProject))
                 .recruitingProject(postToDto(recruitingProject))
+                .myApplyProject(postToDto(myApplyProject))
                 .build();
     }
     private static List<PostsGetDto> postToDto(List<Post> progressProject) {

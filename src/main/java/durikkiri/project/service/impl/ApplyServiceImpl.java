@@ -1,5 +1,6 @@
 package durikkiri.project.service.impl;
 
+import durikkiri.project.entity.Member;
 import durikkiri.project.entity.dto.apply.AppliesGetsDto;
 import durikkiri.project.controller.ApplyUpdateDto;
 import durikkiri.project.entity.Apply;
@@ -7,11 +8,13 @@ import durikkiri.project.entity.ApplyStatus;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.entity.dto.apply.ApplyAddDto;
 import durikkiri.project.repository.ApplyRepository;
+import durikkiri.project.repository.MemberRepository;
 import durikkiri.project.repository.PostRepository;
 import durikkiri.project.entity.dto.apply.ApplyGetDto;
 import durikkiri.project.service.ApplyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +29,7 @@ import static org.springframework.http.HttpStatus.*;
 @RequiredArgsConstructor
 public class ApplyServiceImpl implements ApplyService {
     private final ApplyRepository applyRepository;
+    private final MemberRepository memberRepository;
     private final PostRepository postRepository;
 
 
@@ -37,9 +41,12 @@ public class ApplyServiceImpl implements ApplyService {
     @Override
     @Transactional
     public HttpStatus addApply(Long postId, ApplyAddDto applyAddDto) {
+        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<Member> findMember = memberRepository.findByLoginId(memberLoginId);
+
         Optional<Post> findPost = postRepository.findPostWithField(postId);
-        if (findPost.isPresent()) {
-            Apply apply = applyAddDto.toEntity(findPost.get());
+        if (findPost.isPresent() && findMember.isPresent()) {
+            Apply apply = applyAddDto.toEntity(findPost.get(), findMember.get());
             if (apply != null) {
                 applyRepository.save(apply);
                 return OK;

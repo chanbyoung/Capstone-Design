@@ -18,7 +18,7 @@ public class SignUpDto {
     private String password;
     private String email;
     private String major;
-    private List<String> roles = new ArrayList<>();
+    private List<String> roles;
 
     public Member toEntity(String encodedPassword, List<String> roles) {
         return Member.builder()

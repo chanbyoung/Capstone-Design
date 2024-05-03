@@ -67,7 +67,7 @@ public class MemberServiceImpl implements MemberService {
             Member member = findMember.get();
             List<Post> progressProject = dslPostRepository.progressProject(member);
             List<Post> recruitingProject = dslPostRepository.myRecruitingProject(member);
-            return MemberGetDto.toDto(member, progressProject, recruitingProject);
+            return MemberGetDto.toDto(member, progressProject, recruitingProject,null);
         }
         return null;
     }
@@ -77,9 +77,13 @@ public class MemberServiceImpl implements MemberService {
         Optional<Member> findMember = memberRepository.findByLoginId(memberLoginId);
         if (findMember.isPresent()) {
             Member member = findMember.get();
+            //진행중인 프로젝트
             List<Post> progressProject = dslPostRepository.progressProject(member);
+            //내가 구인하는 프로젝트
             List<Post> recruitingProject = dslPostRepository.myRecruitingProject(member);
-            return MemberGetDto.toDto(member, progressProject,recruitingProject);
+            //내가 지원한 프로젝트
+            List<Post> myApplyProject = dslPostRepository.myApplyProject(member);
+            return MemberGetDto.toDto(member, progressProject,recruitingProject,myApplyProject);
         }
         return null;
     }
