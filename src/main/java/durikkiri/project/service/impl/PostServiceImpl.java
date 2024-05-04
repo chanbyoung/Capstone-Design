@@ -10,6 +10,8 @@ import durikkiri.project.repository.CommentRepository;
 import durikkiri.project.repository.PostRepository;
 import durikkiri.project.service.PostService;
 import durikkiri.project.repository.DslPostRepository;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -31,6 +34,7 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final DslPostRepository dslPostRepository;
     private final CommentRepository commentRepository;
+    private final Validator validator;
 
 
     @Override
@@ -39,6 +43,13 @@ public class PostServiceImpl implements PostService {
         if (!postAddDto.getCategory().equals(Category.GENERAL)) {
             if (postAddDto.getFieldList().isEmpty()) {
                 return BAD_REQUEST;
+            }
+            for (FieldAddDto fieldAddDto : postAddDto.getFieldList()) {
+                Set<ConstraintViolation<FieldAddDto>> violations = validator.validate(fieldAddDto);
+                if (!violations.isEmpty()) {
+                    // If any violations are found, return BAD_REQUEST
+                    return HttpStatus.BAD_REQUEST;
+                }
             }
         }
         postRepository.save(postAddDto.toEntity());
@@ -53,13 +64,15 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public PostGetDto getPost(Long postId, boolean flag) {
-        return postRepository.findPostWithField(postId).map(post -> {
-            if (flag) {
-                post.updateViewCount();
-            }
-            post.updateStatus();
-            return PostGetDto.toDto(post);
-        }).orElse(null);
+        return postRepository.findPostWithField(postId)
+                .map(post -> {
+                    if (flag) {
+                        post.updateViewCount();
+                    }
+                    post.updateStatus();
+                    return PostGetDto.toDto(post);
+                })
+                .orElse(null);
     }
 
     @Override

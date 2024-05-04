@@ -8,6 +8,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.Optional;
 
 public interface PostRepository extends JpaRepository<Post,Long> {
-    @Query("select p from Post  p join fetch p.fieldList where p.id = :id")
+    @Query("select p from Post p left join fetch p.fieldList where p.id = :id")
     Optional<Post> findPostWithField(@Param("id") Long id);
 }
