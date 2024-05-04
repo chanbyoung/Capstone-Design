@@ -1,6 +1,7 @@
 package durikkiri.project.controller;
 
 import durikkiri.project.entity.dto.member.MemberGetDto;
+import durikkiri.project.entity.dto.member.MemberUpdateDto;
 import durikkiri.project.entity.dto.member.SignInDto;
 import durikkiri.project.entity.dto.member.SignUpDto;
 import durikkiri.project.security.JwtToken;
@@ -48,5 +49,15 @@ public class MemberController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(member, HttpStatus.OK);
+    }
+
+    @PatchMapping("/member")
+    public ResponseEntity<String> updateMember(@RequestBody MemberUpdateDto memberUpdateDto) {
+        return new ResponseEntity<>(memberService.updateMember(memberUpdateDto));
+    }
+
+    @DeleteMapping("/member")
+    public ResponseEntity<String> deleteMember() {
+        return new ResponseEntity<>(memberService.deleteMember());
     }
 }

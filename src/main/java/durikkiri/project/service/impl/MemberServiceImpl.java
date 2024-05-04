@@ -2,6 +2,7 @@ package durikkiri.project.service.impl;
 
 import durikkiri.project.entity.Member;
 import durikkiri.project.entity.dto.member.MemberGetDto;
+import durikkiri.project.entity.dto.member.MemberUpdateDto;
 import durikkiri.project.entity.dto.member.SignInDto;
 import durikkiri.project.entity.dto.member.SignUpDto;
 import durikkiri.project.entity.post.Post;
@@ -88,6 +89,26 @@ public class MemberServiceImpl implements MemberService {
         return null;
     }
 
+    @Override
+    @Transactional
+    public HttpStatus updateMember(MemberUpdateDto memberUpdateDto) {
+        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<Member> findMember = memberRepository.findByLoginId(memberLoginId);
+        if (findMember.isPresent()) {
+            findMember.get().updateMember(memberUpdateDto);
+            return HttpStatus.OK;
+        }
+        return HttpStatus.NOT_FOUND;
+    }
 
-
+    @Override
+    public HttpStatus deleteMember() {
+        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<Member> findMember = memberRepository.findByLoginId(memberLoginId);
+        if (findMember.isPresent()) {
+            memberRepository.delete(findMember.get());
+            return HttpStatus.OK;
+        }
+        return HttpStatus.NOT_FOUND;
+    }
 }

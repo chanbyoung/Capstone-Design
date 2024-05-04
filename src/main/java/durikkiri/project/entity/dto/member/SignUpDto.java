@@ -1,6 +1,7 @@
 package durikkiri.project.entity.dto.member;
 
 import durikkiri.project.entity.Member;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,11 +13,17 @@ import java.util.List;
 @Getter
 @Builder
 public class SignUpDto {
+    @NotBlank
     private String username;
+    @NotBlank
     private String nickname;
+    @NotBlank
     private String loginId;
+    @NotBlank
     private String password;
+    @NotBlank
     private String email;
+    @NotBlank
     private String major;
     private List<String> roles;
 

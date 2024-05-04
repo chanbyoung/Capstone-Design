@@ -1,5 +1,6 @@
 package durikkiri.project.entity;
 
+import durikkiri.project.entity.dto.member.MemberUpdateDto;
 import durikkiri.project.entity.post.Comment;
 import durikkiri.project.entity.post.Post;
 import jakarta.persistence.*;
@@ -69,5 +70,11 @@ public class Member implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public void updateMember(MemberUpdateDto memberUpdateDto) {
+        this.nickname = memberUpdateDto.getNickname();
+        this.major = memberUpdateDto.getMajor();
+        this.content = memberUpdateDto.getContent();
     }
 }

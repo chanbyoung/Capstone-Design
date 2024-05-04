@@ -6,10 +6,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SignInDto {
+public class MemberUpdateDto {
     @NotBlank
-    private String loginId;
+    private String nickname;
     @NotBlank
-    private String password;
-
+    private String major;
+    private String content;
 }
