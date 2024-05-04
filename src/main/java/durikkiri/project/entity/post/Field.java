@@ -24,11 +24,14 @@ public class Field {
     private int totalRecruitment;
 
     public void updateField(FieldUpdateDto fieldUpdateDto) {
+        if (fieldUpdateDto.getTotalRecruitment() < currentRecruitment) {
+            throw new IllegalArgumentException();
+        }
         this.totalRecruitment = fieldUpdateDto.getTotalRecruitment();
     }
 
     public void updateCurrentRecruitment() {
-        if (currentRecruitment + 1 != totalRecruitment) {
+        if (currentRecruitment + 1 <= totalRecruitment) {
             currentRecruitment++;
         } else {
             throw new IllegalArgumentException();

@@ -13,6 +13,7 @@ import durikkiri.project.repository.PostRepository;
 import durikkiri.project.entity.dto.apply.ApplyGetDto;
 import durikkiri.project.service.ApplyService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ import static org.springframework.http.HttpStatus.*;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
+@Slf4j
 public class ApplyServiceImpl implements ApplyService {
     private final ApplyRepository applyRepository;
     private final MemberRepository memberRepository;
@@ -56,6 +58,7 @@ public class ApplyServiceImpl implements ApplyService {
     }
 
     @Override
+    @Transactional
     public ApplyGetDto getApply(Long applyId) {
         Optional<Apply> findApply = applyRepository.findById(applyId);
         if (findApply.isPresent()) {
@@ -73,8 +76,10 @@ public class ApplyServiceImpl implements ApplyService {
     public void acceptApply(Long applyId, ApplyStatus applyStatus) {
         Apply apply = applyRepository.findApplyWithPost(applyId)
                 .orElseThrow(() -> new IllegalArgumentException("Apply not found"));
+        log.info("{}", apply.toString());
         if (applyStatus.equals(ACCEPT)) {
             apply.postFieldUpdate();
+            apply.getPost().updateStatus();
         }else {
             apply.updateStatus(applyStatus);
         }

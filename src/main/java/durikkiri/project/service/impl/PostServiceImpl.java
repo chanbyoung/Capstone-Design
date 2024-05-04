@@ -1,17 +1,18 @@
 package durikkiri.project.service.impl;
-
 import durikkiri.project.entity.Member;
-import durikkiri.project.entity.post.Category;
-import durikkiri.project.entity.post.Comment;
-import durikkiri.project.entity.post.Post;
 import durikkiri.project.entity.dto.HomeGetDto;
 import durikkiri.project.entity.dto.comment.CommentDto;
 import durikkiri.project.entity.dto.post.*;
+import durikkiri.project.entity.post.Category;
+import durikkiri.project.entity.post.Comment;
+import durikkiri.project.entity.post.Post;
 import durikkiri.project.repository.CommentRepository;
 import durikkiri.project.repository.MemberRepository;
 import durikkiri.project.repository.PostRepository;
 import durikkiri.project.service.PostService;
 import durikkiri.project.repository.DslPostRepository;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -35,20 +37,25 @@ public class PostServiceImpl implements PostService {
     private final DslPostRepository dslPostRepository;
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
+    private final Validator validator;
 
 
     @Override
     @Transactional
     public HttpStatus addPost(PostAddDto postAddDto) {
         String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-        log.info("{}", memberLoginId);
         Optional<Member> findMember = memberRepository.findByLoginId(memberLoginId);
-        if (findMember.isEmpty()) {
-            return FORBIDDEN;
-        }
+
         if (!postAddDto.getCategory().equals(Category.GENERAL)) {
             if (postAddDto.getFieldList().isEmpty()) {
                 return BAD_REQUEST;
+            }
+            for (FieldAddDto fieldAddDto : postAddDto.getFieldList()) {
+                Set<ConstraintViolation<FieldAddDto>> violations = validator.validate(fieldAddDto);
+                if (!violations.isEmpty()) {
+                    // If any violations are found, return BAD_REQUEST
+                    return HttpStatus.BAD_REQUEST;
+                }
             }
         }
         postRepository.save(postAddDto.toEntity(findMember.get()));
@@ -63,12 +70,15 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public PostGetDto getPost(Long postId, boolean flag) {
-        return postRepository.findPostWithField(postId).map(post -> {
-            if (flag) {
-                post.updateViewCount();
-            }
-            return PostGetDto.toDto(post);
-        }).orElse(null);
+        return postRepository.findPostWithField(postId)
+                .map(post -> {
+                    if (flag) {
+                        post.updateViewCount();
+                    }
+                    post.updateStatus();
+                    return PostGetDto.toDto(post);
+                })
+                .orElse(null);
     }
 
     @Override
@@ -76,10 +86,14 @@ public class PostServiceImpl implements PostService {
     public HttpStatus updatePost(Long postId, PostUpdateDto postUpdateDto) {
         Optional<Post> findPost = postRepository.findPostWithField(postId);
         if (findPost.isPresent()) {
-            findPost.get().updatePost(postUpdateDto);
-            return OK;
+            try {
+                findPost.get().updatePost(postUpdateDto);
+                return OK;
+            } catch (IllegalArgumentException e) {
+                return BAD_REQUEST;
+            }
         }
-        return BAD_REQUEST;
+        return NOT_FOUND;
     }
 
     @Override

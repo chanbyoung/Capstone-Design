@@ -48,6 +48,17 @@ public class Apply extends BaseEntity {
         }
     }
 
+    @Override
+    public String toString() {
+        return "Apply{" +
+                "id=" + id +
+                ", content='" + content + '\'' +
+                ", post=" + post +
+                ", fieldCategory=" + fieldCategory +
+                ", applyStatus=" + applyStatus +
+                '}';
+    }
+
     public void updateContent(ApplyUpdateDto applyUpdateDto) {
         this.content = applyUpdateDto.getContent();
     }

@@ -84,4 +84,17 @@ public class Post extends BaseEntity {
     public void updateComment(Comment comment) {
         this.commentList.add(comment);
     }
+
+    public void updateStatus() {
+        boolean allBalanced = this.fieldList.stream()
+                .allMatch(field ->
+                        field.getCurrentRecruitment() == field.getTotalRecruitment());
+        if (allBalanced) {
+            // 모든 field의 currentRecruitment와 totalRecruitment가 같은 경우
+            // Post 엔티티 업데이트 로직 실행
+            this.status = RecruitmentStatus.N;
+        } else {
+            this.status = RecruitmentStatus.Y;
+        }
+    }
 }
