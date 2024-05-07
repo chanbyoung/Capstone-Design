@@ -45,7 +45,9 @@ public class PostServiceImpl implements PostService {
     public HttpStatus addPost(PostAddDto postAddDto) {
         String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<Member> findMember = memberRepository.findByLoginId(memberLoginId);
-
+        if (findMember.isEmpty()) {
+            return FORBIDDEN;
+        }
         if (!postAddDto.getCategory().equals(Category.GENERAL)) {
             if (postAddDto.getFieldList().isEmpty()) {
                 return BAD_REQUEST;
