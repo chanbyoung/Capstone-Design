@@ -111,4 +111,14 @@ public class MemberServiceImpl implements MemberService {
         }
         return HttpStatus.NOT_FOUND;
     }
+
+    @Override
+    public Boolean checkLoginIdDuplicate(String loginId) {
+        return memberRepository.existsByLoginId(loginId);
+    }
+
+    @Override
+    public Boolean checkNicknameDuplicate(String nickname) {
+        return memberRepository.existsByNickname(nickname);
+    }
 }

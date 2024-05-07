@@ -19,4 +19,10 @@ public interface MemberService {
     HttpStatus updateMember(MemberUpdateDto memberUpdateDto);
 
     HttpStatus deleteMember();
+
+    Boolean checkLoginIdDuplicate(String loginId);
+
+    Boolean checkNicknameDuplicate(String nickname);
+
+
 }

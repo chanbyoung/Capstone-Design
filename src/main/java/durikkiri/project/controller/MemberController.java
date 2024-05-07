@@ -25,9 +25,19 @@ public class MemberController {
         return new ResponseEntity<>(httpStatus);
     }
 
+    @GetMapping("/exists/{loginId}")
+    public ResponseEntity<Boolean> checkLoginIdDuplicate(@PathVariable String loginId) {
+        return ResponseEntity.ok(memberService.checkLoginIdDuplicate(loginId));
+    }
+
+    @GetMapping("/exists/{nickname}")
+    public ResponseEntity<Boolean> checkNicknameDuplicate(@PathVariable String nickname) {
+        return ResponseEntity.ok(memberService.checkNicknameDuplicate(nickname));
+    }
+
     @PostMapping("/sign-in")
     public JwtToken signIn(@RequestBody SignInDto signInDto) {
-        log.info("{} {}",signInDto.getLoginId(),signInDto.getPassword());
+        log.info("{} {}", signInDto.getLoginId(), signInDto.getPassword());
         JwtToken jwtToken = memberService.signIn(signInDto);
         log.info("jwtToken accessToken = {}, refreshToken = {}", jwtToken.getAccessToken(), jwtToken.getRefreshToken());
         return jwtToken;
