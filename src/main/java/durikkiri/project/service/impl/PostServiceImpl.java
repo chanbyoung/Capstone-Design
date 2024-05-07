@@ -84,10 +84,16 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public HttpStatus updatePost(Long postId, PostUpdateDto postUpdateDto) {
+        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+
         Optional<Post> findPost = postRepository.findPostWithField(postId);
         if (findPost.isPresent()) {
+            Post post = findPost.get();
+            if (!post.getCreatedBy().equals(memberLoginId)) {
+                return FORBIDDEN;
+            }
             try {
-                findPost.get().updatePost(postUpdateDto);
+                post.updatePost(postUpdateDto);
                 return OK;
             } catch (IllegalArgumentException e) {
                 return BAD_REQUEST;
@@ -99,9 +105,13 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public HttpStatus deletePost(Long postId) {
+        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
         Optional<Post> findPost = postRepository.findById(postId);
         if (findPost.isPresent()) {
             Post post = findPost.get();
+            if (!post.getCreatedBy().equals(memberLoginId)) {
+                return FORBIDDEN;
+            }
             postRepository.delete(post);
             return OK;
         }
