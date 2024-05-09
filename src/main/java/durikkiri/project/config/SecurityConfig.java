@@ -37,6 +37,8 @@ public class SecurityConfig {
                         authorizationManagerRequestMatcherRegistry
                                 .requestMatchers("/api/members/sign-up").permitAll()
                                 .requestMatchers("/api/members/sign-in").permitAll()
+                                .requestMatchers("/api").permitAll()
+                                .requestMatchers("/api/posts/**").permitAll()
                                 .requestMatchers("/api/members/test").hasRole("USER")
                                 .anyRequest().authenticated())
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class).build();

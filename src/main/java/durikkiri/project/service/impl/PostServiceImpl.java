@@ -47,6 +47,7 @@ public class PostServiceImpl implements PostService {
         Optional<Member> findMember = memberRepository.findByLoginId(memberLoginId);
         if (findMember.isEmpty()) {
             return FORBIDDEN;
+            //나중에 notfound로 변경해야됨
         }
         if (!postAddDto.getCategory().equals(Category.GENERAL)) {
             if (postAddDto.getFieldList().isEmpty()) {
