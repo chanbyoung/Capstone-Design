@@ -9,4 +9,9 @@ import lombok.Setter;
 public class PostSearchContent {
     private Category category;
     private String title;
+
+    public PostSearchContent(Category category, String title) {
+        this.category = category;
+        this.title = title;
+    }
 }

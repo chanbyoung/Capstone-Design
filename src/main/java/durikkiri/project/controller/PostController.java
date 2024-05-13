@@ -1,5 +1,6 @@
 package durikkiri.project.controller;
 
+import durikkiri.project.entity.Category;
 import durikkiri.project.entity.dto.comment.CommentDto;
 import durikkiri.project.entity.dto.post.*;
 import durikkiri.project.service.PostService;
@@ -27,8 +28,11 @@ public class PostController {
     private static final int COOKIE_EXPIRE_SECONDS = 24 * 60 * 60; // 24시간
 
     @GetMapping
-    public ResponseEntity<Page<PostsGetDto>> getPosts(@PageableDefault Pageable pageable, @RequestBody(required = false) PostSearchContent postSearchContent) {
-        Page<PostsGetDto> posts = postService.getPosts(pageable, postSearchContent);
+    public ResponseEntity<Page<PostsGetDto>> getPosts(@PageableDefault Pageable pageable,
+                                                      @RequestParam(required = false) Category category,
+                                                      @RequestParam(required = false) String title) {
+        log.info("category = {}", category);
+        Page<PostsGetDto> posts = postService.getPosts(pageable, new PostSearchContent(category,title));
         return ResponseEntity.ok(posts);
     }
 
