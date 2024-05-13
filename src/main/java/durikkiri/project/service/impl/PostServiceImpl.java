@@ -2,11 +2,13 @@ package durikkiri.project.service.impl;
 
 import durikkiri.project.entity.Category;
 import durikkiri.project.entity.Comment;
+import durikkiri.project.entity.Image;
 import durikkiri.project.entity.Post;
 import durikkiri.project.entity.dto.HomeGetDto;
 import durikkiri.project.entity.dto.comment.CommentDto;
 import durikkiri.project.entity.dto.post.*;
 import durikkiri.project.repository.CommentRepository;
+import durikkiri.project.repository.ImageRepository;
 import durikkiri.project.repository.PostRepository;
 import durikkiri.project.service.PostService;
 import durikkiri.project.repository.DslPostRepository;
@@ -14,12 +16,16 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -32,14 +38,29 @@ import static org.springframework.http.HttpStatus.*;
 @Slf4j
 public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
+    private final ImageRepository imageRepository;
     private final DslPostRepository dslPostRepository;
     private final CommentRepository commentRepository;
     private final Validator validator;
+    @Value("${file.dir}")
+    private String fileDir;
 
 
     @Override
     @Transactional
-    public HttpStatus addPost(PostAddDto postAddDto) {
+    public HttpStatus addPost(PostAddDto postAddDto, MultipartFile image) throws IOException {
+        HttpStatus badRequest = checkFieldValid(postAddDto);
+        if (badRequest != null) return badRequest;
+        Post savePost = postRepository.save(postAddDto.toEntity());
+        if (image != null) {
+            Image saveImage = imageRepository.save(Image.toEntity(image, fileDir, savePost));
+            log.info("파일 저장 fullPath = {}", saveImage.getFullPath());
+            image.transferTo(new File(saveImage.getFullPath()));
+        }
+        return OK;
+    }
+
+    private HttpStatus checkFieldValid(PostAddDto postAddDto) {
         if (!postAddDto.getCategory().equals(Category.GENERAL)) {
             if (postAddDto.getFieldList().isEmpty()) {
                 return BAD_REQUEST;
@@ -52,8 +73,7 @@ public class PostServiceImpl implements PostService {
                 }
             }
         }
-        postRepository.save(postAddDto.toEntity());
-        return OK;
+        return null;
     }
 
     @Override

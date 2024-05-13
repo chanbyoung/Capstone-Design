@@ -4,7 +4,7 @@ spring:
     include: my
   jpa:
     hibernate:
-       ddl-auto: update
+       ddl-auto: create
     properties:
       hibernate:
         default_batch_fetch_size: 100
@@ -13,3 +13,6 @@ spring:
 logging.level:
   org.hibernate.SQL: debug
 #  org.springframework.web: TRACE
+
+file:
+  dir: /Users/bagchanbyeong/Documents/File/
