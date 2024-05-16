@@ -10,6 +10,11 @@ spring:
         default_batch_fetch_size: 100
         # show_sql: true
         format_sql: true
+  mvc:
+    static-path-pattern: /images/**
 logging.level:
   org.hibernate.SQL: debug
 #  org.springframework.web: TRACE
+
+file:
+  dir: /Users/bagchanbyeong/Documents/File/

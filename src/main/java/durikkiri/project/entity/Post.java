@@ -34,6 +34,9 @@ public class Post extends BaseEntity{
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Apply> appliesList;
 
+    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Image image;
+
     private String title;
     private String content;
     @Enumerated(EnumType.STRING)

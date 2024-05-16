@@ -1,7 +1,7 @@
 package durikkiri.project.service.impl;
 
 import durikkiri.project.entity.dto.apply.AppliesGetsDto;
-import durikkiri.project.controller.ApplyUpdateDto;
+import durikkiri.project.entity.dto.apply.ApplyUpdateDto;
 import durikkiri.project.entity.Apply;
 import durikkiri.project.entity.ApplyStatus;
 import durikkiri.project.entity.Post;

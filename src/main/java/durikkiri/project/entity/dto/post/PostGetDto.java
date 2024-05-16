@@ -1,6 +1,7 @@
 package durikkiri.project.entity.dto.post;
 
 import durikkiri.project.entity.Field;
+import durikkiri.project.entity.Image;
 import durikkiri.project.entity.Post;
 import durikkiri.project.entity.TechnologyStack;
 import durikkiri.project.entity.dto.comment.CommentGetDto;
@@ -9,6 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Getter
@@ -22,6 +24,7 @@ public class PostGetDto {
     private List<TechnologyStack> technologyStackList;
     private List<CommentGetDto> commentList;
     private List<FieldGetDto> fieldList;
+    private ImageGetDto image; //이미지의 URL이 저장된필드
     private Long viewCount;
     private Long likeCount;
 
@@ -35,6 +38,8 @@ public class PostGetDto {
                 .map(CommentGetDto::toDto)
                 .toList();
 
+
+
         return PostGetDto.builder()
                 .title(post.getTitle())
                 .category(post.getCategory().getValue())
@@ -42,6 +47,7 @@ public class PostGetDto {
                 .technologyStackList(post.getTechnologyStackList())
                 .commentList(commentGetDtoList)
                 .fieldList(fieldGetDtoList) // 변환된 FieldGetDto 리스트 설정
+                .image(Optional.ofNullable(post.getImage()).map(ImageGetDto::toDto).orElse(null))
                 .viewCount(post.getViewCount())
                 .likeCount(post.getLikeCount())
                 .build();

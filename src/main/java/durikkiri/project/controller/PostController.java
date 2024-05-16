@@ -16,6 +16,9 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,8 +40,9 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<String> addPost(@Valid @RequestBody PostAddDto postAddDto) {
-        return new ResponseEntity<>(postService.addPost(postAddDto));
+    public ResponseEntity<String> addPost(@Valid @RequestPart(value = "json") PostAddDto postAddDto,
+                                          @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
+        return new ResponseEntity<>(postService.addPost(postAddDto, image));
     }
 
     @GetMapping("/{postId}")
@@ -76,8 +80,10 @@ public class PostController {
     }
 
     @PatchMapping("/{postId}")
-    public ResponseEntity<String> updatePost(@RequestBody PostUpdateDto postUpdateDto, @PathVariable Long postId) {
-        return new ResponseEntity<>(postService.updatePost(postId, postUpdateDto));
+    public ResponseEntity<String> updatePost(@RequestPart(value = "json") PostUpdateDto postUpdateDto,
+                                             @RequestPart(value = "image", required = false) MultipartFile image,
+                                             @PathVariable Long postId) {
+        return new ResponseEntity<>(postService.updatePost(postId, image, postUpdateDto));
     }
 
     @DeleteMapping("/{postId}")
