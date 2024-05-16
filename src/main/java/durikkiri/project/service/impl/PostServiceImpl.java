@@ -116,11 +116,7 @@ public class PostServiceImpl implements PostService {
         if (image != null) {
             if (post.getImage() != null) {
                 Image existingImage = post.getImage();
-                String existingImagePath = existingImage.getFullPath();
-                File existingImageFile = new File(existingImagePath);
-                if (existingImageFile.exists()) {
-                    existingImageFile.delete();
-                }
+                deleteImage(existingImage);
                 Image newImage = Image.toEntity(image, fileDir, post);
                 existingImage.updateImage(newImage);
                 image.transferTo(new File(newImage.getFullPath()));
@@ -139,10 +135,19 @@ public class PostServiceImpl implements PostService {
         Optional<Post> findPost = postRepository.findById(postId);
         if (findPost.isPresent()) {
             Post post = findPost.get();
+            deleteImage(post.getImage());
             postRepository.delete(post);
             return OK;
         }
         return NOT_FOUND;
+    }
+
+    private static void deleteImage(Image post) {
+        String existingImagePath = post.getFullPath();
+        File existingImageFile = new File(existingImagePath);
+        if (existingImageFile.exists()) {
+            existingImageFile.delete();
+        }
     }
 
     @Override
