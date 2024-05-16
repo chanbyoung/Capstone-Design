@@ -2,6 +2,7 @@ package durikkiri.project.controller;
 
 import durikkiri.project.entity.dto.comment.CommentDto;
 import durikkiri.project.entity.dto.post.*;
+import durikkiri.project.entity.post.Category;
 import durikkiri.project.service.PostService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,6 +16,9 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,14 +31,18 @@ public class PostController {
     private static final int COOKIE_EXPIRE_SECONDS = 24 * 60 * 60; // 24시간
 
     @GetMapping
-    public ResponseEntity<Page<PostsGetDto>> getPosts(@PageableDefault Pageable pageable, @RequestBody(required = false) PostSearchContent postSearchContent) {
-        Page<PostsGetDto> posts = postService.getPosts(pageable, postSearchContent);
+    public ResponseEntity<Page<PostsGetDto>> getPosts(@PageableDefault Pageable pageable,
+                                                      @RequestParam(required = false) Category category,
+                                                      @RequestParam(required = false) String title) {
+        log.info("category = {}", category);
+        Page<PostsGetDto> posts = postService.getPosts(pageable, new PostSearchContent(category,title));
         return ResponseEntity.ok(posts);
     }
 
     @PostMapping
-    public ResponseEntity<String> addPost(@Valid @RequestBody PostAddDto postAddDto) {
-        return new ResponseEntity<>(postService.addPost(postAddDto));
+    public ResponseEntity<String> addPost(@Valid @RequestPart(value = "json") PostAddDto postAddDto,
+                                          @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
+        return new ResponseEntity<>(postService.addPost(postAddDto, image));
     }
 
     @GetMapping("/{postId}")
@@ -72,8 +80,10 @@ public class PostController {
     }
 
     @PatchMapping("/{postId}")
-    public ResponseEntity<String> updatePost(@RequestBody PostUpdateDto postUpdateDto, @PathVariable Long postId) {
-        return new ResponseEntity<>(postService.updatePost(postId, postUpdateDto));
+    public ResponseEntity<String> updatePost(@RequestPart(value = "json") PostUpdateDto postUpdateDto,
+                                             @RequestPart(value = "image", required = false) MultipartFile image,
+                                             @PathVariable Long postId) {
+        return new ResponseEntity<>(postService.updatePost(postId, image, postUpdateDto));
     }
 
     @DeleteMapping("/{postId}")

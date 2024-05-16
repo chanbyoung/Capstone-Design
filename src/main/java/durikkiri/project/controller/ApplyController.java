@@ -1,9 +1,6 @@
 package durikkiri.project.controller;
 
-import durikkiri.project.entity.dto.apply.AppliesGetsDto;
-import durikkiri.project.entity.dto.apply.ApplyAddDto;
-import durikkiri.project.entity.dto.apply.ApplyGetDto;
-import durikkiri.project.entity.dto.apply.ApplyPostDto;
+import durikkiri.project.entity.dto.apply.*;
 import durikkiri.project.service.ApplyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

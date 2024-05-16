@@ -2,6 +2,7 @@ package durikkiri.project.entity.post;
 
 import durikkiri.project.entity.Apply;
 import durikkiri.project.entity.BaseEntity;
+import durikkiri.project.entity.Image;
 import durikkiri.project.entity.Member;
 import durikkiri.project.entity.dto.post.FieldUpdateDto;
 import durikkiri.project.entity.dto.post.PostUpdateDto;
@@ -40,6 +41,9 @@ public class Post extends BaseEntity {
 
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Apply> appliesList;
+
+    @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Image image;
 
     private String title;
     private String content;

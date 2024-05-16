@@ -1,6 +1,6 @@
 package durikkiri.project.entity;
 
-import durikkiri.project.controller.ApplyUpdateDto;
+import durikkiri.project.entity.dto.apply.ApplyUpdateDto;
 import durikkiri.project.entity.post.Field;
 import durikkiri.project.entity.post.FieldCategory;
 import durikkiri.project.entity.post.Post;
