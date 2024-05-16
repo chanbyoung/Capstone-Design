@@ -1,4 +1,4 @@
-package durikkiri.project.controller;
+package durikkiri.project.entity.dto.apply;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

@@ -80,8 +80,10 @@ public class PostController {
     }
 
     @PatchMapping("/{postId}")
-    public ResponseEntity<String> updatePost(@RequestBody PostUpdateDto postUpdateDto, @PathVariable Long postId) {
-        return new ResponseEntity<>(postService.updatePost(postId, postUpdateDto));
+    public ResponseEntity<String> updatePost(@RequestPart(value = "json") PostUpdateDto postUpdateDto,
+                                             @RequestPart(value = "image", required = false) MultipartFile image,
+                                             @PathVariable Long postId) {
+        return new ResponseEntity<>(postService.updatePost(postId, image, postUpdateDto));
     }
 
     @DeleteMapping("/{postId}")

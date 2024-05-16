@@ -97,17 +97,40 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public HttpStatus updatePost(Long postId, PostUpdateDto postUpdateDto) {
+    public HttpStatus updatePost(Long postId, MultipartFile image, PostUpdateDto postUpdateDto) {
         Optional<Post> findPost = postRepository.findPostWithField(postId);
         if (findPost.isPresent()) {
             try {
-                findPost.get().updatePost(postUpdateDto);
+                Post post = findPost.get();
+                post.updatePost(postUpdateDto);
+                updateImage(image, post);
                 return OK;
-            } catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException | IOException e) {
                 return BAD_REQUEST;
             }
         }
         return NOT_FOUND;
+    }
+
+    private void updateImage(MultipartFile image, Post post) throws IOException {
+        if (image != null) {
+            if (post.getImage() != null) {
+                Image existingImage = post.getImage();
+                String existingImagePath = existingImage.getFullPath();
+                File existingImageFile = new File(existingImagePath);
+                if (existingImageFile.exists()) {
+                    existingImageFile.delete();
+                }
+                Image newImage = Image.toEntity(image, fileDir, post);
+                existingImage.updateImage(newImage);
+                image.transferTo(new File(newImage.getFullPath()));
+            }
+            else {
+                Image saveImage = imageRepository.save(Image.toEntity(image, fileDir, post));
+                log.info("파일 저장 fullPath = {}", saveImage.getFullPath());
+                image.transferTo(new File(saveImage.getFullPath()));
+            }
+        }
     }
 
     @Override

@@ -1,12 +1,8 @@
 package durikkiri.project.entity;
 
-import durikkiri.project.controller.ApplyUpdateDto;
+import durikkiri.project.entity.dto.apply.ApplyUpdateDto;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Optional;
 
 import static durikkiri.project.entity.ApplyStatus.*;
 

@@ -17,7 +17,7 @@ public class Image {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "image_id")
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "post_id")
     private Post post;
     private String uploadFileName; //고객이 업로드한 파일명
@@ -42,5 +42,11 @@ public class Image {
     private static String extractExt(String originalFilename) {
         int pos = originalFilename.lastIndexOf(".");
         return originalFilename.substring(pos + 1);
+    }
+
+    public void updateImage(Image newImage) {
+        this.uploadFileName = newImage.getUploadFileName();
+        this.storeFileName = newImage.getStoreFileName();
+        this.fullPath = newImage.getFullPath();
     }
 }

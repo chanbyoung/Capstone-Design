@@ -20,7 +20,7 @@ public interface PostService {
 
     PostGetDto getPost(Long postId, boolean flag);
 
-    HttpStatus updatePost(Long postId, PostUpdateDto postUpdateDto);
+    HttpStatus updatePost(Long postId,MultipartFile multipartFile, PostUpdateDto postUpdateDto);
 
     HttpStatus deletePost(Long postId);
 
