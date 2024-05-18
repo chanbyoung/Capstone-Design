@@ -85,7 +85,7 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public PostGetDto getPost(Long postId, boolean flag) {
         Post post = postRepository.findPostWithField(postId)
-                .orElseThrow(() -> new PostNotFoundException("Post not found"));
+                .orElseThrow(() -> new NotFoundException("Post not found"));
         if (flag) {
             post.updateViewCount();
         }
@@ -102,7 +102,7 @@ public class PostServiceImpl implements PostService {
     public void updatePost(Long postId, MultipartFile image, PostUpdateDto postUpdateDto) throws IOException {
         String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
         Post post = postRepository.findPostWithField(postId)
-                .orElseThrow(() -> new PostNotFoundException("Post not found"));
+                .orElseThrow(() -> new NotFoundException("Post not found"));
         if (!post.getCreatedBy().equals(memberLoginId)) {
             throw new ForbiddenException("User not authorized to update this post");
         }
@@ -131,7 +131,7 @@ public class PostServiceImpl implements PostService {
     public void deletePost(Long postId) {
         String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new PostNotFoundException("Post not found"));
+                .orElseThrow(() -> new NotFoundException("Post not found"));
         if (!post.getCreatedBy().equals(memberLoginId)) {
             throw new ForbiddenException("User not authorized to delete this post");
         }
@@ -153,7 +153,7 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public void addComment(Long postId, CommentDto commentDto) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new PostNotFoundException("Post not found"));
+                .orElseThrow(() -> new NotFoundException("Post not found"));
         post.updateComment(commentDto.toEntity(post));
     }
 
@@ -161,7 +161,7 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public void updateComment(Long commentId, CommentDto commentDto) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new PostNotFoundException("Comment not found"));
+                .orElseThrow(() -> new NotFoundException("Comment not found"));
         comment.updateComment(commentDto);
     }
 
@@ -169,7 +169,7 @@ public class PostServiceImpl implements PostService {
     @Transactional
     public void deleteComment(Long commentId) {
         Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new PostNotFoundException("Comment not found"));
+                .orElseThrow(() -> new NotFoundException("Comment not found"));
         commentRepository.delete(comment);
     }
 }

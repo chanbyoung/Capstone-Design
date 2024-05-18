@@ -44,7 +44,7 @@ public class ApplyServiceImpl implements ApplyService {
         Member member = memberRepository.findByLoginId(memberLoginId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
         Post post = postRepository.findPostWithField(postId)
-                .orElseThrow(() -> new PostNotFoundException("Post not found"));
+                .orElseThrow(() -> new NotFoundException("Post not found"));
 
         Apply apply = applyAddDto.toEntity(post, member);
         applyRepository.save(apply);
@@ -54,7 +54,7 @@ public class ApplyServiceImpl implements ApplyService {
     @Transactional
     public ApplyGetDto getApply(Long applyId) {
         Apply apply = applyRepository.findById(applyId)
-                .orElseThrow(() -> new PostNotFoundException("Apply not found"));
+                .orElseThrow(() -> new NotFoundException("Apply not found"));
 
         if (apply.getApplyStatus().equals(UNREAD)) {
             apply.updateStatus(READ);
@@ -66,7 +66,7 @@ public class ApplyServiceImpl implements ApplyService {
     @Transactional
     public void acceptApply(Long applyId, ApplyStatus applyStatus) {
         Apply apply = applyRepository.findApplyWithPost(applyId)
-                .orElseThrow(() -> new PostNotFoundException("Apply not found"));
+                .orElseThrow(() -> new NotFoundException("Apply not found"));
         log.info("{}", apply.toString());
         if (applyStatus.equals(ACCEPT)) {
             apply.postFieldUpdate();
@@ -80,7 +80,7 @@ public class ApplyServiceImpl implements ApplyService {
     @Transactional
     public void updateApply(Long applyId, ApplyUpdateDto applyUpdateDto) {
         Apply apply = applyRepository.findById(applyId)
-                .orElseThrow(() -> new PostNotFoundException("Apply not found"));
+                .orElseThrow(() -> new NotFoundException("Apply not found"));
         apply.updateContent(applyUpdateDto);
     }
 
@@ -88,7 +88,7 @@ public class ApplyServiceImpl implements ApplyService {
     @Transactional
     public void deleteApply(Long applyId) {
         Apply apply = applyRepository.findById(applyId)
-                .orElseThrow(() -> new PostNotFoundException("Apply not found"));
+                .orElseThrow(() -> new NotFoundException("Apply not found"));
         applyRepository.delete(apply);
     }
 }

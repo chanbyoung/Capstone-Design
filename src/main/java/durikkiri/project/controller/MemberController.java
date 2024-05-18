@@ -21,53 +21,49 @@ public class MemberController {
 
     @PostMapping("/sign-up")
     public ResponseEntity<String> signUp(@RequestBody SignUpDto signUpDto) {
-        HttpStatus httpStatus = memberService.signUp(signUpDto);
-        return new ResponseEntity<>(httpStatus);
+        memberService.signUp(signUpDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Member signed up successfully");
     }
 
-    @GetMapping("/exists/{loginId}")
+    @GetMapping("/exists/loginId/{loginId}")
     public ResponseEntity<Boolean> checkLoginIdDuplicate(@PathVariable String loginId) {
         return ResponseEntity.ok(memberService.checkLoginIdDuplicate(loginId));
     }
 
-    @GetMapping("/exists/{nickname}")
+    @GetMapping("/exists/nickname/{nickname}")
     public ResponseEntity<Boolean> checkNicknameDuplicate(@PathVariable String nickname) {
         return ResponseEntity.ok(memberService.checkNicknameDuplicate(nickname));
     }
 
     @PostMapping("/sign-in")
-    public JwtToken signIn(@RequestBody SignInDto signInDto) {
+    public ResponseEntity<JwtToken> signIn(@RequestBody SignInDto signInDto) {
         log.info("{} {}", signInDto.getLoginId(), signInDto.getPassword());
         JwtToken jwtToken = memberService.signIn(signInDto);
         log.info("jwtToken accessToken = {}, refreshToken = {}", jwtToken.getAccessToken(), jwtToken.getRefreshToken());
-        return jwtToken;
+        return ResponseEntity.ok(jwtToken);
     }
 
     @GetMapping("/{memberId}")
     public ResponseEntity<MemberGetDto> getMember(@PathVariable Long memberId) {
         MemberGetDto member = memberService.getMember(memberId);
-        if (member == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(member, HttpStatus.OK);
+        return ResponseEntity.ok(member);
     }
 
     @GetMapping("/member")
     public ResponseEntity<MemberGetDto> getMyInfo() {
         MemberGetDto member = memberService.getMyInfo();
-        if (member == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(member, HttpStatus.OK);
+        return ResponseEntity.ok(member);
     }
 
     @PatchMapping("/member")
     public ResponseEntity<String> updateMember(@RequestBody MemberUpdateDto memberUpdateDto) {
-        return new ResponseEntity<>(memberService.updateMember(memberUpdateDto));
+        memberService.updateMember(memberUpdateDto);
+        return ResponseEntity.ok("Member updated successfully");
     }
 
     @DeleteMapping("/member")
     public ResponseEntity<String> deleteMember() {
-        return new ResponseEntity<>(memberService.deleteMember());
+        memberService.deleteMember();
+        return ResponseEntity.ok("Member deleted successfully");
     }
 }
