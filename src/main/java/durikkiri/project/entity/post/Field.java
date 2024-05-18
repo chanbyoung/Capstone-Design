@@ -1,6 +1,7 @@
 package durikkiri.project.entity.post;
 
 import durikkiri.project.entity.dto.post.FieldUpdateDto;
+import durikkiri.project.exception.RecruitmentException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,9 +24,12 @@ public class Field {
     private int currentRecruitment;
     private int totalRecruitment;
 
-    public void updateField(FieldUpdateDto fieldUpdateDto) {
+    public void updateField(FieldUpdateDto fieldUpdateDto ) {
         if (fieldUpdateDto.getTotalRecruitment() < currentRecruitment) {
-            throw new IllegalArgumentException();
+            throw new RecruitmentException("Total recruitment cannot be less than current recruitment.");
+        }
+        if (totalRecruitment == 0) {
+            throw new RecruitmentException("Total recruitment cannot be zero");
         }
         this.totalRecruitment = fieldUpdateDto.getTotalRecruitment();
     }
@@ -34,7 +38,7 @@ public class Field {
         if (currentRecruitment + 1 <= totalRecruitment) {
             currentRecruitment++;
         } else {
-            throw new IllegalArgumentException();
+            throw new RecruitmentException("Current recruitment cannot exceed total recruitment.");
         }
     }
 }
