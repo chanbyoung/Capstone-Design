@@ -14,21 +14,21 @@ import java.util.List;
 
 public interface PostService {
 
-    HttpStatus addPost(PostAddDto postAddDto, MultipartFile multipartFile) throws IOException;
+    void addPost(PostAddDto postAddDto, MultipartFile multipartFile) throws IOException;
 
     Page<PostsGetDto> getPosts(Pageable pageable, PostSearchContent postSearchContent);
 
     PostGetDto getPost(Long postId, boolean flag);
 
-    HttpStatus updatePost(Long postId,MultipartFile multipartFile, PostUpdateDto postUpdateDto);
+    void updatePost(Long postId,MultipartFile multipartFile, PostUpdateDto postUpdateDto) throws IOException;
 
-    HttpStatus deletePost(Long postId);
+    void deletePost(Long postId);
 
     List<HomeGetDto> getHome();
 
-    HttpStatus addComment(Long postId, CommentDto commentDto);
+    void addComment(Long postId, CommentDto commentDto);
 
-    HttpStatus updateComment(Long commentId, CommentDto commentDto);
+    void updateComment(Long commentId, CommentDto commentDto);
 
-    HttpStatus deleteComment(Long commentId);
+    void deleteComment(Long commentId);
 }
