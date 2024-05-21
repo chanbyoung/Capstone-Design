@@ -135,7 +135,9 @@ public class PostServiceImpl implements PostService {
         Optional<Post> findPost = postRepository.findById(postId);
         if (findPost.isPresent()) {
             Post post = findPost.get();
-            deleteImage(post.getImage());
+            if(post.getImage() != null) {
+                deleteImage(post.getImage());
+            }
             postRepository.delete(post);
             return OK;
         }
