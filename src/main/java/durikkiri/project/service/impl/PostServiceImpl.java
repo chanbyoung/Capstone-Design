@@ -135,7 +135,9 @@ public class PostServiceImpl implements PostService {
         if (!post.getCreatedBy().equals(memberLoginId)) {
             throw new ForbiddenException("User not authorized to delete this post");
         }
-        deleteImage(post.getImage());
+        if(post.getImage() != null) {
+            deleteImage(post.getImage());
+        }
         postRepository.delete(post);
     }
 

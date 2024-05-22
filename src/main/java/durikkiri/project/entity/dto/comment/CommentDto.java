@@ -1,5 +1,6 @@
 package durikkiri.project.entity.dto.comment;
 
+
 import durikkiri.project.entity.post.Comment;
 import durikkiri.project.entity.post.Post;
 import jakarta.validation.constraints.NotBlank;
