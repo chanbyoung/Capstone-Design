@@ -1,4 +1,4 @@
-package durikkiri.project.entity;
+package durikkiri.project.entity.post;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

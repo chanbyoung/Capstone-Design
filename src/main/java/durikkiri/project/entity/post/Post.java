@@ -1,5 +1,9 @@
-package durikkiri.project.entity;
+package durikkiri.project.entity.post;
 
+import durikkiri.project.entity.Apply;
+import durikkiri.project.entity.BaseEntity;
+import durikkiri.project.entity.Image;
+import durikkiri.project.entity.Member;
 import durikkiri.project.entity.dto.post.FieldUpdateDto;
 import durikkiri.project.entity.dto.post.PostUpdateDto;
 import jakarta.persistence.*;
@@ -18,12 +22,16 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Post extends BaseEntity{
+public class Post extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "post_id")
     private Long id;
     @Enumerated(EnumType.STRING)
     private Category category;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Field> fieldList;

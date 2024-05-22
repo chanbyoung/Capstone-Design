@@ -1,10 +1,9 @@
 package durikkiri.project.entity.dto.post;
 
-import durikkiri.project.entity.Field;
-import durikkiri.project.entity.FieldCategory;
-import durikkiri.project.entity.Post;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
+
+import durikkiri.project.entity.post.Field;
+import durikkiri.project.entity.post.FieldCategory;
+import durikkiri.project.entity.post.Post;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;

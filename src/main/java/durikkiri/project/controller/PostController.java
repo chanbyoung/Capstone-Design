@@ -1,8 +1,8 @@
 package durikkiri.project.controller;
 
-import durikkiri.project.entity.Category;
 import durikkiri.project.entity.dto.comment.CommentDto;
 import durikkiri.project.entity.dto.post.*;
+import durikkiri.project.entity.post.Category;
 import durikkiri.project.service.PostService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,21 +28,22 @@ public class PostController {
 
     private final PostService postService;
     private static final String VIEWED_COOKIE_PREFIX = "viewed_";
-    private static final int COOKIE_EXPIRE_SECONDS = 24 * 60 * 60; // 24시간
+    private static final int COOKIE_EXPIRE_SECONDS = 24 * 60 * 60; // 24 hours
 
     @GetMapping
     public ResponseEntity<Page<PostsGetDto>> getPosts(@PageableDefault Pageable pageable,
                                                       @RequestParam(required = false) Category category,
                                                       @RequestParam(required = false) String title) {
         log.info("category = {}", category);
-        Page<PostsGetDto> posts = postService.getPosts(pageable, new PostSearchContent(category,title));
+        Page<PostsGetDto> posts = postService.getPosts(pageable, new PostSearchContent(category, title));
         return ResponseEntity.ok(posts);
     }
 
     @PostMapping
     public ResponseEntity<String> addPost(@Valid @RequestPart(value = "json") PostAddDto postAddDto,
                                           @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
-        return new ResponseEntity<>(postService.addPost(postAddDto, image));
+        postService.addPost(postAddDto, image);
+        return new ResponseEntity<>("Post created successfully", HttpStatus.CREATED);
     }
 
     @GetMapping("/{postId}")
@@ -54,9 +55,6 @@ public class PostController {
             addViewCountCookie(postId, response);
         }
         PostGetDto post = postService.getPost(postId, shouldIncreaseViewCount);
-        if (post == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
@@ -82,28 +80,32 @@ public class PostController {
     @PatchMapping("/{postId}")
     public ResponseEntity<String> updatePost(@RequestPart(value = "json") PostUpdateDto postUpdateDto,
                                              @RequestPart(value = "image", required = false) MultipartFile image,
-                                             @PathVariable Long postId) {
-        return new ResponseEntity<>(postService.updatePost(postId, image, postUpdateDto));
+                                             @PathVariable Long postId) throws IOException {
+        postService.updatePost(postId, image, postUpdateDto);
+        return new ResponseEntity<>("Post updated successfully", HttpStatus.OK);
     }
 
     @DeleteMapping("/{postId}")
     public ResponseEntity<String> deletePost(@PathVariable Long postId) {
-        return new ResponseEntity<>(postService.deletePost(postId));
+        postService.deletePost(postId);
+        return new ResponseEntity<>("Post deleted successfully", HttpStatus.OK);
     }
 
     @PostMapping("/{postId}/comment")
     public ResponseEntity<String> addComment(@PathVariable Long postId, @RequestBody CommentDto commentDto) {
-        return new ResponseEntity<>(postService.addComment(postId, commentDto));
+        postService.addComment(postId, commentDto);
+        return new ResponseEntity<>("Comment added successfully", HttpStatus.CREATED);
     }
 
     @PatchMapping("/{postId}/comment/{commentId}")
     public ResponseEntity<String> updateComment(@PathVariable Long commentId, @RequestBody CommentDto commentDto) {
-        return new ResponseEntity<>(postService.updateComment(commentId, commentDto));
+        postService.updateComment(commentId, commentDto);
+        return new ResponseEntity<>("Comment updated successfully", HttpStatus.OK);
     }
 
     @DeleteMapping("/{postId}/comment/{commentId}")
     public ResponseEntity<String> deleteComment(@PathVariable Long commentId) {
-        return new ResponseEntity<>(postService.deleteComment(commentId));
+        postService.deleteComment(commentId);
+        return new ResponseEntity<>("Comment deleted successfully", HttpStatus.OK);
     }
-
 }

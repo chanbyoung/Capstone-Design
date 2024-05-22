@@ -1,7 +1,8 @@
 package durikkiri.project.entity.dto.comment;
 
-import durikkiri.project.entity.Comment;
-import durikkiri.project.entity.Post;
+
+import durikkiri.project.entity.post.Comment;
+import durikkiri.project.entity.post.Post;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;

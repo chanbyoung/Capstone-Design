@@ -1,6 +1,6 @@
 package durikkiri.project.entity.dto;
 
-import durikkiri.project.entity.Post;
+import durikkiri.project.entity.post.Post;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

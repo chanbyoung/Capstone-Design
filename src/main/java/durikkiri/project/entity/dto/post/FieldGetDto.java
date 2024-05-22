@@ -1,10 +1,8 @@
 package durikkiri.project.entity.dto.post;
 
-import durikkiri.project.entity.Field;
-import durikkiri.project.entity.FieldCategory;
+import durikkiri.project.entity.post.Field;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 @Builder

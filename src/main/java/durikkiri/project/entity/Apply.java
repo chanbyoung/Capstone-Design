@@ -1,6 +1,9 @@
 package durikkiri.project.entity;
 
 import durikkiri.project.entity.dto.apply.ApplyUpdateDto;
+import durikkiri.project.entity.post.Field;
+import durikkiri.project.entity.post.FieldCategory;
+import durikkiri.project.entity.post.Post;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -19,6 +22,9 @@ public class Apply extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post post;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
     @Enumerated(EnumType.STRING)
     private FieldCategory fieldCategory;
     @Enumerated(EnumType.STRING)

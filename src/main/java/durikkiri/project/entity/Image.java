@@ -1,5 +1,6 @@
 package durikkiri.project.entity;
 
+import durikkiri.project.entity.post.Post;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
