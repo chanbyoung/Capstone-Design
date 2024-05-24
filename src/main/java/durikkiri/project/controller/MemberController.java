@@ -26,13 +26,13 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Member signed up successfully");
     }
 
-    @GetMapping("/exists/loginId/{loginId}")
-    public ResponseEntity<Boolean> checkLoginIdDuplicate(@PathVariable String loginId) {
+    @GetMapping("/exists/loginId")
+    public ResponseEntity<Boolean> checkLoginIdDuplicate(@RequestParam String loginId) {
         return ResponseEntity.ok(memberService.checkLoginIdDuplicate(loginId));
     }
 
-    @GetMapping("/exists/nickname/{nickname}")
-    public ResponseEntity<Boolean> checkNicknameDuplicate(@PathVariable String nickname) {
+    @GetMapping("/exists/nickname")
+    public ResponseEntity<Boolean> checkNicknameDuplicate(@RequestParam String nickname) {
         return ResponseEntity.ok(memberService.checkNicknameDuplicate(nickname));
     }
 

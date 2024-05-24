@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.security.core.parameters.P;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,7 +32,10 @@ public class MemberGetDto {
                 .myApplyProject(postToDto(myApplyProject))
                 .build();
     }
-    private static List<PostsGetDto> postToDto(List<Post> progressProject) {
-        return progressProject.stream().map(PostsGetDto::toDto).collect(Collectors.toList());
-    }
+    private static List<PostsGetDto> postToDto(List<Post> projectList) {
+        if (projectList == null) {
+            return Collections.emptyList();
+        }
+
+        return projectList.stream().map(PostsGetDto::toDto).collect(Collectors.toList());    }
 }

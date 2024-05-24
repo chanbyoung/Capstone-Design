@@ -37,10 +37,10 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
-                                .requestMatchers("/api/members/sign-up").permitAll()
-                                .requestMatchers("/api/members/sign-in").permitAll()
                                 .requestMatchers("/api").permitAll()
                                 .requestMatchers("/api/posts/**").permitAll()
+                                .requestMatchers("/api/members/**").permitAll()
+                                .requestMatchers("/api/members/exists/**").permitAll()
                                 .requestMatchers("/api/members/test").hasRole("USER")
                                 .anyRequest().authenticated())
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisTemplate), UsernamePasswordAuthenticationFilter.class).build();
