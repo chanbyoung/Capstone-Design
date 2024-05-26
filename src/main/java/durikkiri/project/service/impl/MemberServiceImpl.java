@@ -1,11 +1,11 @@
 package durikkiri.project.service.impl;
-
 import durikkiri.project.entity.Member;
 import durikkiri.project.entity.dto.member.MemberGetDto;
 import durikkiri.project.entity.dto.member.MemberUpdateDto;
 import durikkiri.project.entity.dto.member.SignInDto;
 import durikkiri.project.entity.dto.member.SignUpDto;
 import durikkiri.project.entity.post.Post;
+import durikkiri.project.exception.AuthenticationException;
 import durikkiri.project.exception.BadRequestException;
 import durikkiri.project.exception.NotFoundException;
 import durikkiri.project.repository.DslPostRepository;
@@ -14,6 +14,7 @@ import durikkiri.project.security.JwtToken;
 import durikkiri.project.security.JwtTokenProvider;
 import durikkiri.project.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +34,7 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final DslPostRepository dslPostRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final RedisTemplate<String, Object> redisTemplate;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
 
@@ -54,8 +57,18 @@ public class MemberServiceImpl implements MemberService {
     public JwtToken signIn(SignInDto signInDto) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(signInDto.getLoginId(), signInDto.getPassword());
-        Authentication authenticate = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        return jwtTokenProvider.generateToken(authenticate);
+        try {
+            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+            return jwtTokenProvider.generateToken(authentication);
+        } catch (Exception e) {
+            throw new AuthenticationException("Invalid login credentials");
+        }
+    }
+
+    @Override
+    public void logout(String jwtToken) {
+        long expiration = jwtTokenProvider.getExpiration(jwtToken);
+        redisTemplate.opsForValue().set(jwtToken, "blacklisted", expiration, TimeUnit.MILLISECONDS);
     }
 
     @Override

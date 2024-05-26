@@ -22,4 +22,5 @@ public interface MemberService {
     Boolean checkNicknameDuplicate(String nickname);
 
 
+    void logout(String jwtToken);
 }

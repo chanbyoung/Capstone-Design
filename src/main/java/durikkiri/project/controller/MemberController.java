@@ -6,6 +6,7 @@ import durikkiri.project.entity.dto.member.SignInDto;
 import durikkiri.project.entity.dto.member.SignUpDto;
 import durikkiri.project.security.JwtToken;
 import durikkiri.project.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,13 +26,13 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Member signed up successfully");
     }
 
-    @GetMapping("/exists/loginId/{loginId}")
-    public ResponseEntity<Boolean> checkLoginIdDuplicate(@PathVariable String loginId) {
+    @GetMapping("/exists/loginId")
+    public ResponseEntity<Boolean> checkLoginIdDuplicate(@RequestParam String loginId) {
         return ResponseEntity.ok(memberService.checkLoginIdDuplicate(loginId));
     }
 
-    @GetMapping("/exists/nickname/{nickname}")
-    public ResponseEntity<Boolean> checkNicknameDuplicate(@PathVariable String nickname) {
+    @GetMapping("/exists/nickname")
+    public ResponseEntity<Boolean> checkNicknameDuplicate(@RequestParam String nickname) {
         return ResponseEntity.ok(memberService.checkNicknameDuplicate(nickname));
     }
 
@@ -41,6 +42,23 @@ public class MemberController {
         JwtToken jwtToken = memberService.signIn(signInDto);
         log.info("jwtToken accessToken = {}, refreshToken = {}", jwtToken.getAccessToken(), jwtToken.getRefreshToken());
         return ResponseEntity.ok(jwtToken);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        String jwtToken = resolveToken(request);
+        if (jwtToken != null) {
+            memberService.logout(jwtToken);
+        }
+        return ResponseEntity.noContent().build();
+    }
+
+    private String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
     }
 
     @GetMapping("/{memberId}")
