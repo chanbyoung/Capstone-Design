@@ -1,12 +1,12 @@
 package durikkiri.project.service.impl;
 
+import durikkiri.project.entity.Conversation;
 import durikkiri.project.entity.Member;
 import durikkiri.project.entity.Message;
-import durikkiri.project.entity.dto.message.MessageCreateDto;
-import durikkiri.project.entity.dto.message.MessageDto;
-import durikkiri.project.entity.dto.message.MessageUpdateDto;
+import durikkiri.project.entity.dto.message.*;
 import durikkiri.project.exception.ForbiddenException;
 import durikkiri.project.exception.NotFoundException;
+import durikkiri.project.repository.ConversationRepository;
 import durikkiri.project.repository.MemberRepository;
 import durikkiri.project.repository.MessageRepository;
 import durikkiri.project.service.MessageService;
@@ -16,7 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -24,15 +26,24 @@ import java.util.stream.Collectors;
 public class MessageServiceImpl implements MessageService {
     private final MemberRepository memberRepository;
     private final MessageRepository messageRepository;
+    private final ConversationRepository conversationRepository;
+
 
     @Override
-    public List<MessageDto> getMessagesForMember() {
+    public List<ConversationGetsDto> getConversationFromMember() {
         String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findByLoginId(memberLoginId)
-                .orElseThrow(() -> new ForbiddenException("User not found"));;
-        return messageRepository.findByReceiver(member).stream()
-                .map(MessageDto::toDto)
+                .orElseThrow(() -> new ForbiddenException("User not found"));
+        return conversationRepository.findByConversation(member).stream()
+                .map(conversation -> ConversationGetsDto.toDto(conversation,member))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public ConversationGetDto getConversation(Long conversationId) {
+        Conversation findConverSation = conversationRepository.findByIdWithMessage(conversationId)
+                .orElseThrow(() -> new ForbiddenException("Conversation not found"));
+        return ConversationGetDto.toDto(findConverSation);
     }
 
     @Override
@@ -42,9 +53,20 @@ public class MessageServiceImpl implements MessageService {
         Member sender = memberRepository.findByLoginId(memberLoginId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
         Member receiver = memberRepository.findById(messageCreateDto.getReceiverId())
-                .orElseThrow(() -> new ForbiddenException("Receiver not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Receiver not found"));
+        Conversation conversation = conversationRepository.findByMember1OrMember2(sender, receiver)
+                .orElseGet(() -> {
+                    Conversation newConversation = Conversation.toEntity(sender, receiver);
+                    conversationRepository.save(newConversation);
+                    return newConversation;
+                });
 
-        Message message = Message.toEntity(sender, receiver, messageCreateDto.getContent());
+        Message message = Message.builder()
+                .content(messageCreateDto.getContent())
+                .sender(sender)
+                .conversation(conversation)
+                .build();
+
         messageRepository.save(message);
     }
 

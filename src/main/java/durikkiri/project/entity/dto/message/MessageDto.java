@@ -15,7 +15,7 @@ public class MessageDto {
     private Long id;
     private String content;
     private Long senderId;
-    private Long receiverId;
+    private String senderName;
     private LocalDateTime sentAt;
 
     public static MessageDto toDto(Message message) {
@@ -23,7 +23,7 @@ public class MessageDto {
                 .id(message.getId())
                 .content(message.getContent())
                 .senderId(message.getSender().getId())
-                .receiverId(message.getReceiver().getId())
+                .senderName(message.getSender().getNickname())
                 .sentAt(message.getCreatedAt())
                 .build();
     }

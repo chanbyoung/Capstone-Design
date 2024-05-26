@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -25,13 +24,12 @@ public class Message extends BaseEntity{
     private Member sender;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiver_id")
-    private Member receiver;
+    @JoinColumn(name = "conversation_id")
+    private Conversation conversation;
 
-    public static Message toEntity(Member sender, Member receiver, String content) {
+    public static Message toEntity(Member sender, String content) {
         return Message.builder()
                 .sender(sender)
-                .receiver(receiver)
                 .content(content)
                 .build();
     }

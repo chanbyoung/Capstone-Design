@@ -1,14 +1,10 @@
 package durikkiri.project.service;
 
-import durikkiri.project.entity.Message;
-import durikkiri.project.entity.dto.message.MessageCreateDto;
-import durikkiri.project.entity.dto.message.MessageDto;
-import durikkiri.project.entity.dto.message.MessageUpdateDto;
+import durikkiri.project.entity.dto.message.*;
 
 import java.util.List;
 
 public interface MessageService {
-    List<MessageDto> getMessagesForMember();
 
     void sendMessage(MessageCreateDto messageCreateDto);
 
@@ -17,4 +13,9 @@ public interface MessageService {
     void updateMessage(Long messageId, MessageUpdateDto messageUpdateDto);
 
     void deleteMessage(Long messageId);
+
+
+    List<ConversationGetsDto> getConversationFromMember();
+
+    ConversationGetDto getConversation(Long conversationId);
 }

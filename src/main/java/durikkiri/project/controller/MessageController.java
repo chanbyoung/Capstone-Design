@@ -1,7 +1,9 @@
 package durikkiri.project.controller;
 
+import durikkiri.project.entity.Conversation;
 import durikkiri.project.entity.dto.message.*;
 import durikkiri.project.service.MessageService;
+import io.lettuce.core.dynamic.annotation.Param;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,10 +18,16 @@ import static org.springframework.http.HttpStatus.CREATED;
 public class MessageController {
     private final MessageService messageService;
 
-    @GetMapping
-    public ResponseEntity<List<MessageDto>> getMessages() {
-        List<MessageDto> messages = messageService.getMessagesForMember();
-        return ResponseEntity.ok(messages);
+    @GetMapping("/conversation")
+    public ResponseEntity<List<ConversationGetsDto>> getAllConversation() {
+        List<ConversationGetsDto> conversationFromMember = messageService.getConversationFromMember();
+        return ResponseEntity.ok(conversationFromMember);
+    }
+
+    @GetMapping("/conversation/{conversationId}")
+    public ResponseEntity<ConversationGetDto> getConversation(@PathVariable Long conversationId) {
+        ConversationGetDto conversation = messageService.getConversation(conversationId);
+        return ResponseEntity.ok(conversation);
     }
 
     @PostMapping
