@@ -17,14 +17,16 @@ import java.util.stream.Collectors;
 public class ConversationGetDto {
     private Long id;
     private LocalDateTime recentMessage;
+    private Long opponentId;
     private List<MessageDto> messageList;
 
-    static public ConversationGetDto toDto(Conversation conversation) {
+    static public ConversationGetDto toDto(Conversation conversation, Long opponentId) {
         List<MessageDto> messageList = conversation.getMessages().stream()
                 .map(MessageDto::toDto)
                 .collect(Collectors.toList());
         return ConversationGetDto.builder()
                 .id(conversation.getId())
+                .opponentId(opponentId)
                 .recentMessage(conversation.getModifiedAt())
                 .messageList(messageList).build();
 

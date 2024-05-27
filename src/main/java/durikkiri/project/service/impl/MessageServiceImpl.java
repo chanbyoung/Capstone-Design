@@ -41,9 +41,18 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public ConversationGetDto getConversation(Long conversationId) {
-        Conversation findConverSation = conversationRepository.findByIdWithMessage(conversationId)
+        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member member = memberRepository.findByLoginId(memberLoginId)
+                .orElseThrow(() -> new ForbiddenException("User not found"));
+
+        Conversation findConversation = conversationRepository.findByIdWithMessage(conversationId, member.getId())
                 .orElseThrow(() -> new ForbiddenException("Conversation not found"));
-        return ConversationGetDto.toDto(findConverSation);
+
+        Long opponentId = findConversation.getMember1().getId().equals(member.getId())
+                ? findConversation.getMember2().getId()
+                : findConversation.getMember1().getId();
+
+        return ConversationGetDto.toDto(findConversation, opponentId);
     }
 
     @Override

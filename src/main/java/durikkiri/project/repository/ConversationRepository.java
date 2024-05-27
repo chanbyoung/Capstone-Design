@@ -15,6 +15,6 @@ public interface ConversationRepository extends JpaRepository<Conversation, Long
 
     @Query("select c from Conversation c join fetch c.member1 join fetch c.member2 where c.member1 =:member or c.member2 =:member")
     List<Conversation> findByConversation(@Param("member") Member member);
-    @Query("select c from Conversation c join fetch c.messages m join fetch m.sender where c.id = :conversationId")
-    Optional<Conversation> findByIdWithMessage(@Param("conversationId") Long conversationId);
+    @Query("SELECT c FROM Conversation c JOIN FETCH c.member1 JOIN FETCH c.member2 JOIN FETCH c.messages m JOIN FETCH m.sender WHERE c.id = :conversationId AND (c.member1.id = :memberId OR c.member2.id = :memberId)")
+    Optional<Conversation> findByIdWithMessage(@Param("conversationId") Long conversationId, @Param("memberId") Long memberId);
 }

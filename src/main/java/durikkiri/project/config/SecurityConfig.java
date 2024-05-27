@@ -42,6 +42,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api/members/**").permitAll()
                                 .requestMatchers("/api/members/exists/**").permitAll()
                                 .requestMatchers("/api/members/test").hasRole("USER")
+                                .requestMatchers("/api/messages/conversation/**").permitAll()
                                 .anyRequest().authenticated())
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisTemplate), UsernamePasswordAuthenticationFilter.class).build();
     }
