@@ -45,6 +45,15 @@ public class ApplyServiceImpl implements ApplyService {
                 .orElseThrow(() -> new ForbiddenException("User not found"));
         Post post = postRepository.findPostWithField(postId)
                 .orElseThrow(() -> new NotFoundException("Post not found"));
+        // post의 작성자인 member와 현재 로그인한 member가 동일한지 확인
+        if (post.getMember().equals(member)) {
+            throw new BadRequestException("You cannot apply to your own post");
+        }
+        //중복 신청 방지
+        boolean alreadyApplied = applyRepository.existsByPostAndMember(post, member);
+        if (alreadyApplied) {
+            throw new BadRequestException("You have already applied to this post");
+        }
 
         Apply apply = applyAddDto.toEntity(post, member);
         applyRepository.save(apply);

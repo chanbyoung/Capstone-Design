@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum FieldCategory {
-    FRONTEND("프론트엔드"), BACKEND("백엔드"), GENERAL("일반 참여자");
+    FRONTEND("프론트엔드"), BACKEND("백엔드"), GENERAL("스터디원"), DESIGNER("디자이너");
 
     private final String value;
 
