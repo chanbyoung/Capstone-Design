@@ -9,7 +9,8 @@ import java.util.Optional;
 
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Long> {
-    Optional<Member> findByLoginId(String loginId);
+    @Query("select m from Member m join fetch m.roles where m.loginId = :loginId")
+    Optional<Member> findByLoginId(@Param("loginId") String loginId);
     @Query("select m from Member m join fetch m.postList where m.id = :id")
     Optional<Member> findMemberWithPost(@Param("id") Long id);
 
