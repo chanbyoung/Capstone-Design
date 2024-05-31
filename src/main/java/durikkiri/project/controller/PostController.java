@@ -15,10 +15,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,7 +37,7 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<Page<PostsGetDto>> getPosts(@PageableDefault Pageable pageable,
-                                                      @RequestParam(required = false) Category category,
+                                                      @RequestParam Category category,
                                                       @RequestParam(required = false) String title) {
         log.info("category = {}", category);
         Page<PostsGetDto> posts = postService.getPosts(pageable, new PostSearchContent(category, title));
@@ -40,10 +45,15 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<String> addPost(@Valid @RequestPart(value = "json") PostAddDto postAddDto,
-                                          @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
+    public ResponseEntity<Map<String, String>> addPost(@Valid @RequestPart(value = "json") PostAddDto postAddDto,
+                                          @RequestPart(value = "image", required = false) MultipartFile image,
+                                          BindingResult bindingResult
+                                          ) throws IOException {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(getErrorMap(bindingResult));
+        }
         postService.addPost(postAddDto, image);
-        return new ResponseEntity<>("Post created successfully", HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("message", "Post created successfully"));
     }
 
     @GetMapping("/{postId}")
@@ -78,11 +88,16 @@ public class PostController {
     }
 
     @PatchMapping("/{postId}")
-    public ResponseEntity<String> updatePost(@RequestPart(value = "json") PostUpdateDto postUpdateDto,
+    public ResponseEntity<Map<String, String>> updatePost(@Valid @RequestPart(value = "json") PostUpdateDto postUpdateDto,
                                              @RequestPart(value = "image", required = false) MultipartFile image,
-                                             @PathVariable Long postId) throws IOException {
+                                             @PathVariable Long postId,
+                                             BindingResult bindingResult
+                                             ) throws IOException {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(getErrorMap(bindingResult));
+        }
         postService.updatePost(postId, image, postUpdateDto);
-        return new ResponseEntity<>("Post updated successfully", HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body(Collections.singletonMap("message", "Post updated successfully"));
     }
 
     @DeleteMapping("/{postId}")
@@ -107,5 +122,13 @@ public class PostController {
     public ResponseEntity<String> deleteComment(@PathVariable Long commentId) {
         postService.deleteComment(commentId);
         return new ResponseEntity<>("Comment deleted successfully", HttpStatus.OK);
+    }
+
+    private Map<String, String> getErrorMap(BindingResult bindingResult) {
+        Map<String, String> errors = new HashMap<>();
+        for (FieldError error : bindingResult.getFieldErrors()) {
+            errors.put(error.getField(), error.getDefaultMessage());
+        }
+        return errors;
     }
 }

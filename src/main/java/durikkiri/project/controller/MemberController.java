@@ -7,11 +7,18 @@ import durikkiri.project.entity.dto.member.SignUpDto;
 import durikkiri.project.security.JwtToken;
 import durikkiri.project.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,9 +28,12 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/sign-up")
-    public ResponseEntity<String> signUp(@RequestBody SignUpDto signUpDto) {
+    public ResponseEntity<Map<String , String>> signUp(@Valid @RequestBody SignUpDto signUpDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(getErrorMap(bindingResult));
+        }
         memberService.signUp(signUpDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Member signed up successfully");
+        return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("message", "Member signed up successfully"));
     }
 
     @GetMapping("/exists/loginId")
@@ -37,7 +47,7 @@ public class MemberController {
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<JwtToken> signIn(@RequestBody SignInDto signInDto) {
+    public ResponseEntity<JwtToken> signIn(@Valid @RequestBody SignInDto signInDto) {
         log.info("{} {}", signInDto.getLoginId(), signInDto.getPassword());
         JwtToken jwtToken = memberService.signIn(signInDto);
         log.info("jwtToken accessToken = {}, refreshToken = {}", jwtToken.getAccessToken(), jwtToken.getRefreshToken());
@@ -74,14 +84,24 @@ public class MemberController {
     }
 
     @PatchMapping("/member")
-    public ResponseEntity<String> updateMember(@RequestBody MemberUpdateDto memberUpdateDto) {
+    public ResponseEntity<Map<String , String>>  updateMember(@Valid @RequestBody MemberUpdateDto memberUpdateDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(getErrorMap(bindingResult));
+        }
         memberService.updateMember(memberUpdateDto);
-        return ResponseEntity.ok("Member updated successfully");
+        return ResponseEntity.status(HttpStatus.OK).body(Collections.singletonMap("message", "Member updated successfully"));
     }
 
     @DeleteMapping("/member")
     public ResponseEntity<String> deleteMember() {
         memberService.deleteMember();
         return ResponseEntity.ok("Member deleted successfully");
+    }
+    private Map<String, String> getErrorMap(BindingResult bindingResult) {
+        Map<String, String> errors = new HashMap<>();
+        for (FieldError error : bindingResult.getFieldErrors()) {
+            errors.put(error.getField(), error.getDefaultMessage());
+        }
+        return errors;
     }
 }

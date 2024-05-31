@@ -17,6 +17,7 @@ public class PostUpdateDto {
     private Category category;
     @NotBlank
     private String content;
+
     private List<TechnologyStack> technologyStackList = new ArrayList<>();
     private List<FieldUpdateDto> fieldList = new ArrayList<>();
 

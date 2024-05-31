@@ -4,6 +4,7 @@ import durikkiri.project.entity.dto.member.MemberUpdateDto;
 import durikkiri.project.entity.post.Comment;
 import durikkiri.project.entity.post.Post;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,12 +25,18 @@ public class Member implements UserDetails {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
     private Long id;
+    @NotBlank
     private String username;
+    @NotBlank
     private String nickname;
     private String content;
+    @NotBlank
     private String loginId;
+    @NotBlank
     private String password;
+    @NotBlank
     private String email;
+    @NotBlank
     private String major;
     @ElementCollection(fetch = FetchType.EAGER)
     @Builder.Default

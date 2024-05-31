@@ -45,6 +45,15 @@ public class ApplyServiceImpl implements ApplyService {
                 .orElseThrow(() -> new ForbiddenException("User not found"));
         Post post = postRepository.findPostWithField(postId)
                 .orElseThrow(() -> new NotFoundException("Post not found"));
+        // post의 작성자인 member와 현재 로그인한 member가 동일한지 확인
+        if (post.getMember().equals(member)) {
+            throw new BadRequestException("You cannot apply to your own post");
+        }
+        //중복 신청 방지
+        boolean alreadyApplied = applyRepository.existsByPostAndMember(post, member);
+        if (alreadyApplied) {
+            throw new BadRequestException("You have already applied to this post");
+        }
 
         Apply apply = applyAddDto.toEntity(post, member);
         applyRepository.save(apply);
@@ -67,7 +76,11 @@ public class ApplyServiceImpl implements ApplyService {
     public void acceptApply(Long applyId, ApplyStatus applyStatus) {
         Apply apply = applyRepository.findApplyWithPost(applyId)
                 .orElseThrow(() -> new NotFoundException("Apply not found"));
-        log.info("{}", apply.toString());
+        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        // 게시물 작성자 검증
+        if (!apply.getPost().getMember().getLoginId().equals(memberLoginId)) {
+            throw new ForbiddenException("User not authorized to accept or reject this apply");
+        }
         if (applyStatus.equals(ACCEPT)) {
             apply.postFieldUpdate();
             apply.getPost().updateStatus();
@@ -81,6 +94,12 @@ public class ApplyServiceImpl implements ApplyService {
     public void updateApply(Long applyId, ApplyUpdateDto applyUpdateDto) {
         Apply apply = applyRepository.findById(applyId)
                 .orElseThrow(() -> new NotFoundException("Apply not found"));
+        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // 신청자 검증
+        if (!apply.getMember().getLoginId().equals(memberLoginId)) {
+            throw new ForbiddenException("User not authorized to update this apply");
+        }
         apply.updateContent(applyUpdateDto);
     }
 
@@ -89,6 +108,11 @@ public class ApplyServiceImpl implements ApplyService {
     public void deleteApply(Long applyId) {
         Apply apply = applyRepository.findById(applyId)
                 .orElseThrow(() -> new NotFoundException("Apply not found"));
+        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+    // 신청자 검증
+        if (!apply.getMember().getLoginId().equals(memberLoginId)) {
+            throw new ForbiddenException("User not authorized to delete this apply");
+        }
         applyRepository.delete(apply);
     }
 }

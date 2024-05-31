@@ -1,5 +1,6 @@
 package durikkiri.project.entity.dto.message;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,5 +8,6 @@ import lombok.Setter;
 @Setter
 public class MessageCreateDto {
     private String content;
+    @NotBlank
     private Long receiverId;
 }

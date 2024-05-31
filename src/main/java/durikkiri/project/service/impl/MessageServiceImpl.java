@@ -62,7 +62,7 @@ public class MessageServiceImpl implements MessageService {
         Member sender = memberRepository.findByLoginId(memberLoginId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
         Member receiver = memberRepository.findById(messageCreateDto.getReceiverId())
-                .orElseThrow(() -> new IllegalArgumentException("Receiver not found"));
+                .orElseThrow(() -> new ForbiddenException("Receiver not found"));
         Conversation conversation = conversationRepository.findByMember1OrMember2(sender, receiver)
                 .orElseGet(() -> {
                     Conversation newConversation = Conversation.toEntity(sender, receiver);
@@ -89,14 +89,32 @@ public class MessageServiceImpl implements MessageService {
     @Override
     @Transactional
     public void updateMessage(Long messageId, MessageUpdateDto messageUpdateDto) {
+        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member member = memberRepository.findByLoginId(memberLoginId)
+                .orElseThrow(() -> new ForbiddenException("User not found"));
+
         Message message = messageRepository.findById(messageId)
                 .orElseThrow(() -> new IllegalArgumentException("Message not found"));
+
+        if (!message.getSender().getId().equals(member.getId())) {
+            throw new ForbiddenException("You do not have permission to update this message");
+        }
         message.updateContent(messageUpdateDto.getContent());
     }
 
     @Override
     @Transactional
     public void deleteMessage(Long messageId) {
+        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member member = memberRepository.findByLoginId(memberLoginId)
+                .orElseThrow(() -> new ForbiddenException("User not found"));
+
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("Message not found"));
+
+        if (!message.getSender().getId().equals(member.getId())) {
+            throw new ForbiddenException("You do not have permission to delete this message");
+        }
         memberRepository.deleteById(messageId);
     }
 }
