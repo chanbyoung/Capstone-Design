@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -70,7 +71,10 @@ public class PostServiceImpl implements PostService {
             for (FieldAddDto fieldAddDto : postAddDto.getFieldList()) {
                 Set<ConstraintViolation<FieldAddDto>> violations = validator.validate(fieldAddDto);
                 if (!violations.isEmpty()) {
-                    throw new BadRequestException("Field validation failed");
+                    String errorMessage = violations.stream()
+                            .map(ConstraintViolation::getMessage)
+                            .collect(Collectors.joining(", "));
+                    throw new BadRequestException("Field validation failed: "+errorMessage );
                 }
             }
         }
