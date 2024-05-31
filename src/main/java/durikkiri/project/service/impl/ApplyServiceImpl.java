@@ -76,7 +76,11 @@ public class ApplyServiceImpl implements ApplyService {
     public void acceptApply(Long applyId, ApplyStatus applyStatus) {
         Apply apply = applyRepository.findApplyWithPost(applyId)
                 .orElseThrow(() -> new NotFoundException("Apply not found"));
-        log.info("{}", apply.toString());
+        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        // 게시물 작성자 검증
+        if (!apply.getPost().getMember().getLoginId().equals(memberLoginId)) {
+            throw new ForbiddenException("User not authorized to accept or reject this apply");
+        }
         if (applyStatus.equals(ACCEPT)) {
             apply.postFieldUpdate();
             apply.getPost().updateStatus();
@@ -90,6 +94,12 @@ public class ApplyServiceImpl implements ApplyService {
     public void updateApply(Long applyId, ApplyUpdateDto applyUpdateDto) {
         Apply apply = applyRepository.findById(applyId)
                 .orElseThrow(() -> new NotFoundException("Apply not found"));
+        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // 신청자 검증
+        if (!apply.getMember().getLoginId().equals(memberLoginId)) {
+            throw new ForbiddenException("User not authorized to update this apply");
+        }
         apply.updateContent(applyUpdateDto);
     }
 
@@ -98,6 +108,11 @@ public class ApplyServiceImpl implements ApplyService {
     public void deleteApply(Long applyId) {
         Apply apply = applyRepository.findById(applyId)
                 .orElseThrow(() -> new NotFoundException("Apply not found"));
+        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+    // 신청자 검증
+        if (!apply.getMember().getLoginId().equals(memberLoginId)) {
+            throw new ForbiddenException("User not authorized to delete this apply");
+        }
         applyRepository.delete(apply);
     }
 }

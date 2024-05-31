@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ApplyRepository extends JpaRepository<Apply, Long> {
-    @Query("select a from Apply a join fetch a.post join fetch a.post.fieldList where a.id = :id")
+    @Query("select a from Apply a join fetch a.post p join fetch p.fieldList join fetch p.member where a.id = :id")
     Optional<Apply> findApplyWithPost(@Param("id") Long id);
     @Query("select a from Apply a join fetch a.post p")
     //join fetch p.member where p.member.id = :memberId

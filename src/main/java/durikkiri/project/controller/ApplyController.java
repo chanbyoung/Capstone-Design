@@ -2,13 +2,17 @@ package durikkiri.project.controller;
 
 import durikkiri.project.entity.dto.apply.*;
 import durikkiri.project.service.ApplyService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
-
-import static org.springframework.http.HttpStatus.CREATED;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/applies")
@@ -23,9 +27,13 @@ public class ApplyController {
     }
 
     @PostMapping("/apply/{postId}")
-    public ResponseEntity<String> addApply(@PathVariable Long postId, @RequestBody ApplyAddDto applyAddDto) {
+    public ResponseEntity<Map<String, String>> addApply(@PathVariable Long postId, @Valid @RequestBody ApplyAddDto applyAddDto,
+                                           BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(getErrorMap(bindingResult));
+        }
         applyService.addApply(postId, applyAddDto);
-        return ResponseEntity.status(CREATED).body("Apply created successfully");
+        return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("message", "Apply created successfully"));
     }
 
     @GetMapping("/{applyId}")
@@ -35,20 +43,36 @@ public class ApplyController {
     }
 
     @PostMapping("/{applyId}")
-    public ResponseEntity<String> acceptApply(@PathVariable Long applyId, @RequestBody ApplyPostDto applyPostDto) {
+    public ResponseEntity<Map<String, String>> acceptApply(@PathVariable Long applyId,@Valid @RequestBody ApplyPostDto applyPostDto,
+                                              BindingResult bindingResult) {
         applyService.acceptApply(applyId, applyPostDto.getApplyStatus());
-        return ResponseEntity.ok("Apply status updated successfully");
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(getErrorMap(bindingResult));
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(Collections.singletonMap("message", "Apply status updated successfully"));
     }
 
     @PatchMapping("/{applyId}")
-    public ResponseEntity<String> updateApply(@PathVariable Long applyId, @RequestBody ApplyUpdateDto applyUpdateDto) {
+    public ResponseEntity<Map<String, String>> updateApply(@PathVariable Long applyId,@Valid @RequestBody ApplyUpdateDto applyUpdateDto,
+                                              BindingResult bindingResult) {
         applyService.updateApply(applyId, applyUpdateDto);
-        return ResponseEntity.ok("Apply updated successfully");
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest().body(getErrorMap(bindingResult));
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("message", "Apply updated successfully"));
     }
 
     @DeleteMapping("/{applyId}")
     public ResponseEntity<String> deleteApply(@PathVariable Long applyId) {
         applyService.deleteApply(applyId);
         return ResponseEntity.ok("Apply deleted successfully");
+    }
+
+    private Map<String, String> getErrorMap(BindingResult bindingResult) {
+        Map<String, String> errors = new HashMap<>();
+        for (FieldError error : bindingResult.getFieldErrors()) {
+            errors.put(error.getField(), error.getDefaultMessage());
+        }
+        return errors;
     }
 }
