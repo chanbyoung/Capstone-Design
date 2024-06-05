@@ -10,13 +10,18 @@ spring:
         default_batch_fetch_size: 100
         # show_sql: true
         format_sql: true
-  redis:
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
 
-#  mvc:
-#    static-path-pattern: /images/**
+  mvc:
+    static-path-pattern: /images/**
+
 logging.level:
   org.hibernate.SQL: debug
 #  org.springframework.web: TRACE
 
 file:
   dir: /Users/bagchanbyeong/Documents/File/
+

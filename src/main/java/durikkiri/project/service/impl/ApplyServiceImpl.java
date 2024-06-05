@@ -34,7 +34,11 @@ public class ApplyServiceImpl implements ApplyService {
 
     @Override
     public List<AppliesGetsDto> getApplies() {
-        return applyRepository.findApply().stream().map(AppliesGetsDto::toDto).toList();
+        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member member = memberRepository.findByLoginId(memberLoginId)
+                .orElseThrow(() -> new ForbiddenException("User not found"));
+
+        return applyRepository.findApply(member.getId(), ACCEPT).stream().map(AppliesGetsDto::toDto).toList();
     }
 
     @Override

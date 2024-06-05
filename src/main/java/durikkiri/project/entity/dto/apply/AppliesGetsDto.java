@@ -12,12 +12,14 @@ import java.time.LocalDateTime;
 @Builder
 public class AppliesGetsDto {
     private Long id;
+    private String postTitle;
     private String memberName;
     private LocalDateTime createdAt;
 
     public static AppliesGetsDto toDto(Apply apply) {
         return AppliesGetsDto.builder()
                 .id(apply.getId())
+                .postTitle(apply.getPost().getTitle())
                 .memberName(apply.getCreatedBy())
                 .createdAt(apply.getCreatedAt())
                 .build();
