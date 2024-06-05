@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 public class ConversationGetDto {
     private Long id;
     private LocalDateTime recentMessage;
+    private Long postId;
     private Long opponentId;
     private List<MessageDto> messageList;
 
@@ -27,6 +28,7 @@ public class ConversationGetDto {
         return ConversationGetDto.builder()
                 .id(conversation.getId())
                 .opponentId(opponentId)
+                .postId(conversation.getPost().getId())
                 .recentMessage(conversation.getModifiedAt())
                 .messageList(messageList).build();
 

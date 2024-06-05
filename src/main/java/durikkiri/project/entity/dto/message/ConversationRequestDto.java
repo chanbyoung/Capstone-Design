@@ -1,14 +1,11 @@
 package durikkiri.project.entity.dto.message;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class MessageCreateDto {
+public class ConversationRequestDto {
     private Long postId;
-    private String content;
-    @NotBlank
     private Long receiverId;
 }
