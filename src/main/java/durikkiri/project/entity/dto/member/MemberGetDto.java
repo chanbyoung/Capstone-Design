@@ -17,6 +17,7 @@ public class MemberGetDto {
     private Long id;
     private String username;
     private String nickname;
+    private String major;
     private List<PostsGetDto> progressProject;
     private List<PostsGetDto> recruitingProject;
     private List<PostsGetDto> myApplyProject;
@@ -27,6 +28,7 @@ public class MemberGetDto {
                 .id(member.getId())
                 .username(member.getUsername())
                 .nickname(member.getNickname())
+                .major(member.getMajor())
                 .progressProject(postToDto(progressProject))
                 .recruitingProject(postToDto(recruitingProject))
                 .myApplyProject(postToDto(myApplyProject))
