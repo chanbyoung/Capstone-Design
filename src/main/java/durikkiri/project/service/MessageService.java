@@ -1,5 +1,6 @@
 package durikkiri.project.service;
 
+import durikkiri.project.entity.Conversation;
 import durikkiri.project.entity.dto.message.*;
 
 import java.util.List;
@@ -18,4 +19,6 @@ public interface MessageService {
     List<ConversationGetsDto> getConversationFromMember();
 
     ConversationGetDto getConversation(Long conversationId);
+
+    ConversationGetDto createOrRetrieveConversation(ConversationRequestDto conversationRequestDto);
 }

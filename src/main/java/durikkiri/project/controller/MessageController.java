@@ -1,10 +1,9 @@
 package durikkiri.project.controller;
 
-import durikkiri.project.entity.Conversation;
 import durikkiri.project.entity.dto.message.*;
 import durikkiri.project.service.MessageService;
-import io.lettuce.core.dynamic.annotation.Param;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,6 +14,7 @@ import static org.springframework.http.HttpStatus.CREATED;
 @RestController
 @RequestMapping("/api/messages")
 @RequiredArgsConstructor
+@Slf4j
 public class MessageController {
     private final MessageService messageService;
 
@@ -27,8 +27,16 @@ public class MessageController {
     @GetMapping("/conversation/{conversationId}")
     public ResponseEntity<ConversationGetDto> getConversation(@PathVariable Long conversationId) {
         ConversationGetDto conversation = messageService.getConversation(conversationId);
+        log.info("{}", conversation.getId());
         return ResponseEntity.ok(conversation);
     }
+
+    @PostMapping("/conversation")
+    public ResponseEntity<ConversationGetDto> createOrRetrieveConversation(@RequestBody ConversationRequestDto conversationRequestDto) {
+        log.info("postId={}, receiverId={}",conversationRequestDto.getPostId(), conversationRequestDto.getReceiverId());
+        return ResponseEntity.ok(messageService.createOrRetrieveConversation(conversationRequestDto));
+    }
+
 
     @PostMapping
     public ResponseEntity<String> sendMessage(@RequestBody MessageCreateDto messageCreateDto) {

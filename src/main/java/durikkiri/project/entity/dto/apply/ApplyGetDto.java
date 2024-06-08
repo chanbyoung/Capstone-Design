@@ -10,12 +10,14 @@ import lombok.Getter;
 @Builder
 public class ApplyGetDto {
     private Long memberId;
+    private Long postId;
     private FieldCategory fieldCategory;
     private ApplyStatus applyStatus;
     private String content;
 
     static public ApplyGetDto toDto(Apply apply) {
         return ApplyGetDto.builder()
+                .postId(apply.getPost().getId())
                 .memberId(apply.getMember().getId())
                 .fieldCategory(apply.getFieldCategory())
                 .applyStatus(apply.getApplyStatus())

@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 @Builder
 public class ConversationGetsDto {
     private Long id;
+    private String postTitle;
+    private Long postId;
     private MemberDto counterpartMember;
     private LocalDateTime recentMessage;
 
@@ -28,6 +30,8 @@ public class ConversationGetsDto {
 
         return ConversationGetsDto.builder()
                 .id(conversation.getId())
+                .postTitle(conversation.getPost().getTitle())
+                .postId(conversation.getPost().getId())
                 .counterpartMember(MemberDto.toDto(counterpartMember))
                 .recentMessage(conversation.getModifiedAt())
                 .build();

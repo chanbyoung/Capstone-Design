@@ -1,5 +1,6 @@
 package durikkiri.project.entity;
 
+import durikkiri.project.entity.post.Post;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +22,10 @@ public class Conversation extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    private Post post;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member1_id")
     private Member member1;
 
@@ -31,10 +36,11 @@ public class Conversation extends BaseEntity {
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Message> messages;
 
-    static public Conversation toEntity(Member member1, Member member2) {
+    static public Conversation toEntity(Member member1, Member member2, Post post) {
         return Conversation.builder()
                 .member1(member1)
                 .member2(member2)
+                .post(post)
                 .messages(new ArrayList<>())
                 .build();
     }
