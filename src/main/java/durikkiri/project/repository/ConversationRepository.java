@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ConversationRepository extends JpaRepository<Conversation, Long> {
-    @Query("select c from Conversation c where (c.member1 = :member1 and c.member2 = :member2) or (c.member1 = :member2 and c.member2 = :member1) and c.post = :post")
+    @Query("select c from Conversation c where ((c.member1 = :member1 and c.member2 = :member2) or (c.member1 = :member2 and c.member2 = :member1)) and c.post = :post")
     Optional<Conversation> findByMember1OrMember2(@Param("member1") Member member1, @Param("member2") Member member2, @Param("post") Post post);
 
     @Query("select c from Conversation c join fetch c.member1 join fetch c.member2 where c.member1 =:member or c.member2 =:member")

@@ -19,8 +19,8 @@ public class MessageController {
     private final MessageService messageService;
 
     @GetMapping("/conversation")
-    public ResponseEntity<List<ConversationGetsDto>> getAllConversation() {
-        List<ConversationGetsDto> conversationFromMember = messageService.getConversationFromMember();
+    public ResponseEntity<List<ConversationsGetDto>> getAllConversation() {
+        List<ConversationsGetDto> conversationFromMember = messageService.getConversationFromMember();
         return ResponseEntity.ok(conversationFromMember);
     }
 
