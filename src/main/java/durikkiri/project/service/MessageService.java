@@ -1,6 +1,5 @@
 package durikkiri.project.service;
 
-import durikkiri.project.entity.Conversation;
 import durikkiri.project.entity.dto.message.*;
 
 import java.util.List;
@@ -16,7 +15,7 @@ public interface MessageService {
     void deleteMessage(Long messageId);
 
 
-    List<ConversationGetsDto> getConversationFromMember();
+    List<ConversationsGetDto> getConversationFromMember();
 
     ConversationGetDto getConversation(Long conversationId);
 

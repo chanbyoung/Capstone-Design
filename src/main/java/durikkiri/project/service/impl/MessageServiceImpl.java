@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -35,12 +34,12 @@ public class MessageServiceImpl implements MessageService {
 
 
     @Override
-    public List<ConversationGetsDto> getConversationFromMember() {
+    public List<ConversationsGetDto> getConversationFromMember() {
         String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findByLoginId(memberLoginId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
         return conversationRepository.findByConversation(member).stream()
-                .map(conversation -> ConversationGetsDto.toDto(conversation,member))
+                .map(conversation -> ConversationsGetDto.toDto(conversation,member))
                 .collect(Collectors.toList());
     }
 
@@ -89,12 +88,9 @@ public class MessageServiceImpl implements MessageService {
                 .orElseThrow(() -> new ForbiddenException("Receiver not found"));
         Post post = postRepository.findById(messageCreateDto.getPostId())
                 .orElseThrow(() -> new ForbiddenException("Post not found"));
+        log.info("postId = {}",messageCreateDto.getPostId());
         Conversation conversation = conversationRepository.findByMember1OrMember2(sender, receiver, post)
-                .orElseGet(() -> {
-                    Conversation newConversation = Conversation.toEntity(sender, receiver, post);
-                    conversationRepository.save(newConversation);
-                    return newConversation;
-                });
+                .orElseThrow(() -> new ForbiddenException("Conversation not found"));
 
         Message message = Message.builder()
                 .content(messageCreateDto.getContent())

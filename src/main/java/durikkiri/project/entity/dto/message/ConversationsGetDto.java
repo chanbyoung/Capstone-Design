@@ -12,14 +12,14 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
-public class ConversationGetsDto {
+public class ConversationsGetDto {
     private Long id;
     private String postTitle;
     private Long postId;
     private MemberDto counterpartMember;
     private LocalDateTime recentMessage;
 
-    static public ConversationGetsDto toDto(Conversation conversation, Member currentUser) {
+    static public ConversationsGetDto toDto(Conversation conversation, Member currentUser) {
         Member counterpartMember;
         // 대화에 포함된 회원 중에서 현재 회원과 상대방 회원을 식별하여 저장
         if (conversation.getMember1().equals(currentUser)) {
@@ -28,7 +28,7 @@ public class ConversationGetsDto {
             counterpartMember = conversation.getMember1();
         }
 
-        return ConversationGetsDto.builder()
+        return ConversationsGetDto.builder()
                 .id(conversation.getId())
                 .postTitle(conversation.getPost().getTitle())
                 .postId(conversation.getPost().getId())
