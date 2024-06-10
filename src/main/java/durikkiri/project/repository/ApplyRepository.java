@@ -20,5 +20,6 @@ public interface ApplyRepository extends JpaRepository<Apply, Long> {
 
     // 특정 게시물에 대해 특정 회원의 신청이 존재하는지 확인
     boolean existsByPostAndMember(Post post, Member member);
-
+    @Query("select a from Apply a join fetch a.post p join fetch a.member m where m = :member")
+    List<Apply> findMyApply(@Param("member") Member member);
 }

@@ -42,6 +42,14 @@ public class ApplyServiceImpl implements ApplyService {
     }
 
     @Override
+    public List<AppliesGetsDto> getMyApplies() {
+        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member member = memberRepository.findByLoginId(memberLoginId)
+                .orElseThrow(() -> new ForbiddenException("User not found"));
+        return applyRepository.findMyApply(member).stream().map(AppliesGetsDto::toDto).toList();
+    }
+
+    @Override
     @Transactional
     public void addApply(Long postId, ApplyAddDto applyAddDto) {
         String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();

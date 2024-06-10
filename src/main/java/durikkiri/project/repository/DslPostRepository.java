@@ -64,7 +64,7 @@ public class DslPostRepository {
         return query.select(post)
                 .from(post)
                 .where(builder)
-                .orderBy(post.likeCount.desc())
+                .orderBy(post.viewCount.desc())
                 .limit(5)
                 .fetch();
     }

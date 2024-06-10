@@ -1,6 +1,7 @@
 package durikkiri.project.entity.dto.apply;
 
 import durikkiri.project.entity.Apply;
+import durikkiri.project.entity.ApplyStatus;
 import durikkiri.project.entity.post.FieldCategory;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,6 +16,7 @@ public class AppliesGetsDto {
     private Long id;
     private String postTitle;
     private FieldCategory fieldCategory; // 지원 분야
+    private ApplyStatus applyStatus;
     private String memberName;
     private LocalDateTime createdAt;
 
@@ -22,6 +24,7 @@ public class AppliesGetsDto {
         return AppliesGetsDto.builder()
                 .id(apply.getId())
                 .postTitle(apply.getPost().getTitle())
+                .applyStatus(apply.getApplyStatus())
                 .fieldCategory(apply.getFieldCategory())
                 .memberName(apply.getCreatedBy())
                 .createdAt(apply.getCreatedAt())

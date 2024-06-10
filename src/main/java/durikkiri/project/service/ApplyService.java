@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ApplyService {
     List<AppliesGetsDto> getApplies();
-
+    List<AppliesGetsDto> getMyApplies();
     void addApply(Long postId, ApplyAddDto applyAddDto);
 
     ApplyGetDto getApply(Long applyId);
