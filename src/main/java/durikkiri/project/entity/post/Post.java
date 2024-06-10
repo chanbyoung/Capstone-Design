@@ -12,6 +12,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -53,11 +54,15 @@ public class Post extends BaseEntity {
     private List<TechnologyStack> technologyStackList;
     private Long viewCount;
     private Long likeCount;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
     public void updatePost(PostUpdateDto postUpdateDto) {
         this.title = postUpdateDto.getTitle();
         this.content = postUpdateDto.getContent();
         this.technologyStackList =postUpdateDto.getTechnologyStackList();
+        this.startDate = postUpdateDto.getStartDate();
+        this.endDate = postUpdateDto.getEndDate();
         if (!postUpdateDto.getCategory().equals(Category.GENERAL)) { //일반글일 경우 필드 수정 로직 실행 안함
             fieldUpdate(postUpdateDto);
         }

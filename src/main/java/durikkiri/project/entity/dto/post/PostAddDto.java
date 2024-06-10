@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +28,11 @@ public class PostAddDto {
 
     @NotBlank
     private String content;
+    @NotNull
+    private LocalDate startDate;
+
+    @NotNull
+    private LocalDate endDate;
 
     private List<TechnologyStack> technologyStackList = new ArrayList<>();
 
@@ -45,6 +51,8 @@ public class PostAddDto {
                 .status(Y)
                 .likeCount(0L)
                 .viewCount(0L)
+                .startDate(startDate)
+                .endDate(endDate)
                 .build();
 
         // fieldList의 각 Field에 현재 Post를 설정

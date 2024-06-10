@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,6 +28,8 @@ public class PostGetDto {
     private ImageGetDto image; //이미지의 URL이 저장된필드
     private Long viewCount;
     private Long likeCount;
+    private LocalDate startDate;
+    private LocalDate endDate;
 
     static public PostGetDto toDto(Post post) {
         // Post 엔티티 내의 Field 리스트를 FieldGetDto 리스트로 변환
@@ -51,6 +54,8 @@ public class PostGetDto {
                 .image(Optional.ofNullable(post.getImage()).map(ImageGetDto::toDto).orElse(null))
                 .viewCount(post.getViewCount())
                 .likeCount(post.getLikeCount())
+                .startDate(post.getStartDate())
+                .endDate(post.getEndDate())
                 .build();
     }
 }
