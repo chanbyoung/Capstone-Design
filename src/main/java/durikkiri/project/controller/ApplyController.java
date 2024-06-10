@@ -25,6 +25,10 @@ public class ApplyController {
         List<AppliesGetsDto> applies = applyService.getApplies();
         return ResponseEntity.ok(applies);
     }
+    @GetMapping("/my")
+    public ResponseEntity<List<AppliesGetsDto>> getMyApplies() {
+        return ResponseEntity.ok(applyService.getMyApplies());
+    }
 
     @PostMapping("/apply/{postId}")
     public ResponseEntity<Map<String, String>> addApply(@PathVariable Long postId, @Valid @RequestBody ApplyAddDto applyAddDto,
