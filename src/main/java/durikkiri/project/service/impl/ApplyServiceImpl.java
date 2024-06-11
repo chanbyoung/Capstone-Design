@@ -112,6 +112,9 @@ public class ApplyServiceImpl implements ApplyService {
         if (!apply.getMember().getLoginId().equals(memberLoginId)) {
             throw new ForbiddenException("User not authorized to update this apply");
         }
+        if (apply.getApplyStatus().equals(ACCEPT) || apply.getApplyStatus().equals(REJECT)) {
+            throw new BadRequestException("해당 지원서가 이미 수락/반려 처리되어 수정 할 수 없습니다.");
+        }
         apply.updateContent(applyUpdateDto);
     }
 
