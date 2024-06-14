@@ -59,10 +59,10 @@ public class ApplyController {
     @PatchMapping("/{applyId}")
     public ResponseEntity<Map<String, String>> updateApply(@PathVariable Long applyId,@Valid @RequestBody ApplyUpdateDto applyUpdateDto,
                                               BindingResult bindingResult) {
-        applyService.updateApply(applyId, applyUpdateDto);
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(getErrorMap(bindingResult));
         }
+        applyService.updateApply(applyId, applyUpdateDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("message", "Apply updated successfully"));
     }
 

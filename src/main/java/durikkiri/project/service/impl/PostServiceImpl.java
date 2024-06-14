@@ -93,7 +93,9 @@ public class PostServiceImpl implements PostService {
         if (flag) {
             post.updateViewCount();
         }
-        post.updateStatus();
+        if(!post.getCategory().equals(Category.GENERAL)) {
+            post.updateStatus();
+        }
         return PostGetDto.toDto(post);
     }
     @Override
@@ -107,10 +109,16 @@ public class PostServiceImpl implements PostService {
         String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
         Post post = postRepository.findPostWithField(postId)
                 .orElseThrow(() -> new NotFoundException("Post not found"));
+
         if (!post.getCreatedBy().equals(memberLoginId)) {
             throw new ForbiddenException("User not authorized to update this post");
         }
-        post.updatePost(postUpdateDto);
+        if (postUpdateDto.getStartDate().isAfter(postUpdateDto.getEndDate())) {
+            throw new BadRequestException("시작 날짜는 종료 날짜보다 이후일 수 없습니다.");
+        }
+        if (!post.getCategory().equals(Category.GENERAL)) {
+            post.updatePost(postUpdateDto);
+        }
         updateImage(image, post);
     }
 
