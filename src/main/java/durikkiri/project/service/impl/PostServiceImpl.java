@@ -54,9 +54,6 @@ public class PostServiceImpl implements PostService {
         String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findByLoginId(memberLoginId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
-        if (postAddDto.getStartDate().isAfter(postAddDto.getEndDate())) {
-            throw new BadRequestException("시작 날짜는 종료 날짜보다 이후일 수 없습니다.");
-        }
         checkFieldValid(postAddDto);
         Post savePost = postRepository.save(postAddDto.toEntity(member));
         if (image != null) {
