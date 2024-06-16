@@ -38,7 +38,7 @@ public class ApplyServiceImpl implements ApplyService {
         Member member = memberRepository.findByLoginId(memberLoginId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
 
-        return applyRepository.findApply(member.getId(), ACCEPT).stream().map(AppliesGetsDto::toDto).toList();
+        return applyRepository.findApply(member.getId()).stream().map(AppliesGetsDto::toDto).toList();
     }
 
     @Override
