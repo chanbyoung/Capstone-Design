@@ -5,6 +5,7 @@ import durikkiri.project.entity.Member;
 import durikkiri.project.entity.Message;
 import durikkiri.project.entity.dto.message.*;
 import durikkiri.project.entity.post.Post;
+import durikkiri.project.exception.BadRequestException;
 import durikkiri.project.exception.ForbiddenException;
 import durikkiri.project.exception.NotFoundException;
 import durikkiri.project.repository.ConversationRepository;
@@ -65,6 +66,9 @@ public class MessageServiceImpl implements MessageService {
         String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
         Member sender = memberRepository.findByLoginId(memberLoginId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
+        if (sender.getId().equals(conversationRequestDto.getReceiverId())) {
+            throw new BadRequestException("자기 자신과의 채팅방 생성은 불가능합니다");
+        }
         Member receiver = memberRepository.findById(conversationRequestDto.getReceiverId())
                 .orElseThrow(() -> new ForbiddenException("Receiver not found"));
         Post post = postRepository.findById(conversationRequestDto.getPostId())
