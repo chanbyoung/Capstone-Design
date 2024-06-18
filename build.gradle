@@ -39,6 +39,8 @@ dependencies {
 
 	//Redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	//mail
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 
 
 	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
