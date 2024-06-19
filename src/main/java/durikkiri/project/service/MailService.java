@@ -1,7 +1,10 @@
 package durikkiri.project.service;
 
 import durikkiri.project.entity.dto.MailDto;
+import durikkiri.project.exception.BadRequestException;
+import durikkiri.project.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,7 @@ public class MailService {
     private final JavaMailSender mailSender;
     private static final String FROM_ADDRESS = "pcb7893@naver.com";
     private final Map<String, String> verificationCodes = new HashMap<>();
+    private final MemberRepository memberRepository;
 
     public String generateVerificationCode() {
         Random random = new Random();
@@ -24,6 +28,10 @@ public class MailService {
     }
 
     public void sendVerificationCode(String toEmail) {
+        boolean flag = memberRepository.existsByEmail(toEmail);
+        if (flag) {
+            throw new BadRequestException("이미 가입한 이력이 있는 이메일 입니다.");
+        }
         String verificationCode = generateVerificationCode();
         verificationCodes.put(toEmail, verificationCode); // 인증 코드를 저장
 
