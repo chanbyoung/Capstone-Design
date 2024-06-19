@@ -5,6 +5,7 @@ import durikkiri.project.entity.dto.member.MemberUpdateDto;
 import durikkiri.project.entity.dto.member.SignInDto;
 import durikkiri.project.entity.dto.member.SignUpDto;
 import durikkiri.project.security.JwtToken;
+import durikkiri.project.service.MailService;
 import durikkiri.project.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -26,6 +27,7 @@ import java.util.Map;
 @Slf4j
 public class MemberController {
     private final MemberService memberService;
+    private final MailService mailService;
 
     @PostMapping("/sign-up")
     public ResponseEntity<Map<String , String>> signUp(@Valid @RequestBody SignUpDto signUpDto, BindingResult bindingResult) {
@@ -46,8 +48,26 @@ public class MemberController {
         return ResponseEntity.ok(memberService.checkNicknameDuplicate(nickname));
     }
 
+    @PostMapping("/exists/email")
+    public ResponseEntity<?> sendVerificationCode(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        // 이메일로 인증 코드 전송 로직 (MailService 사용)
+        mailService.sendVerificationCode(email);
+        return ResponseEntity.ok().build();
+    }
+
+    // 이메일 인증 코드 확인
+    @PostMapping("/exists/code")
+    public ResponseEntity<?> verifyCode(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String code = request.get("code");
+        boolean verified = mailService.verifyCode(email, code);
+        return ResponseEntity.ok(Collections.singletonMap("verified", verified));
+    }
+
     @PostMapping("/sign-in")
     public ResponseEntity<JwtToken> signIn(@Valid @RequestBody SignInDto signInDto) {
+
         log.info("{} {}", signInDto.getLoginId(), signInDto.getPassword());
         JwtToken jwtToken = memberService.signIn(signInDto);
         log.info("jwtToken accessToken = {}, refreshToken = {}", jwtToken.getAccessToken(), jwtToken.getRefreshToken());
