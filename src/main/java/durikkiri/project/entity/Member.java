@@ -4,6 +4,7 @@ import durikkiri.project.entity.dto.member.MemberUpdateDto;
 import durikkiri.project.entity.post.Comment;
 import durikkiri.project.entity.post.Post;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -35,6 +36,7 @@ public class Member implements UserDetails {
     @NotBlank
     private String password;
     @NotBlank
+    @Email
     private String email;
     @NotBlank
     private String major;
@@ -83,5 +85,9 @@ public class Member implements UserDetails {
         this.nickname = memberUpdateDto.getNickname();
         this.major = memberUpdateDto.getMajor();
         this.content = memberUpdateDto.getContent();
+    }
+
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
     }
 }
