@@ -1,9 +1,11 @@
 package durikkiri.project.controller;
 
+import durikkiri.project.entity.dto.FindDto;
 import durikkiri.project.entity.dto.member.MemberGetDto;
 import durikkiri.project.entity.dto.member.MemberUpdateDto;
 import durikkiri.project.entity.dto.member.SignInDto;
 import durikkiri.project.entity.dto.member.SignUpDto;
+import durikkiri.project.exception.BadRequestException;
 import durikkiri.project.security.JwtToken;
 import durikkiri.project.service.MailService;
 import durikkiri.project.service.MemberService;
@@ -64,6 +66,39 @@ public class MemberController {
         boolean verified = mailService.verifyCode(email, code);
         return ResponseEntity.ok(Collections.singletonMap("verified", verified));
     }
+
+    @PostMapping("/find")
+    public ResponseEntity<?> sendVerificationCodeToFind(@RequestBody FindDto findDto) {
+        mailService.existsMemberSendVerificationCode(findDto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/exists/id")
+    public ResponseEntity<?> findLoginId(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String code = request.get("code");
+        boolean verified = mailService.verifyCode(email, code);
+        if (!verified) {
+            throw new BadRequestException("인증 코드가 유효하지 않습니다.");
+        }
+        String loginId = memberService.findLoginIdByEmailAndUsername(email);
+        return ResponseEntity.ok(Collections.singletonMap("loginId", loginId));
+    }
+
+    @PostMapping("/find/password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String code = request.get("code");
+        String newPassword = request.get("newPassword");
+
+        boolean verified = mailService.verifyCode(email, code);
+        if (!verified) {
+            throw new BadRequestException("인증 코드가 유효하지 않습니다.");
+        }
+        memberService.changePassword(email, newPassword);
+        return ResponseEntity.ok().build();
+    }
+
 
     @PostMapping("/sign-in")
     public ResponseEntity<JwtToken> signIn(@Valid @RequestBody SignInDto signInDto) {

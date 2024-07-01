@@ -108,6 +108,18 @@ public class MemberServiceImpl implements MemberService {
                 .orElseThrow(() -> new NotFoundException("Member not found"));
         memberRepository.delete(member);
     }
+    @Override
+    public String findLoginIdByEmailAndUsername(String email) {
+        return memberRepository.findMemberByEmail(email)
+                .orElseThrow(() -> new BadRequestException("존재하지 않는 회원입니다.")).getLoginId();
+    }
+
+    @Override
+    public void changePassword(String email, String newPassword) {
+        Member member = memberRepository.findMemberByEmail(email)
+                .orElseThrow(() -> new BadRequestException("존재하지 않는 회원입니다."));
+        member.updatePassword(passwordEncoder.encode(newPassword));
+    }
 
     @Override
     public Boolean checkLoginIdDuplicate(String loginId) {
@@ -117,5 +129,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public Boolean checkNicknameDuplicate(String nickname) {
         return memberRepository.existsByNickname(nickname);
+
     }
+
 }

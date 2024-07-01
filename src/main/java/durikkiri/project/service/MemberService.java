@@ -17,6 +17,9 @@ public interface MemberService {
 
     void deleteMember();
 
+    String findLoginIdByEmailAndUsername(String email);
+    void changePassword(String email, String newPassword);
+
     Boolean checkLoginIdDuplicate(String loginId);
 
     Boolean checkNicknameDuplicate(String nickname);
