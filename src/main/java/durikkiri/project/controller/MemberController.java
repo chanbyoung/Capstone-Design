@@ -73,7 +73,7 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/exists/id")
+    @PostMapping("/find/id")
     public ResponseEntity<?> findLoginId(@RequestBody Map<String, String> request) {
         String email = request.get("email");
         String code = request.get("code");

@@ -115,6 +115,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    @Transactional
     public void changePassword(String email, String newPassword) {
         Member member = memberRepository.findMemberByEmail(email)
                 .orElseThrow(() -> new BadRequestException("존재하지 않는 회원입니다."));

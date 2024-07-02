@@ -20,10 +20,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     boolean existsByNickname(String nickname);
 
     boolean existsByEmail(String email);
-    @Query("select m from Member m join fetch m.roles where m.email = :email and m.username = :username")
-    boolean existsByEmailAndUsername(@Param("email") String email, @Param("username") String username);
-    @Query("select m from Member m join fetch m.roles where m.email = :email and m.username = :username and m.loginId = :loginId")
-    boolean existsByEmailAndUsernameAndLoginId(@Param("email") String email, @Param("username") String username,@Param("loginId") String loginId);
+    boolean existsByEmailAndUsername(String email, String username);
+    boolean existsByEmailAndUsernameAndLoginId(String email, String username,String loginId);
 
     Optional<Member> findMemberByEmail(String email);
 }
