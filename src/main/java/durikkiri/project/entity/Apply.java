@@ -34,14 +34,13 @@ public class Apply extends BaseEntity {
         this.applyStatus = applyStatus;
     }
 
-    public void postFieldUpdate() {
+    public void postFieldUpdate(Boolean flag) {
         Field field = post.getFieldList().stream()
                 .filter(f -> f.getFieldCategory().equals(fieldCategory))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Field not found"));
         try {
-            field.updateCurrentRecruitment();
-            this.applyStatus = ACCEPT;
+            field.updateCurrentRecruitment(flag);
         } catch (IllegalArgumentException e) {
             // 추가적인 예외 처리 (예: 로깅)를 여기에 넣을 수 있습니다.
             throw new IllegalArgumentException("apply deadline");

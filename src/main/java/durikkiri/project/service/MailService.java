@@ -41,7 +41,7 @@ public class MailService {
 
         MailDto mailDto = new MailDto();
         mailDto.setAddress(toEmail);
-        mailDto.setSubject("두리끼리 회원가입 인증번호입니다.");
+        mailDto.setSubject("두리끼리 인증 번호입니다.");
         mailDto.setMessage("인증번호는 : " + verificationCode);
 
         sendMail(mailDto);

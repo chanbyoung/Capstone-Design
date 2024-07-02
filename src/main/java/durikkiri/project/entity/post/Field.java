@@ -34,11 +34,16 @@ public class Field {
         this.totalRecruitment = fieldUpdateDto.getTotalRecruitment();
     }
 
-    public void updateCurrentRecruitment() {
-        if (currentRecruitment + 1 <= totalRecruitment) {
-            currentRecruitment++;
-        } else {
-            throw new RecruitmentException("Current recruitment cannot exceed total recruitment.");
+    public void updateCurrentRecruitment(Boolean flag) {
+        if(flag) {
+            if (currentRecruitment + 1 <= totalRecruitment) {
+                currentRecruitment++;
+            } else {
+                throw new RecruitmentException("Current recruitment cannot exceed total recruitment.");
+            }
+        }
+        else {
+            currentRecruitment --;
         }
     }
 }

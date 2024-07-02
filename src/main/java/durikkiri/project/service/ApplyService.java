@@ -21,4 +21,5 @@ public interface ApplyService {
 
     void deleteApply(Long applyId);
 
+    void cancelApply(Long applyId);
 }
