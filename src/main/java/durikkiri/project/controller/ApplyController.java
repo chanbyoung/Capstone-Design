@@ -56,6 +56,13 @@ public class ApplyController {
         return ResponseEntity.status(HttpStatus.OK).body(Collections.singletonMap("message", "Apply status updated successfully"));
     }
 
+    //지원이 수락된 지원서를 취소하는 메서드
+    @PatchMapping("/{applyId}/cancel")
+    public ResponseEntity<String> cancelApply(@PathVariable Long applyId) {
+        applyService.cancelApply(applyId);
+        return ResponseEntity.ok("Apply cancel successfully");
+    }
+
     @PatchMapping("/{applyId}")
     public ResponseEntity<Map<String, String>> updateApply(@PathVariable Long applyId,@Valid @RequestBody ApplyUpdateDto applyUpdateDto,
                                               BindingResult bindingResult) {

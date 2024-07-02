@@ -94,11 +94,33 @@ public class ApplyServiceImpl implements ApplyService {
             throw new ForbiddenException("User not authorized to accept or reject this apply");
         }
         if (applyStatus.equals(ACCEPT)) {
-            apply.postFieldUpdate();
+            if (apply.getApplyStatus().equals(ACCEPT)) {
+                throw new BadRequestException("이미 수락처리된 지원서입니다");
+            }
+            apply.updateStatus(ACCEPT);
+            apply.postFieldUpdate(true);
             apply.getPost().updateStatus();
         } else {
             apply.updateStatus(applyStatus);
         }
+    }
+
+    @Override
+    @Transactional
+    public void cancelApply(Long applyId) {
+        Apply apply = applyRepository.findApplyWithPost(applyId)
+                .orElseThrow(() -> new NotFoundException("Apply not found"));
+        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        // 게시물 작성자 검증
+        if (!apply.getPost().getMember().getLoginId().equals(memberLoginId)) {
+            throw new ForbiddenException("User not authorized to accept or reject this apply");
+        }
+        if (apply.getApplyStatus().equals(REJECT)) {
+            throw new BadRequestException("이미 취소처리된 지원서입니다.");
+        }
+        apply.postFieldUpdate(false);
+        apply.updateStatus(REJECT);
+        apply.getPost().updateStatus();
     }
 
     @Override
