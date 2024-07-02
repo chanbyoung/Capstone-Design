@@ -86,4 +86,8 @@ public class Member implements UserDetails {
         this.major = memberUpdateDto.getMajor();
         this.content = memberUpdateDto.getContent();
     }
+
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
+    }
 }
