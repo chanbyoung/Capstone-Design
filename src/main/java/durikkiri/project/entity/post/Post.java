@@ -11,18 +11,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Slf4j
 public class Post extends BaseEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "post_id")
@@ -95,10 +94,12 @@ public class Post extends BaseEntity {
     }
 
     public void updateStatus() {
-        boolean allBalanced = this.fieldList.stream()
+        boolean recruitmentDeadline = this.fieldList.stream()
                 .allMatch(field ->
                         field.getCurrentRecruitment() == field.getTotalRecruitment());
-        if (allBalanced) {
+        boolean dateDeadline= endDate.isBefore(LocalDate.now());
+        log.info("{}", dateDeadline);
+        if (recruitmentDeadline || dateDeadline) {
             // 모든 field의 currentRecruitment와 totalRecruitment가 같은 경우
             // Post 엔티티 업데이트 로직 실행
             this.status = RecruitmentStatus.N;
