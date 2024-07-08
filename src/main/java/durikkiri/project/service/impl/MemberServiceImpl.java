@@ -54,6 +54,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    @Transactional
     public JwtToken signIn(SignInDto signInDto) {
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(signInDto.getLoginId(), signInDto.getPassword());
@@ -63,6 +64,11 @@ public class MemberServiceImpl implements MemberService {
         } catch (Exception e) {
             throw new AuthenticationException("Invalid login credentials");
         }
+    }
+
+    @Override
+    public JwtToken refreshAccessToken(String refreshToken) {
+        return jwtTokenProvider.refreshAccessToken(refreshToken);
     }
 
     @Override

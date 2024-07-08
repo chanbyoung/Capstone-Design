@@ -26,4 +26,6 @@ public interface MemberService {
 
 
     void logout(String jwtToken);
+
+    JwtToken refreshAccessToken(String refreshToken);
 }

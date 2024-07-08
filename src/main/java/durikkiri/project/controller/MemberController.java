@@ -109,6 +109,13 @@ public class MemberController {
         return ResponseEntity.ok(jwtToken);
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity<JwtToken> refreshToken(@RequestBody String refreshToken) {
+        JwtToken newToken = memberService.refreshAccessToken(refreshToken);
+        log.info("refresh call");
+        return ResponseEntity.ok(newToken);
+    }
+
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletRequest request) {
         String jwtToken = resolveToken(request);

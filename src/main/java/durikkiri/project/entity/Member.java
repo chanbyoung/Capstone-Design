@@ -35,6 +35,9 @@ public class Member implements UserDetails {
     private String loginId;
     @NotBlank
     private String password;
+
+    private String refreshToken;
+
     @NotBlank
     @Email
     private String email;
@@ -89,5 +92,9 @@ public class Member implements UserDetails {
 
     public void updatePassword(String newPassword) {
         this.password = newPassword;
+    }
+
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }
