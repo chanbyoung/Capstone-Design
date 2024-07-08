@@ -12,6 +12,7 @@ import lombok.Getter;
 public class ApplyGetDto {
     private String postTitle;
     private Long memberId;
+    private String memberName;
     private Long postId;
     private Category postCategory;
     private FieldCategory fieldCategory;
@@ -23,6 +24,7 @@ public class ApplyGetDto {
                 .postTitle(apply.getPost().getTitle())
                 .postId(apply.getPost().getId())
                 .postCategory(apply.getPost().getCategory())
+                .memberName(apply.getMember().getNickname())
                 .memberId(apply.getMember().getId())
                 .fieldCategory(apply.getFieldCategory())
                 .applyStatus(apply.getApplyStatus())

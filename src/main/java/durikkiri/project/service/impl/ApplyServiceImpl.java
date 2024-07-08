@@ -7,6 +7,7 @@ import durikkiri.project.entity.Apply;
 import durikkiri.project.entity.ApplyStatus;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.entity.dto.apply.ApplyAddDto;
+import durikkiri.project.entity.post.RecruitmentStatus;
 import durikkiri.project.exception.*;
 import durikkiri.project.repository.ApplyRepository;
 import durikkiri.project.repository.MemberRepository;
@@ -57,18 +58,25 @@ public class ApplyServiceImpl implements ApplyService {
                 .orElseThrow(() -> new ForbiddenException("User not found"));
         Post post = postRepository.findPostWithField(postId)
                 .orElseThrow(() -> new NotFoundException("Post not found"));
+        valid(post, member);
+
+        Apply apply = applyAddDto.toEntity(post, member);
+        applyRepository.save(apply);
+    }
+
+    private void valid(Post post, Member member) {
         // post의 작성자인 member와 현재 로그인한 member가 동일한지 확인
         if (post.getMember().equals(member)) {
             throw new BadRequestException("You cannot apply to your own post");
+        }
+        if (post.getStatus().equals(RecruitmentStatus.N)) {
+            throw new BadRequestException("이미 모집이 완료된 게시글입니다.");
         }
         //중복 신청 방지
         boolean alreadyApplied = applyRepository.existsByPostAndMember(post, member);
         if (alreadyApplied) {
             throw new BadRequestException("You have already applied to this post");
         }
-
-        Apply apply = applyAddDto.toEntity(post, member);
-        applyRepository.save(apply);
     }
 
     @Override
