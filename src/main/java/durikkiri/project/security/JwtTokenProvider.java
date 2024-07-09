@@ -1,7 +1,6 @@
 package durikkiri.project.security;
 
 import durikkiri.project.entity.Member;
-import durikkiri.project.exception.AuthenticationException;
 import durikkiri.project.exception.ForbiddenException;
 import durikkiri.project.repository.MemberRepository;
 import io.jsonwebtoken.*;
@@ -52,6 +51,7 @@ public class JwtTokenProvider {
 
         // Refresh Token 생성
         String refreshToken = Jwts.builder()
+                .setSubject(authentication.getName())
                 .setExpiration(new Date(now + 86400000)) // 24 hours
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
@@ -73,10 +73,9 @@ public class JwtTokenProvider {
         if (!validateRefreshToken(refreshToken)) {
             throw new ForbiddenException("Invalid refresh token");
         }
-
         String username = getUsernameFromToken(refreshToken);
         Member member = memberRepository.findByLoginId(username)
-                .orElseThrow(() -> new ForbiddenException("Invalid refresh token"));
+                .orElseThrow(() -> new ForbiddenException("유저 이름이 없습니다."));
 
         if (!member.getRefreshToken().equals(refreshToken)) {
             throw new ForbiddenException("Invalid refresh token");
@@ -130,7 +129,7 @@ public class JwtTokenProvider {
         } catch (SecurityException | MalformedJwtException e) {
             log.info("invalid JWT Token", e);
         } catch (ExpiredJwtException e) {
-            throw new AuthenticationException("Expired JWT Token");
+            log.info("Expired JWT Token", e);
         } catch (UnsupportedJwtException e) {
             log.info("Unsupported JWT Token", e);
         } catch (IllegalArgumentException e) {

@@ -40,7 +40,7 @@ public class SecurityConfig {
                                 .requestMatchers("/api").permitAll()
                                 .requestMatchers("/api/posts/**").permitAll()
                                 .requestMatchers("/api/members/**").permitAll()
-                                .requestMatchers("/api/mebmers/find/**").permitAll()
+                                .requestMatchers("/api/members/find/**").permitAll()
                                 .requestMatchers("/api/members/exists/**").permitAll()
                                 .requestMatchers("/api/members/test").hasRole("USER")
                                 .requestMatchers("/api/messages/conversation/**").permitAll()
