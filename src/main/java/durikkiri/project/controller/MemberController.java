@@ -1,5 +1,6 @@
 package durikkiri.project.controller;
 
+import durikkiri.project.entity.dto.ExistDto;
 import durikkiri.project.entity.dto.FindDto;
 import durikkiri.project.entity.dto.member.MemberGetDto;
 import durikkiri.project.entity.dto.member.MemberUpdateDto;
@@ -51,19 +52,17 @@ public class MemberController {
     }
 
     @PostMapping("/exists/email")
-    public ResponseEntity<?> sendVerificationCode(@RequestBody Map<String, String> request) {
-        String email = request.get("email");
+    public ResponseEntity<?> sendVerificationCode(@RequestBody ExistDto existDto) {
         // 이메일로 인증 코드 전송 로직 (MailService 사용)
-        mailService.sendVerificationCode(email);
+        mailService.sendVerificationCode(existDto.getEmail());
         return ResponseEntity.ok().build();
     }
 
     // 이메일 인증 코드 확인
     @PostMapping("/exists/code")
-    public ResponseEntity<?> verifyCode(@RequestBody Map<String, String> request) {
-        String email = request.get("email");
-        String code = request.get("code");
-        boolean verified = mailService.verifyCode(email, code);
+    public ResponseEntity<?> verifyCode(@RequestBody ExistDto existDto) {
+
+        boolean verified = mailService.verifyCode(existDto);
         return ResponseEntity.ok(Collections.singletonMap("verified", verified));
     }
 
@@ -74,28 +73,23 @@ public class MemberController {
     }
 
     @PostMapping("/find/id")
-    public ResponseEntity<?> findLoginId(@RequestBody Map<String, String> request) {
-        String email = request.get("email");
-        String code = request.get("code");
-        boolean verified = mailService.verifyCode(email, code);
+    public ResponseEntity<?> findLoginId(@RequestBody ExistDto existDto) {
+        boolean verified = mailService.verifyCode(existDto);
         if (!verified) {
             throw new BadRequestException("인증 코드가 유효하지 않습니다.");
         }
-        String loginId = memberService.findLoginIdByEmailAndUsername(email);
+        String loginId = memberService.findLoginIdByEmailAndUsername(existDto.getEmail());
         return ResponseEntity.ok(Collections.singletonMap("loginId", loginId));
     }
 
     @PostMapping("/find/password")
-    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
-        String email = request.get("email");
-        String code = request.get("code");
-        String newPassword = request.get("newPassword");
+    public ResponseEntity<?> resetPassword(@RequestBody ExistDto existDto) {
 
-        boolean verified = mailService.verifyCode(email, code);
+        boolean verified = mailService.verifyCode(existDto);
         if (!verified) {
             throw new BadRequestException("인증 코드가 유효하지 않습니다.");
         }
-        memberService.changePassword(email, newPassword);
+        memberService.changePassword(existDto);
         return ResponseEntity.ok().build();
     }
 
@@ -129,7 +123,7 @@ public class MemberController {
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
+            return bearerToken.substring("Bearer ".length());
         }
         return null;
     }

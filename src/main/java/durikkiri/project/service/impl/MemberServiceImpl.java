@@ -1,5 +1,6 @@
 package durikkiri.project.service.impl;
 import durikkiri.project.entity.Member;
+import durikkiri.project.entity.dto.ExistDto;
 import durikkiri.project.entity.dto.member.MemberGetDto;
 import durikkiri.project.entity.dto.member.MemberUpdateDto;
 import durikkiri.project.entity.dto.member.SignInDto;
@@ -122,10 +123,10 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public void changePassword(String email, String newPassword) {
-        Member member = memberRepository.findMemberByEmail(email)
+    public void changePassword(ExistDto existDto) {
+        Member member = memberRepository.findMemberByEmail(existDto.getEmail())
                 .orElseThrow(() -> new BadRequestException("존재하지 않는 회원입니다."));
-        member.updatePassword(passwordEncoder.encode(newPassword));
+        member.updatePassword(passwordEncoder.encode(existDto.getNewPassword()));
     }
 
     @Override
