@@ -15,6 +15,8 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("select m from Member m join fetch m.postList where m.id = :id")
     Optional<Member> findMemberWithPost(@Param("id") Long id);
 
+    Optional<Member> findByRefreshToken(String refreshToken);
+
     boolean existsByLoginId(String loginId);
 
     boolean existsByNickname(String nickname);

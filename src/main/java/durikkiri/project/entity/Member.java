@@ -6,6 +6,7 @@ import durikkiri.project.entity.post.Post;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -32,9 +33,15 @@ public class Member implements UserDetails {
     private String nickname;
     private String content;
     @NotBlank
+    @Pattern(regexp = "^[a-zA-Z0-9]*$", message = "로그인 ID는 숫자와 영문자만 포함할 수 있습니다.")
     private String loginId;
     @NotBlank
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*\\d)[a-zA-Z\\d!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]*$",
+            message = "비밀번호는 적어도 하나의 소문자와 하나의 숫자를 포함해야 합니다")
     private String password;
+
+    private String refreshToken;
+
     @NotBlank
     @Email
     private String email;
@@ -89,5 +96,9 @@ public class Member implements UserDetails {
 
     public void updatePassword(String newPassword) {
         this.password = newPassword;
+    }
+
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }

@@ -1,5 +1,6 @@
 package durikkiri.project.service;
 
+import durikkiri.project.entity.dto.ExistDto;
 import durikkiri.project.entity.dto.FindDto;
 import durikkiri.project.entity.dto.MailDto;
 import durikkiri.project.exception.BadRequestException;
@@ -47,9 +48,9 @@ public class MailService {
         sendMail(mailDto);
     }
 
-    public boolean verifyCode(String email, String code) {
-        String storedCode = verificationCodes.get(email);
-        return storedCode != null && storedCode.equals(code);
+    public boolean verifyCode(ExistDto existDto) {
+        String storedCode = verificationCodes.get(existDto.getEmail());
+        return storedCode != null && storedCode.equals(existDto.getCode());
     }
 
     public void sendMail(MailDto mailDto) {

@@ -1,5 +1,6 @@
 package durikkiri.project.service;
 
+import durikkiri.project.entity.dto.ExistDto;
 import durikkiri.project.entity.dto.member.MemberGetDto;
 import durikkiri.project.entity.dto.member.MemberUpdateDto;
 import durikkiri.project.entity.dto.member.SignInDto;
@@ -18,7 +19,7 @@ public interface MemberService {
     void deleteMember();
 
     String findLoginIdByEmailAndUsername(String email);
-    void changePassword(String email, String newPassword);
+    void changePassword(ExistDto existDto);
 
     Boolean checkLoginIdDuplicate(String loginId);
 
@@ -26,4 +27,6 @@ public interface MemberService {
 
 
     void logout(String jwtToken);
+
+    JwtToken refreshAccessToken(String refreshToken);
 }
