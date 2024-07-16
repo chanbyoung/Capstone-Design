@@ -116,9 +116,7 @@ public class PostServiceImpl implements PostService {
         if (postUpdateDto.getStartDate().isAfter(postUpdateDto.getEndDate())) {
             throw new BadRequestException("시작 날짜는 종료 날짜보다 이후일 수 없습니다.");
         }
-        if (!post.getCategory().equals(Category.GENERAL)) {
-            post.updatePost(postUpdateDto);
-        }
+        post.updatePost(postUpdateDto);
         updateImage(image, post);
     }
 
