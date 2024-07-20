@@ -4,20 +4,15 @@ import durikkiri.project.entity.Image;
 import durikkiri.project.entity.Member;
 import durikkiri.project.entity.dto.post.*;
 import durikkiri.project.entity.post.Category;
-import durikkiri.project.entity.post.Field;
-import durikkiri.project.entity.post.FieldCategory;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.exception.BadRequestException;
-import durikkiri.project.exception.NotFoundException;
 import durikkiri.project.repository.*;
 import durikkiri.project.service.impl.PostServiceImpl;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -27,7 +22,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.xml.validation.Validator;
 
 import java.io.File;
 import java.io.IOException;
@@ -55,7 +49,7 @@ class PostServiceTest {
     @Mock
     private Authentication authentication;
     private PostService postService;
-    private static String testUser = "TESTUSER";
+    private final String testUser = "TESTUSER";
     @BeforeEach
     void setUp() {
         postService = postServiceImpl;
