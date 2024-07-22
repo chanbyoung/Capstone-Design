@@ -1,5 +1,6 @@
 package durikkiri.project.controller;
 
+import durikkiri.project.entity.ApplyStatus;
 import durikkiri.project.entity.dto.apply.*;
 import durikkiri.project.service.ApplyService;
 import jakarta.validation.Valid;
@@ -49,7 +50,7 @@ public class ApplyController {
     @PostMapping("/{applyId}")
     public ResponseEntity<Map<String, String>> acceptApply(@PathVariable Long applyId,@Valid @RequestBody ApplyPostDto applyPostDto,
                                               BindingResult bindingResult) {
-        applyService.acceptApply(applyId, applyPostDto.getApplyStatus());
+        applyService.updateApplyStatus(applyId, applyPostDto.getApplyStatus());
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(getErrorMap(bindingResult));
         }
@@ -59,7 +60,7 @@ public class ApplyController {
     //지원이 수락된 지원서를 취소하는 메서드
     @PatchMapping("/{applyId}/cancel")
     public ResponseEntity<String> cancelApply(@PathVariable Long applyId) {
-        applyService.cancelApply(applyId);
+        applyService.updateApplyStatus(applyId, ApplyStatus.REJECT);
         return ResponseEntity.ok("Apply cancel successfully");
     }
 

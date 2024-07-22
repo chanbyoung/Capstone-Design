@@ -15,11 +15,10 @@ public interface ApplyService {
 
     ApplyGetDto getApply(Long applyId);
 
-    void acceptApply(Long applyId, ApplyStatus applyStatus);
+    void updateApplyStatus(Long applyId, ApplyStatus applyStatus);
 
     void updateApply(Long applyId, ApplyUpdateDto applyUpdateDto);
 
     void deleteApply(Long applyId);
 
-    void cancelApply(Long applyId);
 }

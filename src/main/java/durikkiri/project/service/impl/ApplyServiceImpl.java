@@ -93,7 +93,7 @@ public class ApplyServiceImpl implements ApplyService {
 
     @Override
     @Transactional
-    public void acceptApply(Long applyId, ApplyStatus applyStatus) {
+    public void updateApplyStatus(Long applyId, ApplyStatus applyStatus) {
         Apply apply = applyRepository.findApplyWithPost(applyId)
                 .orElseThrow(() -> new NotFoundException("Apply not found"));
         String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -108,27 +108,17 @@ public class ApplyServiceImpl implements ApplyService {
             apply.updateStatus(ACCEPT);
             apply.postFieldUpdate(true);
             apply.getPost().updateStatus();
+
+        } else if (applyStatus.equals(REJECT)) {
+            if (apply.getApplyStatus().equals(REJECT)) {
+                throw new BadRequestException("이미 취소처리된 지원서입니다");
+            }
+            apply.updateStatus(REJECT);
+            apply.postFieldUpdate(false);
+            apply.getPost().updateStatus();
         } else {
             apply.updateStatus(applyStatus);
         }
-    }
-
-    @Override
-    @Transactional
-    public void cancelApply(Long applyId) {
-        Apply apply = applyRepository.findApplyWithPost(applyId)
-                .orElseThrow(() -> new NotFoundException("Apply not found"));
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-        // 게시물 작성자 검증
-        if (!apply.getPost().getMember().getLoginId().equals(memberLoginId)) {
-            throw new ForbiddenException("User not authorized to accept or reject this apply");
-        }
-        if (apply.getApplyStatus().equals(REJECT)) {
-            throw new BadRequestException("이미 취소처리된 지원서입니다.");
-        }
-        apply.postFieldUpdate(false);
-        apply.updateStatus(REJECT);
-        apply.getPost().updateStatus();
     }
 
     @Override
