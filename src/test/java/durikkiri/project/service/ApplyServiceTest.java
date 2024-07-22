@@ -260,7 +260,7 @@ class ApplyServiceTest {
         when(applyRepository.findApplyWithPost(apply.getId())).thenReturn(Optional.of(apply));
 
         //when
-        applyService.acceptApply(1L, ApplyStatus.ACCEPT);
+        applyService.updateApplyStatus(1L, ApplyStatus.ACCEPT);
 
         //then
         assertThat(apply.getApplyStatus()).isEqualTo(ApplyStatus.ACCEPT);
@@ -289,7 +289,7 @@ class ApplyServiceTest {
 
         //then
         assertThrows(BadRequestException.class, () ->
-                applyService.acceptApply(apply.getId(), ApplyStatus.ACCEPT));
+                applyService.updateApplyStatus(apply.getId(), ApplyStatus.ACCEPT));
     }
 
     @Test
@@ -317,7 +317,7 @@ class ApplyServiceTest {
         when(applyRepository.findApplyWithPost(apply.getId())).thenReturn(Optional.of(apply));
 
         // when
-        applyService.cancelApply(apply.getId());
+        applyService.updateApplyStatus(apply.getId(), ApplyStatus.REJECT);
 
         //then
         assertThat(apply.getApplyStatus()).isEqualTo(ApplyStatus.REJECT);
