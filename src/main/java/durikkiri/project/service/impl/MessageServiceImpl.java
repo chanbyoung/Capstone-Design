@@ -141,6 +141,6 @@ public class MessageServiceImpl implements MessageService {
         if (!message.getSender().getId().equals(member.getId())) {
             throw new ForbiddenException("You do not have permission to delete this message");
         }
-        memberRepository.deleteById(messageId);
+        messageRepository.deleteById(messageId);
     }
 }
