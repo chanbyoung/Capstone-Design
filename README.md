@@ -31,6 +31,5 @@
 ---
 
 ## ERD
-
-![img.png](img.png)
+<img width="647" alt="스크린샷 2024-08-03 오전 3 18 09" src="https://github.com/user-attachments/assets/c13a7b05-9439-4288-bc78-13c7907c7e1c">
 
