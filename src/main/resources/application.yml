@@ -9,11 +9,15 @@ spring:
       hibernate:
         default_batch_fetch_size: 100
         # show_sql: true
-        format_sql: true
+        format_sql: true경
   servlet:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
+  data:
+    redis:
+      repositories:
+        enabled: false
 
   mvc:
     static-path-pattern: /images/**
