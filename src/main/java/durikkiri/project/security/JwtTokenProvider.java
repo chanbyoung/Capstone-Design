@@ -9,6 +9,9 @@ import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.RedisConnectionFailureException;
+import org.springframework.data.redis.RedisSystemException;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,6 +24,7 @@ import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -62,10 +66,8 @@ public class JwtTokenProvider {
                 .setExpiration(new Date(now + 86400000)) // 24 hours
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
-
-        log.info(" refresh Token = {} ", refreshToken);
         //redis에 refreshToken 저장
-        saveRefreshToken(authentication.getName(), refreshToken);
+        saveRefreshTokenWithAuth(authentication.getName(), refreshToken, authorities);
 
         return JwtToken.builder()
                 .grantType("Bearer")
@@ -73,8 +75,24 @@ public class JwtTokenProvider {
                 .refreshToken(refreshToken)
                 .build();
     }
-    private void saveRefreshToken(String loginId, String refreshToken) {
-        redisTemplate.opsForValue().set(loginId, refreshToken, 24, TimeUnit.HOURS); // 24시간 유효
+    // Redis에 Refresh Token과 권한 정보 함께 저장
+    private void saveRefreshTokenWithAuth(String loginId, String refreshToken, String authorities) {
+        try {
+            HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("refreshToken", refreshToken);
+            map.put("authorities", authorities);
+            hashOperations.putAll(loginId, map);
+
+            // TTL 설정
+            redisTemplate.expire(loginId, 1, TimeUnit.DAYS); // 24시간 유효
+        } catch (RedisConnectionFailureException e) {
+            log.error("Redis connection failure", e);
+        } catch (RedisSystemException e) {
+            log.error("Redis system exception", e);
+        } catch (Exception e) {
+            log.error("Unexpected error occurred while saving to Redis", e);
+        }
     }
 
     // Refresh Token을 사용하여 새로운 Access Token을 생성하는 메서드
@@ -83,23 +101,23 @@ public class JwtTokenProvider {
             throw new ForbiddenException("Invalid refresh token");
         }
 
-        String username = getUsernameFromToken(refreshToken);
-        String authorities = (String) parseClaims(refreshToken).get("auth");
+        String loginId = getUsernameFromToken(refreshToken);
 
-        String storedRefreshToken = (String) redisTemplate.opsForValue().get(username);
+        String storedRefreshToken = (String) redisTemplate.opsForHash().get(loginId,"refreshToken");
+        String authorities = (String) redisTemplate.opsForHash().get(loginId, "authorities");
         if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
             throw new ForbiddenException("Invalid refresh token");
         }
 
-        Member member = memberRepository.findByLoginId(username)
+        Member member = memberRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new ForbiddenException("유저 이름이 없습니다."));
         long now = (new Date()).getTime();
 
-        log.info("memberLoginId = "+member.getLoginId() + " username" + username);
+        log.info("memberLoginId = "+member.getLoginId() + " loginId" + loginId);
         // Access Token 생성
         Date accessTokenExpiresIn = new Date(now + 1800000); // 30 minutes
         String newAccessToken = Jwts.builder()
-                .setSubject(username)
+                .setSubject(loginId)
                 .claim("auth", authorities)
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -110,6 +128,15 @@ public class JwtTokenProvider {
                 .accessToken(newAccessToken)
                 .refreshToken(refreshToken) // Use the same refresh token
                 .build();
+    }
+    // 토큰에서 사용자 이름을 추출하는 메서드
+    public String getUsernameFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.getSubject();
     }
 
     // Jwt 토큰을 복호화하여 토큰에 들어있는 정보를 꺼내는 메서드
@@ -160,16 +187,6 @@ public class JwtTokenProvider {
             log.info("Invalid Refresh Token", e);
             return false;
         }
-    }
-
-    // 토큰에서 사용자 이름을 추출하는 메서드
-    public String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-        return claims.getSubject();
     }
 
     private Claims parseClaims(String token) {
