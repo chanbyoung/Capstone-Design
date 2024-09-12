@@ -40,8 +40,6 @@ public class Member implements UserDetails {
             message = "비밀번호는 적어도 하나의 소문자와 하나의 숫자를 포함해야 합니다")
     private String password;
 
-    private String refreshToken;
-
     @NotBlank
     @Email
     private String email;
@@ -98,7 +96,4 @@ public class Member implements UserDetails {
         this.password = newPassword;
     }
 
-    public void updateRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
 }

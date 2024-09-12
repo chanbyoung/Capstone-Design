@@ -96,10 +96,8 @@ public class MemberController {
 
     @PostMapping("/sign-in")
     public ResponseEntity<JwtToken> signIn(@Valid @RequestBody SignInDto signInDto) {
-
-        log.info("{} {}", signInDto.getLoginId(), signInDto.getPassword());
         JwtToken jwtToken = memberService.signIn(signInDto);
-        log.info("jwtToken accessToken = {}, refreshToken = {}", jwtToken.getAccessToken(), jwtToken.getRefreshToken());
+        log.info("{} 로그인 성공", signInDto.getLoginId());
         return ResponseEntity.ok(jwtToken);
     }
 
