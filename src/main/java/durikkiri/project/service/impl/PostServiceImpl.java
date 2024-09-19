@@ -7,18 +7,16 @@ import durikkiri.project.entity.dto.comment.CommentDto;
 import durikkiri.project.entity.dto.post.*;
 import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Comment;
+import durikkiri.project.entity.post.Like;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.exception.*;
-import durikkiri.project.repository.CommentRepository;
-import durikkiri.project.repository.MemberRepository;
-import durikkiri.project.repository.ImageRepository;
-import durikkiri.project.repository.PostRepository;
+import durikkiri.project.repository.*;
 import durikkiri.project.service.PostService;
-import durikkiri.project.repository.DslPostRepository;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,6 +42,7 @@ public class PostServiceImpl implements PostService {
     private final DslPostRepository dslPostRepository;
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
+    private final LikeRepository likeRepository;
     private final Validator validator;
     @Value("${file.dir}")
     private String fileDir;
@@ -183,5 +182,24 @@ public class PostServiceImpl implements PostService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new NotFoundException("Comment not found"));
         commentRepository.delete(comment);
+    }
+    @Override
+    @Transactional
+    public void toggleLike(Long postId) {
+        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<Like> existingLike = likeRepository.findByPostIdAndMemberId(postId, memberLoginId);
+
+        if (existingLike.isPresent()) {
+            likeRepository.delete(existingLike.get());
+            return;
+        }
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new NotFoundException("Post not found"));
+        Member member = memberRepository.findByLoginId(memberLoginId)
+                .orElseThrow(() -> new NotFoundException("Member not found"));
+
+        // 새로운 Like 엔티티 생성 후 저장
+        Like newLike = Like.toEntity(member, post);
+        likeRepository.save(newLike);
     }
 }
