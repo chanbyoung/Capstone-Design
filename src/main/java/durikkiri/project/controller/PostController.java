@@ -124,11 +124,6 @@ public class PostController {
         return new ResponseEntity<>("Comment deleted successfully", HttpStatus.OK);
     }
 
-    @PostMapping("/{postId}/like")
-    public ResponseEntity<String> addLike(@PathVariable Long postId) {
-        postService.toggleLike(postId);
-        return new ResponseEntity<>("Like add successfully", HttpStatus.OK);
-    }
 
     private Map<String, String> getErrorMap(BindingResult bindingResult) {
         Map<String, String> errors = new HashMap<>();

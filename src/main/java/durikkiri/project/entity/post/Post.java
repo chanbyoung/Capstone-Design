@@ -89,6 +89,14 @@ public class Post extends BaseEntity {
         this.viewCount ++;
     }
 
+    public void updateLikeCount(Boolean flag) {
+        if (flag) {
+            this.likeCount ++;
+            return;
+        }
+        this.likeCount --;
+    }
+
     public void updateComment(Comment comment) {
         this.commentList.add(comment);
     }

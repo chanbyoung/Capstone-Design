@@ -42,7 +42,6 @@ public class PostServiceImpl implements PostService {
     private final DslPostRepository dslPostRepository;
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
-    private final LikeRepository likeRepository;
     private final Validator validator;
     @Value("${file.dir}")
     private String fileDir;
@@ -183,23 +182,5 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new NotFoundException("Comment not found"));
         commentRepository.delete(comment);
     }
-    @Override
-    @Transactional
-    public void toggleLike(Long postId) {
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Optional<Like> existingLike = likeRepository.findByPostIdAndMemberId(postId, memberLoginId);
 
-        if (existingLike.isPresent()) {
-            likeRepository.delete(existingLike.get());
-            return;
-        }
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new NotFoundException("Post not found"));
-        Member member = memberRepository.findByLoginId(memberLoginId)
-                .orElseThrow(() -> new NotFoundException("Member not found"));
-
-        // 새로운 Like 엔티티 생성 후 저장
-        Like newLike = Like.toEntity(member, post);
-        likeRepository.save(newLike);
-    }
 }

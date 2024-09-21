@@ -32,5 +32,4 @@ public interface PostService {
 
     void deleteComment(Long commentId);
 
-    void toggleLike(Long postId);
 }
