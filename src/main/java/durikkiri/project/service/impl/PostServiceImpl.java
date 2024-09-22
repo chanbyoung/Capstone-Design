@@ -39,6 +39,7 @@ import java.util.stream.Collectors;
 public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final ImageRepository imageRepository;
+    private final LikeRepository likeRepository;
     private final DslPostRepository dslPostRepository;
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
@@ -94,7 +95,12 @@ public class PostServiceImpl implements PostService {
         if(!post.getCategory().equals(Category.GENERAL)) {
             post.updateStatus();
         }
-        return PostGetDto.toDto(post);
+        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        boolean isLiked = false;
+        if (!memberLoginId.equals("anonymousUser")) {
+            isLiked = likeRepository.findByPostIdAndMemberId(postId, memberLoginId).isPresent();
+        }
+        return PostGetDto.toDto(post, isLiked);
     }
     @Override
     public List<HomeGetDto> getHome() {

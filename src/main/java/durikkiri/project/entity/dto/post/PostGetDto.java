@@ -1,6 +1,7 @@
 package durikkiri.project.entity.dto.post;
 
 import durikkiri.project.entity.dto.comment.CommentGetDto;
+import durikkiri.project.entity.post.Like;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.entity.post.TechnologyStack;
 import jakarta.validation.constraints.NotBlank;
@@ -30,8 +31,9 @@ public class PostGetDto {
     private Long likeCount;
     private LocalDate startDate;
     private LocalDate endDate;
+    private Boolean isLiked;
 
-    static public PostGetDto toDto(Post post) {
+    static public PostGetDto toDto(Post post, Boolean isLiked) {
         // Post 엔티티 내의 Field 리스트를 FieldGetDto 리스트로 변환
         List<FieldGetDto> fieldGetDtoList = post.getFieldList().stream()
                 .map(FieldGetDto::toDto) // 각 Field 엔티티를 FieldGetDto로 변환
@@ -40,8 +42,6 @@ public class PostGetDto {
         List<CommentGetDto> commentGetDtoList = post.getCommentList().stream()
                 .map(CommentGetDto::toDto)
                 .toList();
-
-
 
         return PostGetDto.builder()
                 .title(post.getTitle())
@@ -56,6 +56,7 @@ public class PostGetDto {
                 .likeCount(post.getLikeCount())
                 .startDate(post.getStartDate())
                 .endDate(post.getEndDate())
+                .isLiked(isLiked)
                 .build();
     }
 }
