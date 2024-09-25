@@ -44,6 +44,7 @@ public class PostGetDto {
                 .toList();
 
         return PostGetDto.builder()
+                .postId(post.getId())
                 .title(post.getTitle())
                 .category(post.getCategory().getValue())
                 .content(post.getContent())
