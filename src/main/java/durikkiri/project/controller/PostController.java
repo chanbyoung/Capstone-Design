@@ -124,6 +124,7 @@ public class PostController {
         return new ResponseEntity<>("Comment deleted successfully", HttpStatus.OK);
     }
 
+
     private Map<String, String> getErrorMap(BindingResult bindingResult) {
         Map<String, String> errors = new HashMap<>();
         for (FieldError error : bindingResult.getFieldErrors()) {

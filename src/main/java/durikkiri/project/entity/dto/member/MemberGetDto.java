@@ -21,9 +21,10 @@ public class MemberGetDto {
     private List<PostsGetDto> progressProject;
     private List<PostsGetDto> recruitingProject;
     private List<PostsGetDto> myApplyProject;
+    private List<PostsGetDto> myLikeProject;
 
     static public MemberGetDto toDto(Member member,
-                                     List<Post> progressProject,List<Post> recruitingProject, List<Post> myApplyProject) {
+                                     List<Post> progressProject,List<Post> recruitingProject, List<Post> myApplyProject, List<Post> myLikeProject) {
         return MemberGetDto.builder()
                 .id(member.getId())
                 .username(member.getUsername())
@@ -32,6 +33,7 @@ public class MemberGetDto {
                 .progressProject(postToDto(progressProject))
                 .recruitingProject(postToDto(recruitingProject))
                 .myApplyProject(postToDto(myApplyProject))
+                .myLikeProject(postToDto(myLikeProject))
                 .build();
     }
     private static List<PostsGetDto> postToDto(List<Post> projectList) {

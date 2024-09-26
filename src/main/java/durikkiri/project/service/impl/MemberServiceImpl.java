@@ -5,11 +5,13 @@ import durikkiri.project.entity.dto.member.MemberGetDto;
 import durikkiri.project.entity.dto.member.MemberUpdateDto;
 import durikkiri.project.entity.dto.member.SignInDto;
 import durikkiri.project.entity.dto.member.SignUpDto;
+import durikkiri.project.entity.post.Like;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.exception.AuthenticationException;
 import durikkiri.project.exception.BadRequestException;
 import durikkiri.project.exception.NotFoundException;
 import durikkiri.project.repository.DslPostRepository;
+import durikkiri.project.repository.LikeRepository;
 import durikkiri.project.repository.MemberRepository;
 import durikkiri.project.security.JwtToken;
 import durikkiri.project.security.JwtTokenProvider;
@@ -27,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +41,7 @@ public class MemberServiceImpl implements MemberService {
     private final RedisTemplate<String, Object> redisTemplate;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
+    private final LikeRepository likeRepository;
 
     @Override
     @Transactional
@@ -84,7 +88,7 @@ public class MemberServiceImpl implements MemberService {
                 .orElseThrow(() -> new NotFoundException("Member not found"));
         List<Post> progressProject = dslPostRepository.progressProject(member);
         List<Post> recruitingProject = dslPostRepository.myRecruitingProject(member);
-        return MemberGetDto.toDto(member, progressProject, recruitingProject, null);
+        return MemberGetDto.toDto(member, progressProject, recruitingProject, null,null);
     }
 
     @Override
@@ -95,7 +99,11 @@ public class MemberServiceImpl implements MemberService {
         List<Post> progressProject = dslPostRepository.progressProject(member);
         List<Post> recruitingProject = dslPostRepository.myRecruitingProject(member);
         List<Post> myApplyProject = dslPostRepository.myApplyProject(member);
-        return MemberGetDto.toDto(member, progressProject, recruitingProject, myApplyProject);
+        List<Post> myLikeProjectList = likeRepository.findMyLikePost(member.getId()).stream()
+                .map(Like::getPost)
+                .toList();
+
+        return MemberGetDto.toDto(member, progressProject, recruitingProject, myApplyProject, myLikeProjectList);
     }
 
     @Override

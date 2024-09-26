@@ -31,4 +31,5 @@ public interface PostService {
     void updateComment(Long commentId, CommentDto commentDto);
 
     void deleteComment(Long commentId);
+
 }

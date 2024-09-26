@@ -7,18 +7,16 @@ import durikkiri.project.entity.dto.comment.CommentDto;
 import durikkiri.project.entity.dto.post.*;
 import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Comment;
+import durikkiri.project.entity.post.Like;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.exception.*;
-import durikkiri.project.repository.CommentRepository;
-import durikkiri.project.repository.MemberRepository;
-import durikkiri.project.repository.ImageRepository;
-import durikkiri.project.repository.PostRepository;
+import durikkiri.project.repository.*;
 import durikkiri.project.service.PostService;
-import durikkiri.project.repository.DslPostRepository;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,6 +39,7 @@ import java.util.stream.Collectors;
 public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final ImageRepository imageRepository;
+    private final LikeRepository likeRepository;
     private final DslPostRepository dslPostRepository;
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
@@ -96,7 +95,12 @@ public class PostServiceImpl implements PostService {
         if(!post.getCategory().equals(Category.GENERAL)) {
             post.updateStatus();
         }
-        return PostGetDto.toDto(post);
+        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        boolean isLiked = false;
+        if (!memberLoginId.equals("anonymousUser")) {
+            isLiked = likeRepository.findByPostIdAndMemberId(postId, memberLoginId).isPresent();
+        }
+        return PostGetDto.toDto(post, isLiked);
     }
     @Override
     public List<HomeGetDto> getHome() {
@@ -184,4 +188,5 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new NotFoundException("Comment not found"));
         commentRepository.delete(comment);
     }
+
 }
