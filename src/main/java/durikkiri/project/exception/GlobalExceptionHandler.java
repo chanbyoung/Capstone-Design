@@ -33,7 +33,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({Exception.class})
     public ResponseEntity<String> handleGeneralException(Exception ex) {
         log.error("Exception: {}", ex.getMessage());
-        // 오류 발생 시 좀 더 친절한 메시지를 제공하는 것이 좋습니다.
         return new ResponseEntity<>("서버 내부 오류가 발생했습니다. 나중에 다시 시도해주세요.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

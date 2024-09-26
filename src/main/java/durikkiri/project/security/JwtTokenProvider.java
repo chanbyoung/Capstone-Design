@@ -7,7 +7,12 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.RedisConnectionFailureException;
+import org.springframework.data.redis.RedisSystemException;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,6 +24,8 @@ import java.security.Key;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,11 +33,15 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
     private final Key key;
     private final MemberRepository memberRepository;
-
-    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey, MemberRepository memberRepository) {
+    private final RedisTemplate<String, Object> redisTemplate;
+    @Autowired
+    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey,
+                            MemberRepository memberRepository,
+                            RedisTemplate<String, Object> redisTemplate) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.memberRepository = memberRepository;
+        this.redisTemplate = redisTemplate;
     }
 
     // Member 정보를 가지고 AccessToken, RefreshToken을 생성하는 메서드
@@ -41,7 +52,7 @@ public class JwtTokenProvider {
         long now = (new Date()).getTime();
 
         // Access Token 생성
-        Date accessTokenExpiresIn = new Date(now + 1800000); // 30 minutes
+        Date accessTokenExpiresIn = new Date(now + 3000); // 30 minutes
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("auth", authorities)
@@ -55,11 +66,8 @@ public class JwtTokenProvider {
                 .setExpiration(new Date(now + 86400000)) // 24 hours
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
-
-        Member member = memberRepository.findByLoginId(authentication.getName())
-                .orElseThrow(() -> new ForbiddenException("회원을 찾을 수 없습니다."));
-        log.info(" refresh Token = {} ", refreshToken);
-        member.updateRefreshToken(refreshToken);
+        //redis에 refreshToken 저장
+        saveRefreshTokenWithAuth(authentication.getName(), refreshToken, authorities);
 
         return JwtToken.builder()
                 .grantType("Bearer")
@@ -67,29 +75,49 @@ public class JwtTokenProvider {
                 .refreshToken(refreshToken)
                 .build();
     }
+    // Redis에 Refresh Token과 권한 정보 함께 저장
+    private void saveRefreshTokenWithAuth(String loginId, String refreshToken, String authorities) {
+        try {
+            HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("refreshToken", refreshToken);
+            map.put("authorities", authorities);
+            hashOperations.putAll(loginId, map);
+
+            // TTL 설정
+            redisTemplate.expire(loginId, 1, TimeUnit.DAYS); // 24시간 유효
+        } catch (RedisConnectionFailureException e) {
+            log.error("Redis connection failure", e);
+        } catch (RedisSystemException e) {
+            log.error("Redis system exception", e);
+        } catch (Exception e) {
+            log.error("Unexpected error occurred while saving to Redis", e);
+        }
+    }
 
     // Refresh Token을 사용하여 새로운 Access Token을 생성하는 메서드
     public JwtToken refreshAccessToken(String refreshToken) {
         if (!validateRefreshToken(refreshToken)) {
             throw new ForbiddenException("Invalid refresh token");
         }
-        String username = getUsernameFromToken(refreshToken);
-        Member member = memberRepository.findByLoginId(username)
-                .orElseThrow(() -> new ForbiddenException("유저 이름이 없습니다."));
 
-        if (!member.getRefreshToken().equals(refreshToken)) {
+        String loginId = getUsernameFromToken(refreshToken);
+
+        String storedRefreshToken = (String) redisTemplate.opsForHash().get(loginId,"refreshToken");
+        String authorities = (String) redisTemplate.opsForHash().get(loginId, "authorities");
+        if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
             throw new ForbiddenException("Invalid refresh token");
         }
 
-        String authorities = member.getRoles().stream()
-                .map(role -> "ROLE_" + role)
-                .collect(Collectors.joining(","));
+        Member member = memberRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new ForbiddenException("유저 이름이 없습니다."));
         long now = (new Date()).getTime();
 
+        log.info("memberLoginId = "+member.getLoginId() + " loginId" + loginId);
         // Access Token 생성
         Date accessTokenExpiresIn = new Date(now + 1800000); // 30 minutes
         String newAccessToken = Jwts.builder()
-                .setSubject(member.getLoginId())
+                .setSubject(loginId)
                 .claim("auth", authorities)
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -100,6 +128,15 @@ public class JwtTokenProvider {
                 .accessToken(newAccessToken)
                 .refreshToken(refreshToken) // Use the same refresh token
                 .build();
+    }
+    // 토큰에서 사용자 이름을 추출하는 메서드
+    public String getUsernameFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.getSubject();
     }
 
     // Jwt 토큰을 복호화하여 토큰에 들어있는 정보를 꺼내는 메서드
@@ -152,22 +189,12 @@ public class JwtTokenProvider {
         }
     }
 
-    // 토큰에서 사용자 이름을 추출하는 메서드
-    public String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-        return claims.getSubject();
-    }
-
-    private Claims parseClaims(String accessToken) {
+    private Claims parseClaims(String token) {
         try {
             return Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
-                    .parseClaimsJws(accessToken)
+                    .parseClaimsJws(token)
                     .getBody();
         } catch (ExpiredJwtException e) {
             return e.getClaims();
