@@ -1,7 +1,6 @@
 package durikkiri.project.repository;
 
 import durikkiri.project.entity.Apply;
-import durikkiri.project.entity.ApplyStatus;
 import durikkiri.project.entity.Member;
 import durikkiri.project.entity.post.Post;
 import org.springframework.data.jpa.repository.JpaRepository;

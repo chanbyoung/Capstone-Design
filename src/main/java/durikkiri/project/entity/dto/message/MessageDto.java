@@ -3,7 +3,6 @@ package durikkiri.project.entity.dto.message;
 import durikkiri.project.entity.Message;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;

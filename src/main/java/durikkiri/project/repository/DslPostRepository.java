@@ -5,7 +5,6 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import durikkiri.project.entity.*;
 import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Post;
-import durikkiri.project.entity.post.RecruitmentStatus;
 import durikkiri.project.entity.dto.post.PostSearchContent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static durikkiri.project.entity.QApply.*;
-import static durikkiri.project.entity.QMember.*;
 import static durikkiri.project.entity.post.QPost.post;
 import static durikkiri.project.entity.post.RecruitmentStatus.*;
 

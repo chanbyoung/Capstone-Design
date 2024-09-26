@@ -5,7 +5,6 @@ import durikkiri.project.entity.dto.post.PostsGetDto;
 import durikkiri.project.entity.post.Post;
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.security.core.parameters.P;
 
 import java.util.Collections;
 import java.util.List;

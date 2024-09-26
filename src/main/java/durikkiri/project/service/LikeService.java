@@ -8,7 +8,6 @@ import durikkiri.project.repository.LikeRepository;
 import durikkiri.project.repository.MemberRepository;
 import durikkiri.project.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

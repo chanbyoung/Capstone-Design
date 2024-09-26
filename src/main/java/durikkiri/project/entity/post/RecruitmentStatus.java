@@ -2,7 +2,6 @@ package durikkiri.project.entity.post;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @RequiredArgsConstructor

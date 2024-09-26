@@ -7,7 +7,6 @@ import durikkiri.project.entity.post.Post;
 import jakarta.persistence.*;
 import lombok.*;
 
-import static durikkiri.project.entity.ApplyStatus.*;
 
 @Entity
 @Getter

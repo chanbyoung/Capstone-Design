@@ -1,7 +1,6 @@
 package durikkiri.project.entity.dto.post;
 
 import durikkiri.project.entity.dto.comment.CommentGetDto;
-import durikkiri.project.entity.post.Like;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.entity.post.TechnologyStack;
 import jakarta.validation.constraints.NotBlank;
