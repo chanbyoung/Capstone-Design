@@ -97,7 +97,8 @@ public class PostServiceImpl implements PostService {
         if (!memberLoginId.equals("anonymousUser")) {
             isLiked = likeRepository.findByPostIdAndMemberId(postId, memberLoginId).isPresent();
         }
-        return PostGetDto.toDto(post, isLiked);
+        boolean isOwner = post.getCreatedBy().equals(memberLoginId);
+        return PostGetDto.toDto(post, isLiked, isOwner);
     }
     @Override
     public List<HomeGetDto> getHome() {

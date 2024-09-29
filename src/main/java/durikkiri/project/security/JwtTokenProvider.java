@@ -98,7 +98,7 @@ public class JwtTokenProvider {
 
     // Refresh Token을 사용하여 새로운 Access Token을 생성하는 메서드
     public JwtToken refreshAccessToken(String refreshToken) {
-        if (!validateRefreshToken(refreshToken)) {
+        if (!validateToken(refreshToken)) {
             throw new ForbiddenException("Invalid refresh token");
         }
 
@@ -176,19 +176,6 @@ public class JwtTokenProvider {
         return false;
     }
 
-    // Refresh Token 검증 메서드
-    public boolean validateRefreshToken(String refreshToken) {
-        try {
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(refreshToken);
-            return true;
-        } catch (JwtException e) {
-            log.info("Invalid Refresh Token", e);
-            return false;
-        }
-    }
 
     private Claims parseClaims(String token) {
         try {
