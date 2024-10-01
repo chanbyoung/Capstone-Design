@@ -4,7 +4,7 @@ import durikkiri.project.entity.Apply;
 import durikkiri.project.entity.BaseEntity;
 import durikkiri.project.entity.Image;
 import durikkiri.project.entity.Member;
-import durikkiri.project.entity.dto.post.FieldUpdateDto;
+import durikkiri.project.entity.dto.post.FieldDto;
 import durikkiri.project.entity.dto.post.PostUpdateDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -69,18 +69,18 @@ public class Post extends BaseEntity {
 
     private void fieldUpdate(PostUpdateDto postUpdateDto) {
         Set<FieldCategory> processedFieldCategories = new HashSet<>();
-        for (FieldUpdateDto fieldUpdateDto : postUpdateDto.getFieldList()) {
+        for (FieldDto fieldDto : postUpdateDto.getFieldList()) {
             Optional<Field> matchingField = fieldList.stream()
-                    .filter(field -> field.getFieldCategory().equals(fieldUpdateDto.getFieldCategory()))
+                    .filter(field -> field.getFieldCategory().equals(fieldDto.getFieldCategory()))
                     .findFirst();
             if (matchingField.isPresent()) {
-                matchingField.get().updateField(fieldUpdateDto);
+                matchingField.get().updateField(fieldDto);
             }
             else {
-                Field newField = fieldUpdateDto.toEntity(this);
+                Field newField = fieldDto.toEntity(this);
                 this.fieldList.add(newField);
             }
-            processedFieldCategories.add(fieldUpdateDto.getFieldCategory());
+            processedFieldCategories.add(fieldDto.getFieldCategory());
         }
         this.fieldList.removeIf(field -> !processedFieldCategories.contains(field.getFieldCategory()));
     }

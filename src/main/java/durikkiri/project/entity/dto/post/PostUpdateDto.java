@@ -22,6 +22,6 @@ public class PostUpdateDto {
     private LocalDate endDate;
 
     private List<TechnologyStack> technologyStackList = new ArrayList<>();
-    private List<FieldUpdateDto> fieldList = new ArrayList<>();
+    private List<FieldDto> fieldList = new ArrayList<>();
 
 }

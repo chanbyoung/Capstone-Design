@@ -11,7 +11,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class FieldAddDto {
+public class FieldDto {
     @NotNull
     private FieldCategory fieldCategory;
     @Positive
