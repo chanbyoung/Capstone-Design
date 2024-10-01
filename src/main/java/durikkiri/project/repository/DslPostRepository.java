@@ -15,6 +15,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static durikkiri.project.entity.QApply.*;
+import static durikkiri.project.entity.QImage.*;
 import static durikkiri.project.entity.post.QPost.post;
 import static durikkiri.project.entity.post.RecruitmentStatus.*;
 
@@ -27,6 +28,8 @@ public class DslPostRepository {
         BooleanBuilder builder = searchCondition(postSearchContent);
         List<Post> posts = query.select(post)
                 .from(post)
+                .leftJoin(post.image, image)
+                .fetchJoin()
                 .where(builder)
                 .orderBy(post.createdAt.desc())
                 .offset(pageable.getOffset())

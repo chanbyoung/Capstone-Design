@@ -1,8 +1,9 @@
-package durikkiri.project.service;
+package durikkiri.project.security;
 
 import durikkiri.project.entity.Member;
 import durikkiri.project.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -22,10 +23,13 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     private UserDetails createUserDetails(Member member) {
-        return User.builder()
+        return CustomUserDetails.builder()
                 .username(member.getLoginId())
                 .password(member.getPassword())
-                .roles(member.getRoles().toArray(new String[0]))
+                .nickName(member.getNickname())
+                .authority(member.getRoles().isEmpty() ? "ROLE_USER" : member.getRoles().get(0)) // 권한 설정
+                .enabled(member.isEnabled()) // 활성화 상태 설정
                 .build();
+
     }
 }

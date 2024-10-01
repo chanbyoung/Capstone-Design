@@ -12,12 +12,11 @@ public class SpringSecurityAuditorAware implements AuditorAware<String> {
     public Optional<String> getCurrentAuditor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if(null == authentication || !authentication.isAuthenticated()) {
-            return null;
+        if(authentication == null || !authentication.isAuthenticated()) {
+            return Optional.empty();
         }
 
-        String userId = authentication.getName();
-        log.info("{}", userId);
-        return Optional.of(userId);
+        CustomUserDetails member = (CustomUserDetails) authentication.getPrincipal();
+        return Optional.ofNullable(member.getNickName());
     }
 }
