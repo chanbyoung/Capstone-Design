@@ -65,7 +65,7 @@ public class JwtTokenProvider {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
         //redis에 refreshToken 저장
-        saveRefreshTokenWithAuth(authentication.getName(), refreshToken, authorities);
+        saveRefreshTokenWithAuth(authentication.getName(), refreshToken, authorities, nickName);
 
         return JwtToken.builder()
                 .grantType("Bearer")
@@ -74,12 +74,13 @@ public class JwtTokenProvider {
                 .build();
     }
     // Redis에 Refresh Token과 권한 정보 함께 저장
-    private void saveRefreshTokenWithAuth(String loginId, String refreshToken, String authorities) {
+    private void saveRefreshTokenWithAuth(String loginId, String refreshToken, String authorities, String nickName) {
         try {
             HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
             HashMap<String, Object> map = new HashMap<>();
             map.put("refreshToken", refreshToken);
             map.put("authorities", authorities);
+            map.put("nickName", nickName);
             hashOperations.putAll(loginId, map);
 
             // TTL 설정
@@ -103,6 +104,8 @@ public class JwtTokenProvider {
 
         String storedRefreshToken = (String) redisTemplate.opsForHash().get(loginId,"refreshToken");
         String authorities = (String) redisTemplate.opsForHash().get(loginId, "authorities");
+        String nickName = (String) redisTemplate.opsForHash().get(loginId, "nickName");
+
         if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
             throw new ForbiddenException("Invalid refresh token");
         }
@@ -117,6 +120,7 @@ public class JwtTokenProvider {
         String newAccessToken = Jwts.builder()
                 .setSubject(loginId)
                 .claim("auth", authorities)
+                .claim("nickName", nickName)
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
