@@ -3,6 +3,7 @@ package durikkiri.project.service;
 import durikkiri.project.entity.dto.HomeGetDto;
 import durikkiri.project.entity.dto.comment.CommentDto;
 import durikkiri.project.entity.dto.post.*;
+import durikkiri.project.entity.post.Category;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,7 +23,7 @@ public interface PostService {
 
     void deletePost(Long postId);
 
-    List<HomeGetDto> getHome();
+    List<HomeGetDto> getLikePostList(Category category);
 
     void addComment(Long postId, CommentDto commentDto);
 
@@ -30,4 +31,5 @@ public interface PostService {
 
     void deleteComment(Long commentId);
 
+    List<HomeGetDto> getHome();
 }

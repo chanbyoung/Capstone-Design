@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
-                                .requestMatchers("/api").permitAll()
+                                .requestMatchers("/api/home").permitAll()
                                 .requestMatchers("/api/posts/**").permitAll()
                                 .requestMatchers("/api/members/**").permitAll()
                                 .requestMatchers("/api/members/find/**").permitAll()

@@ -8,6 +8,7 @@ import durikkiri.project.entity.dto.post.*;
 import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Comment;
 import durikkiri.project.entity.post.Post;
+import durikkiri.project.entity.post.RecruitmentStatus;
 import durikkiri.project.exception.*;
 import durikkiri.project.repository.*;
 import durikkiri.project.security.CustomUserDetails;
@@ -31,6 +32,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static durikkiri.project.entity.post.Category.*;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -52,7 +55,7 @@ public class PostServiceImpl implements PostService {
         String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findByLoginId(memberLoginId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
-        if (!postAddDto.getCategory().equals(Category.GENERAL)) {
+        if (!postAddDto.getCategory().equals(GENERAL)) {
             checkFieldValid(postAddDto.getFieldList());
         }
         Post savePost = postRepository.save(postAddDto.toEntity(member));
@@ -92,7 +95,7 @@ public class PostServiceImpl implements PostService {
         if (flag) {
             post.updateViewCount();
         }
-        if (!post.getCategory().equals(Category.GENERAL)) {
+        if (!post.getCategory().equals(GENERAL)) {
             post.updateStatus();
         }
 
@@ -123,10 +126,15 @@ public class PostServiceImpl implements PostService {
         }
         return principal.toString();
     }
+
     @Override
     public List<HomeGetDto> getHome() {
-        return dslPostRepository.getHome().stream().map(HomeGetDto::toDto).toList();
+        return postRepository.getHome(GENERAL, RecruitmentStatus.Y).stream().map(HomeGetDto::toDto).toList();
+    }
 
+    @Override
+    public List<HomeGetDto> getLikePostList(Category category) {
+        return dslPostRepository.getLikePostList(category).stream().map(HomeGetDto::toDto).toList();
     }
     @Override
     @Transactional
@@ -141,7 +149,7 @@ public class PostServiceImpl implements PostService {
         if (postUpdateDto.getStartDate().isAfter(postUpdateDto.getEndDate())) {
             throw new BadRequestException("시작 날짜는 종료 날짜보다 이후일 수 없습니다.");
         }
-        if (!postUpdateDto.getCategory().equals(Category.GENERAL)) {
+        if (!postUpdateDto.getCategory().equals(GENERAL)) {
             checkFieldValid(postUpdateDto.getFieldList());
         }
         post.updatePost(postUpdateDto);

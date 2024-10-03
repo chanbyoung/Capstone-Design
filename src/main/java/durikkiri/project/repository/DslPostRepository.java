@@ -59,14 +59,18 @@ public class DslPostRepository {
         return builder;
     }
 
-    public List<Post> getHome() {
+    public List<Post> getLikePostList(Category category) {
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(post.category.notIn(Category.GENERAL));
+        builder.and(post.category.eq(category));
+        builder.and(post.status.eq(Y));
         return query.select(post)
                 .from(post)
+                .leftJoin(post.image, image)
+                .fetchJoin()
                 .where(builder)
+                .orderBy(post.likeCount.desc())
                 .orderBy(post.viewCount.desc())
-                .limit(5)
+                .limit(10)
                 .fetch();
     }
     //마이페이지에서 현재 진행중인 프로젝트/스터디를 찾는 로직

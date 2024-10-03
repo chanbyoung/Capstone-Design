@@ -1,5 +1,6 @@
 package durikkiri.project.controller;
 
+import durikkiri.project.entity.dto.HomeGetDto;
 import durikkiri.project.entity.dto.comment.CommentDto;
 import durikkiri.project.entity.dto.post.*;
 import durikkiri.project.entity.post.Category;
@@ -23,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -42,6 +44,12 @@ public class PostController {
         log.info("category = {}", category);
         Page<PostsGetDto> posts = postService.getPosts(pageable, new PostSearchContent(category, title));
         return ResponseEntity.ok(posts);
+    }
+
+    @GetMapping("/likePosts")
+    public ResponseEntity<List<HomeGetDto>> getLikePosts(@RequestParam Category category) {
+        List<HomeGetDto> likePostList = postService.getLikePostList(category);
+        return ResponseEntity.ok(likePostList);
     }
 
     @PostMapping
