@@ -37,11 +37,12 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
-                                .requestMatchers("/api/home").permitAll()
+                                .requestMatchers("/api/homes").permitAll()
                                 .requestMatchers("/api/posts/**").permitAll()
                                 .requestMatchers("/api/members/**").permitAll()
                                 .requestMatchers("/api/members/find/**").permitAll()
                                 .requestMatchers("/api/members/exists/**").permitAll()
+                                .requestMatchers("/api/members/member/find").permitAll()
                                 .requestMatchers("/api/members/test").hasRole("USER")
                                 .requestMatchers("/api/messages/conversation/**").permitAll()
                                 .anyRequest().authenticated())

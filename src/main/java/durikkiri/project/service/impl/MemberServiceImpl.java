@@ -17,6 +17,7 @@ import durikkiri.project.security.JwtToken;
 import durikkiri.project.security.JwtTokenProvider;
 import durikkiri.project.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -33,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final DslPostRepository dslPostRepository;
@@ -82,8 +84,9 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public MemberGetDto getMember(Long memberId) {
-        Member member = memberRepository.findById(memberId)
+    public MemberGetDto getMember(String nickname) {
+        log.info("nickname = {}",nickname);
+        Member member = memberRepository.findMemberByNickname(nickname)
                 .orElseThrow(() -> new NotFoundException("Member not found"));
         List<Post> progressProject = dslPostRepository.progressProject(member);
         List<Post> recruitingProject = dslPostRepository.myRecruitingProject(member);
