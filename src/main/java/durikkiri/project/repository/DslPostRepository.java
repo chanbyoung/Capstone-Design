@@ -16,6 +16,7 @@ import java.util.List;
 
 import static durikkiri.project.entity.QApply.*;
 import static durikkiri.project.entity.QImage.*;
+import static durikkiri.project.entity.post.Category.*;
 import static durikkiri.project.entity.post.QPost.post;
 import static durikkiri.project.entity.post.RecruitmentStatus.*;
 
@@ -87,7 +88,8 @@ public class DslPostRepository {
     }
 
     private static void addCondition(Member member, BooleanBuilder builder) {
-        builder.and(apply.createdBy.eq(member.getLoginId()));
+        builder.and(post.category.notIn(GENERAL));
+        builder.and(apply.createdBy.eq(member.getNickname()));
         builder.and(apply.applyStatus.eq(ApplyStatus.ACCEPT));
     }
 
@@ -95,6 +97,7 @@ public class DslPostRepository {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(post.member.eq(member));
         builder.and(post.status.eq(Y));
+        builder.and(post.category.notIn(GENERAL));
         return query.select(post)
                 .from(post)
                 .leftJoin(post.member, QMember.member)
@@ -106,6 +109,7 @@ public class DslPostRepository {
     public List<Post> myApplyProject(Member member) {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(apply.member.eq(member));
+        builder.and(post.category.notIn(GENERAL));
         builder.or(apply.applyStatus.eq(ApplyStatus.READ)).
                 or(apply.applyStatus.eq(ApplyStatus.UNREAD));
 

@@ -11,10 +11,13 @@ import lombok.Setter;
 public class HomeGetDto {
     private Long id;
     private String title;
+    private String createdBy;
 
     public static HomeGetDto toDto(Post post) {
         return HomeGetDto.builder()
                 .id(post.getId())
-                .title(post.getTitle()).build();
+                .title(post.getTitle())
+                .createdBy(post.getCreatedBy())
+                .build();
     }
 }
