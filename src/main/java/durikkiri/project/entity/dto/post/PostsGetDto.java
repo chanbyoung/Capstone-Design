@@ -1,5 +1,6 @@
 package durikkiri.project.entity.dto.post;
 
+import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.entity.post.TechnologyStack;
 import lombok.Builder;
@@ -13,6 +14,7 @@ import java.util.List;
 public class PostsGetDto {
     private Long id;
     private String title;
+    private Category category;
     private List<TechnologyStack> technologyStackList;
     private String createdBy;
     private LocalDateTime createdAt;
@@ -22,6 +24,7 @@ public class PostsGetDto {
         return PostsGetDto.builder()
                 .id(post.getId())
                 .title(post.getTitle())
+                .category(post.getCategory())
                 .createdBy(post.getCreatedBy())
                 .createdAt(post.getCreatedAt())
                 .technologyStackList(post.getTechnologyStackList())
