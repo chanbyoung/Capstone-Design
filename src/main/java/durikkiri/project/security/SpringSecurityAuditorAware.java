@@ -16,7 +16,13 @@ public class SpringSecurityAuditorAware implements AuditorAware<String> {
             return Optional.empty();
         }
 
-        CustomUserDetails member = (CustomUserDetails) authentication.getPrincipal();
-        return Optional.ofNullable(member.getNickName());
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof CustomUserDetails) {
+            CustomUserDetails member = (CustomUserDetails) principal;
+            return Optional.ofNullable(member.getNickName());
+        } else {
+            log.warn("Principal is not an instance of CustomUserDetails: {}", principal.getClass());
+            return Optional.empty();
+        }
     }
 }
