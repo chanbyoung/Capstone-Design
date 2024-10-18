@@ -7,9 +7,8 @@ import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.entity.dto.post.PostSearchContent;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -21,26 +20,28 @@ import static durikkiri.project.entity.post.QPost.post;
 import static durikkiri.project.entity.post.RecruitmentStatus.*;
 
 @Repository
+@Slf4j
 @RequiredArgsConstructor
 public class DslPostRepository {
     private final JPAQueryFactory query;
 
-    public Page<Post> getPosts(Pageable pageable, PostSearchContent postSearchContent) {
+    public Slice<Post> getPosts(Pageable pageable, PostSearchContent postSearchContent) {
         BooleanBuilder builder = searchCondition(postSearchContent);
+
         List<Post> posts = query.select(post)
                 .from(post)
                 .leftJoin(post.image, image)
                 .fetchJoin()
                 .where(builder)
                 .orderBy(post.createdAt.desc())
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .distinct().fetch();
-        Long count = query.select(post.count())
-                .from(post)
-                .where(builder)
-                .fetchOne();
-        return new PageImpl<>(posts,pageable,count);
+                .limit(pageable.getPageSize() + 1)
+                .fetch();
+        boolean hasNext = posts.size() > pageable.getPageSize();
+        if (hasNext) {
+            posts.remove(posts.size() - 1);
+        }
+        log.info("dslpostRepository.hasNext = {}" , hasNext);
+        return new SliceImpl<>(posts, pageable, hasNext);
     }
 
     private static BooleanBuilder searchCondition(PostSearchContent postSearchContent) {
@@ -53,9 +54,9 @@ public class DslPostRepository {
             if (postSearchContent.getTitle() != null) {
                 builder.and(post.title.contains(postSearchContent.getTitle()));
             }
-//            if (postSearchContent.getMemberName() != null) {
-//                
-//            }
+            if (postSearchContent.getCursorCreatedAt() != null) {
+                builder.and(post.createdAt.lt(postSearchContent.getCursorCreatedAt()));
+            }
         }
         return builder;
     }

@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -83,7 +84,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<PostsGetDto> getPosts(Pageable pageable, PostSearchContent postSearchContent) {
+    public Slice<PostsGetDto> getPosts(Pageable pageable, PostSearchContent postSearchContent) {
         return dslPostRepository.getPosts(pageable, postSearchContent).map(PostsGetDto::toDto);
     }
 

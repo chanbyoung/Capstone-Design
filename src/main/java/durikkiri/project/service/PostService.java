@@ -6,6 +6,7 @@ import durikkiri.project.entity.dto.post.*;
 import durikkiri.project.entity.post.Category;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -15,7 +16,7 @@ public interface PostService {
 
     void addPost(PostAddDto postAddDto, MultipartFile multipartFile) throws IOException;
 
-    Page<PostsGetDto> getPosts(Pageable pageable, PostSearchContent postSearchContent);
+    Slice<PostsGetDto> getPosts(Pageable pageable, PostSearchContent postSearchContent);
 
     PostGetDto getPost(Long postId, boolean flag);
 

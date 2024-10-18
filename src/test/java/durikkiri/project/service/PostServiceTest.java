@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -102,14 +103,14 @@ class PostServiceTest {
     void getPosts() {
         //given
         Pageable pageable = Pageable.unpaged();
-        PostSearchContent postSearchContent = new PostSearchContent(null, null);
+        PostSearchContent postSearchContent = new PostSearchContent(null, null, null);
         List<Post> posts = Arrays.asList(new Post(), new Post());
         PageImpl<Post> postPage = new PageImpl<>(posts);
 
         when(dslPostRepository.getPosts(any(Pageable.class), any(PostSearchContent.class))).thenReturn(postPage);
 
         //when
-        Page<PostsGetDto> result = postService.getPosts(pageable, postSearchContent);
+        Slice<PostsGetDto> result = postService.getPosts(pageable, postSearchContent);
 
         //then
         assertEquals(posts.size(),result.getContent().size());
