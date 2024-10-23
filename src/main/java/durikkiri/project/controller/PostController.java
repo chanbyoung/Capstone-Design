@@ -1,5 +1,7 @@
 package durikkiri.project.controller;
 
+import durikkiri.project.entity.dto.HomeGetDto;
+import durikkiri.project.entity.dto.post.PostResponseDto;
 import durikkiri.project.entity.dto.comment.CommentDto;
 import durikkiri.project.entity.dto.post.*;
 import durikkiri.project.entity.post.Category;
@@ -10,8 +12,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -36,12 +39,18 @@ public class PostController {
     private static final int COOKIE_EXPIRE_SECONDS = 24 * 60 * 60; // 24 hours
 
     @GetMapping
-    public ResponseEntity<Page<PostsGetDto>> getPosts(@PageableDefault Pageable pageable,
-                                                      @RequestParam Category category,
-                                                      @RequestParam(required = false) String title) {
-        log.info("category = {}", category);
-        Page<PostsGetDto> posts = postService.getPosts(pageable, new PostSearchContent(category, title));
-        return ResponseEntity.ok(posts);
+    public ResponseEntity<PostResponseDto> getPosts(@PageableDefault Pageable pageable,
+                                                    @ModelAttribute PostSearchContent postSearchContent) {
+        log.info("postSearchContent = {}", postSearchContent);
+        Slice<PostsGetDto> posts = postService.getPosts(pageable, postSearchContent);
+        PostResponseDto responseDto = new PostResponseDto(posts);
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @GetMapping("/likePosts")
+    public ResponseEntity<List<HomeGetDto>> getLikePosts(@RequestParam Category category) {
+        List<HomeGetDto> likePostList = postService.getLikePostList(category);
+        return ResponseEntity.ok(likePostList);
     }
 
     @PostMapping

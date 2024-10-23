@@ -126,9 +126,9 @@ public class MemberController {
         return null;
     }
 
-    @GetMapping("/{memberId}")
-    public ResponseEntity<MemberGetDto> getMember(@PathVariable Long memberId) {
-        MemberGetDto member = memberService.getMember(memberId);
+    @GetMapping("/member/find")
+    public ResponseEntity<MemberGetDto> getMember(@RequestParam String nickname) {
+        MemberGetDto member = memberService.getMember(nickname);
         return ResponseEntity.ok(member);
     }
 

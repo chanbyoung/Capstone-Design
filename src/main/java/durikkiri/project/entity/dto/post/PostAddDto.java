@@ -36,7 +36,7 @@ public class PostAddDto {
 
     private List<TechnologyStack> technologyStackList = new ArrayList<>();
 
-    private List<FieldAddDto> fieldList= new ArrayList<>();
+    private List<FieldDto> fieldList= new ArrayList<>();
 
 
     public Post toEntity(Member member) {
@@ -59,8 +59,8 @@ public class PostAddDto {
             throw new BadRequestException("시작 날짜는 종료 날짜보다 이후일 수 없습니다.");
         }
         // fieldList의 각 Field에 현재 Post를 설정
-        for (FieldAddDto fieldAddDto : fieldList) {
-            Field field = fieldAddDto.toEntity(post);
+        for (FieldDto fieldDto : fieldList) {
+            Field field = fieldDto.toEntity(post);
             post.getFieldList().add(field);
         }
 

@@ -12,7 +12,7 @@ public interface MemberService {
     JwtToken signIn(SignInDto signInDto);
     MemberGetDto getMyInfo();
 
-    MemberGetDto getMember(Long memberId);
+    MemberGetDto getMember(String nickname);
 
     void updateMember(MemberUpdateDto memberUpdateDto);
 

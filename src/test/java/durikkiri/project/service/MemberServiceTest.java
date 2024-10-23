@@ -105,6 +105,7 @@ class MemberServiceTest {
                 .id(1L)
                 .loginId("testId")
                 .password("testPassword")
+                .nickname("testNickName")
                 .build();
         String encodedPassword = "encodedPassword";
         when(memberRepository.existsByLoginId(signUpDto.getLoginId())).thenReturn(Boolean.FALSE);
@@ -174,14 +175,14 @@ class MemberServiceTest {
     @Test
     void getMember() {
         //given
-        when(memberRepository.findById(member.getId())).thenReturn(Optional.of(member));
+        when(memberRepository.findMemberByNickname(member.getNickname())).thenReturn(Optional.of(member));
         Post mockPost = mock(Post.class);
         List<Post> mockPostList = List.of(mockPost);
         when(postRepository.progressProject(any())).thenReturn(mockPostList);
         when(postRepository.myRecruitingProject(any())).thenReturn(mockPostList);
 
         //when
-        MemberGetDto memberDto = memberService.getMember(member.getId());
+        MemberGetDto memberDto = memberService.getMember(member.getNickname());
 
         //then
         assertThat(memberDto.getId()).isEqualTo(1L);

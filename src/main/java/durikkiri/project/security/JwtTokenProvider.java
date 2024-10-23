@@ -17,15 +17,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -51,12 +46,14 @@ public class JwtTokenProvider {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
         long now = (new Date()).getTime();
+        String nickName = ((CustomUserDetails) authentication.getPrincipal()).getNickName();
 
         // Access Token 생성
         Date accessTokenExpiresIn = new Date(now + 1800000); // 30 minutes
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("auth", authorities)
+                .claim("nickName", nickName)  // nickName 추가
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
@@ -68,7 +65,7 @@ public class JwtTokenProvider {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
         //redis에 refreshToken 저장
-        saveRefreshTokenWithAuth(authentication.getName(), refreshToken, authorities);
+        saveRefreshTokenWithAuth(authentication.getName(), refreshToken, authorities, nickName);
 
         return JwtToken.builder()
                 .grantType("Bearer")
@@ -77,12 +74,13 @@ public class JwtTokenProvider {
                 .build();
     }
     // Redis에 Refresh Token과 권한 정보 함께 저장
-    private void saveRefreshTokenWithAuth(String loginId, String refreshToken, String authorities) {
+    private void saveRefreshTokenWithAuth(String loginId, String refreshToken, String authorities, String nickName) {
         try {
             HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
             HashMap<String, Object> map = new HashMap<>();
             map.put("refreshToken", refreshToken);
             map.put("authorities", authorities);
+            map.put("nickName", nickName);
             hashOperations.putAll(loginId, map);
 
             // TTL 설정
@@ -106,6 +104,8 @@ public class JwtTokenProvider {
 
         String storedRefreshToken = (String) redisTemplate.opsForHash().get(loginId,"refreshToken");
         String authorities = (String) redisTemplate.opsForHash().get(loginId, "authorities");
+        String nickName = (String) redisTemplate.opsForHash().get(loginId, "nickName");
+
         if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
             throw new ForbiddenException("Invalid refresh token");
         }
@@ -120,6 +120,7 @@ public class JwtTokenProvider {
         String newAccessToken = Jwts.builder()
                 .setSubject(loginId)
                 .claim("auth", authorities)
+                .claim("nickName", nickName)
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
@@ -152,7 +153,16 @@ public class JwtTokenProvider {
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
-        UserDetails principal = new User(claims.getSubject(), "", authorities);
+        String authority = authorities.isEmpty() ? "ROLE_USER" : authorities.iterator().next().getAuthority();
+        String nickName = (String) claims.get("nickName");
+        log.info("authentication nickName ={} ",nickName);
+        CustomUserDetails principal = CustomUserDetails.builder()
+                .username(claims.getSubject())  // loginId
+                .password("")                   // 빈 비밀번호 또는 claims에 적절한 값을 사용
+                .nickName(nickName)
+                .authority(authority)            // 첫 번째 권한 설정
+                .enabled(true)                   // 활성화 상태 true로 설정
+                .build();
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
     }
 
