@@ -11,11 +11,13 @@ import java.time.LocalDateTime;
 public class PostSearchContent {
     private Category category;
     private String title;
+    private Long cursorId;
     private LocalDateTime cursorCreatedAt;
 
-    public PostSearchContent(Category category, String title, LocalDateTime cursorCreatedAt) {
+    public PostSearchContent(Category category, String title,Long cursorId, LocalDateTime cursorCreatedAt) {
         this.category = category;
         this.title = title;
+        this.cursorId = cursorId;
         this.cursorCreatedAt = cursorCreatedAt;
     }
 }

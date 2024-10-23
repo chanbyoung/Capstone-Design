@@ -33,7 +33,7 @@ public class PostGetDto {
     private Boolean isLiked;
     private Boolean isOwner;
 
-    static public PostGetDto toDto(Post post, Boolean isLiked, Boolean isOwner) {
+    static public PostGetDto toDto(Post post, PostUserStatusDto postUserStatusDto) {
         // Post 엔티티 내의 Field 리스트를 FieldGetDto 리스트로 변환
         List<FieldGetDto> fieldGetDtoList = post.getFieldList().stream()
                 .map(FieldGetDto::toDto) // 각 Field 엔티티를 FieldGetDto로 변환
@@ -57,8 +57,8 @@ public class PostGetDto {
                 .likeCount(post.getLikeCount())
                 .startDate(post.getStartDate())
                 .endDate(post.getEndDate())
-                .isLiked(isLiked)
-                .isOwner(isOwner)
+                .isLiked(postUserStatusDto.getLiked())
+                .isOwner(postUserStatusDto.getOwner())
                 .build();
     }
 }

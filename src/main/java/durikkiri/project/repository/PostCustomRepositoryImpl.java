@@ -22,10 +22,10 @@ import static durikkiri.project.entity.post.RecruitmentStatus.*;
 @Repository
 @Slf4j
 @RequiredArgsConstructor
-public class DslPostRepository {
+public class PostCustomRepositoryImpl implements PostCustomRepository {
     private final JPAQueryFactory query;
-
-    public Slice<Post> getPosts(Pageable pageable, PostSearchContent postSearchContent) {
+    @Override
+    public Slice<Post> getPostsByCursor(Pageable pageable, PostSearchContent postSearchContent) {
         BooleanBuilder builder = searchCondition(postSearchContent);
 
         List<Post> posts = query.select(post)
@@ -33,7 +33,7 @@ public class DslPostRepository {
                 .leftJoin(post.image, image)
                 .fetchJoin()
                 .where(builder)
-                .orderBy(post.createdAt.desc())
+                .orderBy(post.createdAt.desc(), post.id.desc())
                 .limit(pageable.getPageSize() + 1)
                 .fetch();
         boolean hasNext = posts.size() > pageable.getPageSize();
@@ -55,12 +55,16 @@ public class DslPostRepository {
                 builder.and(post.title.contains(postSearchContent.getTitle()));
             }
             if (postSearchContent.getCursorCreatedAt() != null) {
-                builder.and(post.createdAt.lt(postSearchContent.getCursorCreatedAt()));
+                builder.and(
+                        post.createdAt.lt(postSearchContent.getCursorCreatedAt())
+                                .or(post.createdAt.eq(postSearchContent.getCursorCreatedAt())
+                                        .and(post.id.lt(postSearchContent.getCursorId())))
+                );
             }
         }
         return builder;
     }
-
+    @Override
     public List<Post> getLikePostList(Category category) {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(post.category.eq(category));
@@ -76,6 +80,7 @@ public class DslPostRepository {
                 .fetch();
     }
     //마이페이지에서 현재 진행중인 프로젝트/스터디를 찾는 로직
+    @Override
     public List<Post> progressProject(Member member) {
         BooleanBuilder builder = new BooleanBuilder();
         addCondition(member, builder);
@@ -93,7 +98,7 @@ public class DslPostRepository {
         builder.and(apply.createdBy.eq(member.getNickname()));
         builder.and(apply.applyStatus.eq(ApplyStatus.ACCEPT));
     }
-
+    @Override
     public List<Post> myRecruitingProject(Member member) {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(post.member.eq(member));
@@ -106,13 +111,16 @@ public class DslPostRepository {
                 .where(builder)
                 .fetch();
     }
-
+    @Override
     public List<Post> myApplyProject(Member member) {
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(apply.member.eq(member));
-        builder.and(post.category.notIn(GENERAL));
-        builder.or(apply.applyStatus.eq(ApplyStatus.READ)).
-                or(apply.applyStatus.eq(ApplyStatus.UNREAD));
+        builder.and(
+                apply.member.eq(member)
+                        .and(post.category.notIn(GENERAL))
+                        .and(apply.applyStatus.eq(ApplyStatus.READ)
+                                .or(apply.applyStatus.eq(ApplyStatus.UNREAD))
+                        )
+        );
 
         return query.select(post)
                 .from(post)
