@@ -7,6 +7,7 @@ import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.exception.BadRequestException;
 import durikkiri.project.repository.*;
+import durikkiri.project.security.CustomUserDetails;
 import durikkiri.project.service.impl.PostServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -42,13 +43,13 @@ class PostServiceTest {
     @Mock
     private ImageRepository imageRepository;
     @Mock
-    private DslPostRepository dslPostRepository;
-    @Mock
     private MemberRepository memberRepository;
     @Mock
     private SecurityContext securityContext;
     @Mock
     private Authentication authentication;
+    @Mock
+    private CustomUserDetails customUserDetails;
     private PostService postService;
     private final String testUser = "TESTUSER";
     @BeforeEach
@@ -56,7 +57,8 @@ class PostServiceTest {
         postService = postServiceImpl;
         SecurityContextHolder.setContext(securityContext);
         lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
-        lenient().when(authentication.getName()).thenReturn(testUser);
+        lenient().when(authentication.getPrincipal()).thenReturn(customUserDetails);
+        lenient().when(customUserDetails.getUsername()).thenReturn(testUser); // 여기에 로그인 ID 반환
         lenient().when(memberRepository.findByLoginId(testUser)).thenReturn(Optional.ofNullable(mock(Member.class)));
     }
     @Test
@@ -103,11 +105,11 @@ class PostServiceTest {
     void getPosts() {
         //given
         Pageable pageable = Pageable.unpaged();
-        PostSearchContent postSearchContent = new PostSearchContent(null, null, null);
+        PostSearchContent postSearchContent = new PostSearchContent(null, null, null, null);
         List<Post> posts = Arrays.asList(new Post(), new Post());
         PageImpl<Post> postPage = new PageImpl<>(posts);
 
-        when(dslPostRepository.getPosts(any(Pageable.class), any(PostSearchContent.class))).thenReturn(postPage);
+        when(postRepository.getPostsByCursor(any(Pageable.class), any(PostSearchContent.class))).thenReturn(postPage);
 
         //when
         Slice<PostsGetDto> result = postService.getPosts(pageable, postSearchContent);
@@ -144,11 +146,13 @@ class PostServiceTest {
         PostUpdateDto postUpdateDto = new PostUpdateDto();
         postUpdateDto.setStartDate(LocalDate.now());
         postUpdateDto.setEndDate(LocalDate.now().plusDays(1));
-
+        postUpdateDto.setCategory(Category.GENERAL);
 
         Post mockPost = mock(Post.class);
+        Member mockMember = mock(Member.class);
         when(postRepository.findPostWithField(anyLong())).thenReturn(Optional.of(mockPost));
-        when(mockPost.getCreatedBy()).thenReturn(testUser);
+        when(mockPost.getMember()).thenReturn(mockMember);
+        when(mockMember.getLoginId()).thenReturn(testUser);
 
         // when
         postService.updatePost(1L, null, postUpdateDto);
@@ -164,8 +168,9 @@ class PostServiceTest {
         Post mockPost = mock(Post.class);
 
         when(postRepository.findById(anyLong())).thenReturn(Optional.of(mockPost));
-        //beforeEach 에서 설정해 놓은 유저 이름
-        when(mockPost.getCreatedBy()).thenReturn(testUser);
+        Member mockMember = mock(Member.class);
+        when(mockPost.getMember()).thenReturn(mockMember);
+        when(mockMember.getLoginId()).thenReturn(testUser);
 
         //when
         postService.deletePost(1L);

@@ -6,21 +6,21 @@ import durikkiri.project.entity.dto.member.MemberGetDto;
 import durikkiri.project.entity.dto.member.MemberUpdateDto;
 import durikkiri.project.entity.dto.member.SignInDto;
 import durikkiri.project.entity.dto.member.SignUpDto;
+import durikkiri.project.entity.post.Like;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.exception.AuthenticationException;
-import durikkiri.project.exception.BadRequestException;
-import durikkiri.project.repository.DslPostRepository;
+import durikkiri.project.repository.LikeRepository;
+import durikkiri.project.repository.PostCustomRepositoryImpl;
 import durikkiri.project.repository.MemberRepository;
+import durikkiri.project.repository.PostRepository;
 import durikkiri.project.security.JwtToken;
 import durikkiri.project.security.JwtTokenProvider;
 import durikkiri.project.service.impl.MemberServiceImpl;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -54,9 +54,6 @@ class MemberServiceTest {
 
     @Mock
     private JwtTokenProvider jwtTokenProvider;
-    @Mock
-    private DslPostRepository postRepository;
-
     @Mock
     private PasswordEncoder passwordEncoder;
 
@@ -157,12 +154,6 @@ class MemberServiceTest {
 
     @Test
     void getMyInfo() {
-        //given
-        Post mockPost = mock(Post.class);
-        List<Post> mockPostList = List.of(mockPost);
-        when(postRepository.progressProject(any())).thenReturn(mockPostList);
-        when(postRepository.myRecruitingProject(any())).thenReturn(mockPostList);
-        when(postRepository.myApplyProject(any())).thenReturn(mockPostList);
 
         //when
         MemberGetDto myInfo = memberService.getMyInfo();
@@ -176,10 +167,6 @@ class MemberServiceTest {
     void getMember() {
         //given
         when(memberRepository.findMemberByNickname(member.getNickname())).thenReturn(Optional.of(member));
-        Post mockPost = mock(Post.class);
-        List<Post> mockPostList = List.of(mockPost);
-        when(postRepository.progressProject(any())).thenReturn(mockPostList);
-        when(postRepository.myRecruitingProject(any())).thenReturn(mockPostList);
 
         //when
         MemberGetDto memberDto = memberService.getMember(member.getNickname());
