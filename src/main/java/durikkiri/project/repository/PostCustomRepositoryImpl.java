@@ -6,6 +6,8 @@ import durikkiri.project.entity.*;
 import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.entity.dto.post.PostSearchContent;
+import durikkiri.project.entity.post.QField;
+import durikkiri.project.entity.post.TechnologyStack;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
@@ -16,6 +18,7 @@ import java.util.List;
 import static durikkiri.project.entity.QApply.*;
 import static durikkiri.project.entity.QImage.*;
 import static durikkiri.project.entity.post.Category.*;
+import static durikkiri.project.entity.post.QField.*;
 import static durikkiri.project.entity.post.QPost.post;
 import static durikkiri.project.entity.post.RecruitmentStatus.*;
 
@@ -30,8 +33,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
 
         List<Post> posts = query.select(post)
                 .from(post)
-                .leftJoin(post.image, image)
-                .fetchJoin()
+                .leftJoin(post.image, image).fetchJoin()
                 .where(builder)
                 .orderBy(post.createdAt.desc(), post.id.desc())
                 .limit(pageable.getPageSize() + 1)
@@ -54,11 +56,16 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
             if (postSearchContent.getTitle() != null) {
                 builder.and(post.title.contains(postSearchContent.getTitle()));
             }
+            if (postSearchContent.getCreatedBy() != null) {
+                builder.and(post.createdBy.contains(postSearchContent.getCreatedBy()));
+            }
+            if (postSearchContent.getTechnologyStackList() != null && !postSearchContent.getTechnologyStackList().isEmpty()) {
+                builder.and(post.technologyStackList.any().in(postSearchContent.getTechnologyStackList()));
+            }
             if (postSearchContent.getCursorCreatedAt() != null) {
                 builder.and(
                         post.createdAt.lt(postSearchContent.getCursorCreatedAt())
-                                .or(post.createdAt.eq(postSearchContent.getCursorCreatedAt())
-                                        .and(post.id.lt(postSearchContent.getCursorId())))
+                                .or(post.createdAt.eq(postSearchContent.getCursorCreatedAt()).and(post.id.lt(postSearchContent.getCursorId())))
                 );
             }
         }

@@ -105,7 +105,7 @@ class PostServiceTest {
     void getPosts() {
         //given
         Pageable pageable = Pageable.unpaged();
-        PostSearchContent postSearchContent = new PostSearchContent(null, null, null, null);
+        PostSearchContent postSearchContent = new PostSearchContent(null, null, null, null, null, null);
         List<Post> posts = Arrays.asList(new Post(), new Post());
         PageImpl<Post> postPage = new PageImpl<>(posts);
 

@@ -22,6 +22,7 @@ public class PostGetDto {
     private String content;
     private Long postId;
     private Long memberId;
+    private String memberNickname;
     private List<TechnologyStack> technologyStackList;
     private List<CommentGetDto> commentList;
     private List<FieldGetDto> fieldList;
@@ -49,6 +50,7 @@ public class PostGetDto {
                 .category(post.getCategory().getValue())
                 .content(post.getContent())
                 .memberId(post.getMember().getId())
+                .memberNickname(post.getMember().getNickname())
                 .technologyStackList(post.getTechnologyStackList())
                 .commentList(commentGetDtoList)
                 .fieldList(fieldGetDtoList) // 변환된 FieldGetDto 리스트 설정
