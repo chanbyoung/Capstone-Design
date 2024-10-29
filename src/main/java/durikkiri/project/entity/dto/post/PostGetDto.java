@@ -22,6 +22,7 @@ public class PostGetDto {
     private String content;
     private Long postId;
     private Long memberId;
+    private String memberNickname;
     private List<TechnologyStack> technologyStackList;
     private List<CommentGetDto> commentList;
     private List<FieldGetDto> fieldList;
@@ -33,7 +34,7 @@ public class PostGetDto {
     private Boolean isLiked;
     private Boolean isOwner;
 
-    static public PostGetDto toDto(Post post, Boolean isLiked, Boolean isOwner) {
+    static public PostGetDto toDto(Post post, PostUserStatusDto postUserStatusDto) {
         // Post 엔티티 내의 Field 리스트를 FieldGetDto 리스트로 변환
         List<FieldGetDto> fieldGetDtoList = post.getFieldList().stream()
                 .map(FieldGetDto::toDto) // 각 Field 엔티티를 FieldGetDto로 변환
@@ -49,6 +50,7 @@ public class PostGetDto {
                 .category(post.getCategory().getValue())
                 .content(post.getContent())
                 .memberId(post.getMember().getId())
+                .memberNickname(post.getMember().getNickname())
                 .technologyStackList(post.getTechnologyStackList())
                 .commentList(commentGetDtoList)
                 .fieldList(fieldGetDtoList) // 변환된 FieldGetDto 리스트 설정
@@ -57,8 +59,8 @@ public class PostGetDto {
                 .likeCount(post.getLikeCount())
                 .startDate(post.getStartDate())
                 .endDate(post.getEndDate())
-                .isLiked(isLiked)
-                .isOwner(isOwner)
+                .isLiked(postUserStatusDto.getLiked())
+                .isOwner(postUserStatusDto.getOwner())
                 .build();
     }
 }

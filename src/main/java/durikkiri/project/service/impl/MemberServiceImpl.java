@@ -10,9 +10,9 @@ import durikkiri.project.entity.post.Post;
 import durikkiri.project.exception.AuthenticationException;
 import durikkiri.project.exception.BadRequestException;
 import durikkiri.project.exception.NotFoundException;
-import durikkiri.project.repository.DslPostRepository;
 import durikkiri.project.repository.LikeRepository;
 import durikkiri.project.repository.MemberRepository;
+import durikkiri.project.repository.PostRepository;
 import durikkiri.project.security.JwtToken;
 import durikkiri.project.security.JwtTokenProvider;
 import durikkiri.project.service.MemberService;
@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
-    private final DslPostRepository dslPostRepository;
+    private final PostRepository postRepository;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final RedisTemplate<String, Object> redisTemplate;
     private final JwtTokenProvider jwtTokenProvider;
@@ -88,8 +88,8 @@ public class MemberServiceImpl implements MemberService {
         log.info("nickname = {}",nickname);
         Member member = memberRepository.findMemberByNickname(nickname)
                 .orElseThrow(() -> new NotFoundException("Member not found"));
-        List<Post> progressProject = dslPostRepository.progressProject(member);
-        List<Post> recruitingProject = dslPostRepository.myRecruitingProject(member);
+        List<Post> progressProject = postRepository.progressProject(member);
+        List<Post> recruitingProject = postRepository.myRecruitingProject(member);
         return MemberGetDto.toDto(member, progressProject, recruitingProject, null,null);
     }
 
@@ -98,9 +98,9 @@ public class MemberServiceImpl implements MemberService {
         String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findByLoginId(memberLoginId)
                 .orElseThrow(() -> new NotFoundException("Member not found"));
-        List<Post> progressProject = dslPostRepository.progressProject(member);
-        List<Post> recruitingProject = dslPostRepository.myRecruitingProject(member);
-        List<Post> myApplyProject = dslPostRepository.myApplyProject(member);
+        List<Post> progressProject = postRepository.progressProject(member);
+        List<Post> recruitingProject = postRepository.myRecruitingProject(member);
+        List<Post> myApplyProject = postRepository.myApplyProject(member);
         List<Post> myLikeProjectList = likeRepository.findMyLikePost(member.getId()).stream()
                 .map(Like::getPost)
                 .toList();

@@ -43,7 +43,6 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final ImageRepository imageRepository;
     private final LikeRepository likeRepository;
-    private final DslPostRepository dslPostRepository;
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
     private final Validator validator;
@@ -53,7 +52,8 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public void addPost(PostAddDto postAddDto, MultipartFile image) throws IOException {
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String memberLoginId = extractLoginId(authentication);
         Member member = memberRepository.findByLoginId(memberLoginId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
         if (!postAddDto.getCategory().equals(GENERAL)) {
@@ -85,7 +85,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Slice<PostsGetDto> getPosts(Pageable pageable, PostSearchContent postSearchContent) {
-        return dslPostRepository.getPosts(pageable, postSearchContent).map(PostsGetDto::toDto);
+        return postRepository.getPostsByCursor(pageable, postSearchContent).map(PostsGetDto::toDto);
     }
 
     @Override
@@ -101,23 +101,24 @@ public class PostServiceImpl implements PostService {
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String memberLoginId = null;
-        boolean isAuthenticated = isAuthenticated(authentication);
-        boolean isLiked = false;
-        boolean isOwner = false;
+        PostUserStatusDto postUserStatusDto = getPostAuthInfo(authentication, postId, post.getMember().getLoginId());
 
-        if (isAuthenticated) {
-            memberLoginId = extractLoginId(authentication);
-
-            isLiked = likeRepository.findByPostIdAndMemberId(postId, memberLoginId).isPresent();
-            isOwner = post.getMember().getLoginId().equals(memberLoginId);
-        }
-
-        return PostGetDto.toDto(post, isLiked, isOwner);
+        return PostGetDto.toDto(post, postUserStatusDto);
     }
 
     private boolean isAuthenticated(Authentication authentication) {
         return authentication != null && authentication.isAuthenticated();
+    }
+    private PostUserStatusDto getPostAuthInfo(Authentication authentication, Long postId, String postOwnerId) {
+        if (!isAuthenticated(authentication)) {
+            return new PostUserStatusDto(false, false);
+        }
+
+        String memberLoginId = extractLoginId(authentication);
+        boolean isLiked = likeRepository.findByPostIdAndMemberId(postId, memberLoginId).isPresent();
+        boolean isOwner = postOwnerId.equals(memberLoginId);
+
+        return new PostUserStatusDto(isLiked, isOwner);
     }
 
     private String extractLoginId(Authentication authentication) {
@@ -135,7 +136,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<HomeGetDto> getLikePostList(Category category) {
-        return dslPostRepository.getLikePostList(category).stream().map(HomeGetDto::toDto).toList();
+        return postRepository.getLikePostList(category).stream().map(HomeGetDto::toDto).toList();
     }
     @Override
     @Transactional
