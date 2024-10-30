@@ -15,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -69,20 +71,28 @@ public class Post extends BaseEntity {
 
     private void fieldUpdate(PostUpdateDto postUpdateDto) {
         Set<FieldCategory> processedFieldCategories = new HashSet<>();
-        for (FieldDto fieldDto : postUpdateDto.getFieldList()) {
-            Optional<Field> matchingField = fieldList.stream()
-                    .filter(field -> field.getFieldCategory().equals(fieldDto.getFieldCategory()))
-                    .findFirst();
-            if (matchingField.isPresent()) {
-                matchingField.get().updateField(fieldDto);
+        Map<FieldCategory, FieldDto> fieldDtoMap = postUpdateDto.getFieldList().stream().collect(Collectors.toMap(FieldDto::getFieldCategory, Function.identity()));
+
+        fieldList.removeIf(field -> {
+            FieldCategory fieldCategory = field.getFieldCategory();
+            FieldDto fieldDto = fieldDtoMap.get(fieldCategory);
+
+            // 일치하는 카테고리가 있어 업데이트 할 필드 목록이 존재하는 경우
+            if (fieldDto != null) {
+                field.updateField(fieldDto);
+                processedFieldCategories.add(fieldCategory);
+                return false;
             }
-            else {
-                Field newField = fieldDto.toEntity(this);
-                this.fieldList.add(newField);
-            }
-            processedFieldCategories.add(fieldDto.getFieldCategory());
-        }
-        this.fieldList.removeIf(field -> !processedFieldCategories.contains(field.getFieldCategory()));
+            return true; // 일치하는 카테고리가 없으면 삭제
+        } );
+
+        //새로 추가해야 할 필드 추가
+        fieldDtoMap.keySet().stream()
+                .filter(fieldCategory -> !processedFieldCategories.contains(fieldCategory))
+                .forEach(fieldCategory -> {
+                    Field newField = fieldDtoMap.get(fieldCategory).toEntity(this);
+                    this.fieldList.add(newField);
+                });
     }
 
     public void updateViewCount() {
