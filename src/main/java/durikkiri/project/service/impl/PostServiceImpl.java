@@ -18,11 +18,8 @@ import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,10 +48,8 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public void addPost(PostAddDto postAddDto, MultipartFile image) throws IOException {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String memberLoginId = extractLoginId(authentication);
-        Member member = memberRepository.findByLoginId(memberLoginId)
+    public void addPost(PostAddDto postAddDto, CustomUserDetails loginUser, MultipartFile image) throws IOException {
+        Member member = memberRepository.findByLoginId(loginUser.getUsername())
                 .orElseThrow(() -> new ForbiddenException("User not found"));
         if (!postAddDto.getCategory().equals(GENERAL)) {
             checkFieldValid(postAddDto.getFieldList());
@@ -90,7 +85,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public PostGetDto getPost(Long postId, boolean flag) {
+    public PostGetDto getPost(Long postId, CustomUserDetails loginUser, boolean flag) {
         Post post = postRepository.findPostWithField(postId)
                 .orElseThrow(() -> new NotFoundException("Post not found"));
         if (flag) {
@@ -99,35 +94,22 @@ public class PostServiceImpl implements PostService {
         if (!post.getCategory().equals(GENERAL)) {
             post.updateStatus();
         }
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        PostUserStatusDto postUserStatusDto = getPostAuthInfo(authentication, postId, post.getMember().getLoginId());
+        if(loginUser.isAnonymous()) {
+            return PostGetDto.toDto(post, new PostUserStatusDto(null, null));
+        }
+        PostUserStatusDto postUserStatusDto = getPostAuthInfo(loginUser, postId, post.getMember().getLoginId());
 
         return PostGetDto.toDto(post, postUserStatusDto);
     }
 
-    private boolean isAuthenticated(Authentication authentication) {
-        return authentication != null && authentication.isAuthenticated();
-    }
-    private PostUserStatusDto getPostAuthInfo(Authentication authentication, Long postId, String postOwnerId) {
-        if (!isAuthenticated(authentication)) {
-            return new PostUserStatusDto(false, false);
-        }
+    private PostUserStatusDto getPostAuthInfo(CustomUserDetails loginUser, Long postId, String postOwnerLoginId) {
 
-        String memberLoginId = extractLoginId(authentication);
-        boolean isLiked = likeRepository.findByPostIdAndMemberId(postId, memberLoginId).isPresent();
-        boolean isOwner = postOwnerId.equals(memberLoginId);
+        boolean isLiked = likeRepository.findByPostIdAndMemberId(postId, loginUser.getUsername()).isPresent();
+        boolean isOwner = postOwnerLoginId.equals(loginUser.getUsername());
 
         return new PostUserStatusDto(isLiked, isOwner);
     }
 
-    private String extractLoginId(Authentication authentication) {
-        Object principal = authentication.getPrincipal();
-        if (principal instanceof CustomUserDetails) {
-            return ((CustomUserDetails) principal).getUsername();
-        }
-        return principal.toString();
-    }
 
     @Override
     public List<HomeGetDto> getHome() {
@@ -140,12 +122,10 @@ public class PostServiceImpl implements PostService {
     }
     @Override
     @Transactional
-    public void updatePost(Long postId, MultipartFile image, PostUpdateDto postUpdateDto) throws IOException {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String memberLoginId = extractLoginId(authentication);
+    public void updatePost(Long postId, CustomUserDetails loginUser, MultipartFile image, PostUpdateDto postUpdateDto) throws IOException {
         Post post = postRepository.findPostWithField(postId)
                 .orElseThrow(() -> new NotFoundException("Post not found"));
-        if (!post.getMember().getLoginId().equals(memberLoginId)) {
+        if (!post.getMember().getLoginId().equals(loginUser.getUsername())) {
             throw new ForbiddenException("User not authorized to update this post");
         }
         if (postUpdateDto.getStartDate().isAfter(postUpdateDto.getEndDate())) {
@@ -176,13 +156,10 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public void deletePost(Long postId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String memberLoginId = extractLoginId(authentication);
-
+    public void deletePost(Long postId, CustomUserDetails loginUser) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("Post not found"));
-        if (!post.getMember().getLoginId().equals(memberLoginId)) {
+        if (!post.getMember().getLoginId().equals(loginUser.getUsername())) {
             throw new ForbiddenException("User not authorized to delete this post");
         }
         if(post.getImage() != null) {

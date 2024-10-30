@@ -1,10 +1,12 @@
 package durikkiri.project.controller;
 
+import durikkiri.project.annotation.AuthUser;
 import durikkiri.project.entity.dto.HomeGetDto;
 import durikkiri.project.entity.dto.post.PostResponseDto;
 import durikkiri.project.entity.dto.comment.CommentDto;
 import durikkiri.project.entity.dto.post.*;
 import durikkiri.project.entity.post.Category;
+import durikkiri.project.security.CustomUserDetails;
 import durikkiri.project.service.PostService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -56,24 +58,26 @@ public class PostController {
     @PostMapping
     public ResponseEntity<Map<String, String>> addPost(@Valid @RequestPart(value = "json") PostAddDto postAddDto,
                                           @RequestPart(value = "image", required = false) MultipartFile image,
+                                          @AuthUser CustomUserDetails loginUser,
                                           BindingResult bindingResult
                                           ) throws IOException {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(getErrorMap(bindingResult));
         }
-        postService.addPost(postAddDto, image);
+        postService.addPost(postAddDto,loginUser, image);
         return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("message", "Post created successfully"));
     }
 
     @GetMapping("/{postId}")
     public ResponseEntity<PostGetDto> getPost(@PathVariable Long postId,
+                                              @AuthUser CustomUserDetails loginUser,
                                               HttpServletRequest request, HttpServletResponse response) {
         Cookie viewCookie = findViewCookie(postId, request);
         boolean shouldIncreaseViewCount = (viewCookie == null);
         if (shouldIncreaseViewCount) {
             addViewCountCookie(postId, response);
         }
-        PostGetDto post = postService.getPost(postId, shouldIncreaseViewCount);
+        PostGetDto post = postService.getPost(postId, loginUser, shouldIncreaseViewCount);
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
@@ -98,6 +102,7 @@ public class PostController {
 
     @PatchMapping("/{postId}")
     public ResponseEntity<Map<String, String>> updatePost(@Valid @RequestPart(value = "json") PostUpdateDto postUpdateDto,
+                                             @AuthUser CustomUserDetails loginUser,
                                              @RequestPart(value = "image", required = false) MultipartFile image,
                                              @PathVariable Long postId,
                                              BindingResult bindingResult
@@ -105,13 +110,13 @@ public class PostController {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(getErrorMap(bindingResult));
         }
-        postService.updatePost(postId, image, postUpdateDto);
+        postService.updatePost(postId, loginUser, image, postUpdateDto);
         return ResponseEntity.status(HttpStatus.OK).body(Collections.singletonMap("message", "Post updated successfully"));
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<String> deletePost(@PathVariable Long postId) {
-        postService.deletePost(postId);
+    public ResponseEntity<String> deletePost(@PathVariable Long postId, @AuthUser CustomUserDetails loginUser) {
+        postService.deletePost(postId, loginUser);
         return new ResponseEntity<>("Post deleted successfully", HttpStatus.OK);
     }
 
