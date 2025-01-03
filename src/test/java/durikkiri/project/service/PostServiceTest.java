@@ -15,7 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -44,6 +43,8 @@ class PostServiceTest {
     private ImageRepository imageRepository;
     @Mock
     private MemberRepository memberRepository;
+    @Mock
+    private LikeRepository likeRepository;
     @Mock
     private SecurityContext securityContext;
     @Mock
@@ -79,7 +80,7 @@ class PostServiceTest {
 
 
         //when
-        postService.addPost(postAddDto, mockFile);
+        postService.addPost(postAddDto, customUserDetails, mockFile);
 
         //then
         verify(postRepository, times(1)).save(any(Post.class));
@@ -96,7 +97,7 @@ class PostServiceTest {
 
         //then
         assertThrows(BadRequestException.class,
-                () -> postService.addPost(postAddDto, null));
+                () -> postService.addPost(postAddDto, customUserDetails, null));
 
     }
 
@@ -131,9 +132,11 @@ class PostServiceTest {
                 .viewCount(0L)
                 .build();
         when(postRepository.findPostWithField(1L)).thenReturn(Optional.of(testPost));
+        when(customUserDetails.isAnonymous()).thenReturn(true); // 여기에 로그인 ID 반환
+
 
         //when
-        PostGetDto result = postService.getPost(1L, true);
+        PostGetDto result = postService.getPost(1L, customUserDetails, true);
 
         //then
         assertNotNull(result);
@@ -155,7 +158,7 @@ class PostServiceTest {
         when(mockMember.getLoginId()).thenReturn(testUser);
 
         // when
-        postService.updatePost(1L, null, postUpdateDto);
+        postService.updatePost(1L, customUserDetails, null, postUpdateDto);
 
         // then
         verify(mockPost, times(1)).updatePost(postUpdateDto);
@@ -173,7 +176,7 @@ class PostServiceTest {
         when(mockMember.getLoginId()).thenReturn(testUser);
 
         //when
-        postService.deletePost(1L);
+        postService.deletePost(1L, customUserDetails);
 
         //then
         verify(postRepository, times(1)).delete(mockPost);

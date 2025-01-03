@@ -17,6 +17,7 @@ public class CustomUserDetails implements UserDetails {
     private String nickName;
     private String authority;
     private boolean enabled;
+    private boolean anonymous;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         ArrayList<GrantedAuthority> auth = new ArrayList<>();
@@ -37,6 +38,13 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public boolean isCredentialsNonExpired() {
         return true;
+    }
+
+    public static CustomUserDetails createAnonymousUser() {
+        return CustomUserDetails.builder()
+                .username("anonymousUser")
+                .anonymous(true) // 플래그를 통해 익명 사용자로 설정
+                .build();
     }
 
 }
