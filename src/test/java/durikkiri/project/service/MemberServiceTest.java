@@ -1,18 +1,13 @@
 package durikkiri.project.service;
 
 import durikkiri.project.entity.Member;
-import durikkiri.project.entity.dto.ExistDto;
+import durikkiri.project.entity.dto.auth.ExistDto;
 import durikkiri.project.entity.dto.member.MemberGetDto;
 import durikkiri.project.entity.dto.member.MemberUpdateDto;
 import durikkiri.project.entity.dto.member.SignInDto;
 import durikkiri.project.entity.dto.member.SignUpDto;
-import durikkiri.project.entity.post.Like;
-import durikkiri.project.entity.post.Post;
 import durikkiri.project.exception.AuthenticationException;
-import durikkiri.project.repository.LikeRepository;
-import durikkiri.project.repository.PostCustomRepositoryImpl;
 import durikkiri.project.repository.MemberRepository;
-import durikkiri.project.repository.PostRepository;
 import durikkiri.project.security.JwtToken;
 import durikkiri.project.security.JwtTokenProvider;
 import durikkiri.project.service.impl.MemberServiceImpl;
@@ -32,7 +27,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 

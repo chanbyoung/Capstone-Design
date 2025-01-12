@@ -1,4 +1,4 @@
-package durikkiri.project.entity.dto;
+package durikkiri.project.entity.dto.auth;
 
 import lombok.Getter;
 import lombok.Setter;

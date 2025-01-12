@@ -1,6 +1,6 @@
 package durikkiri.project.service.impl;
 import durikkiri.project.entity.Member;
-import durikkiri.project.entity.dto.ExistDto;
+import durikkiri.project.entity.dto.auth.ExistDto;
 import durikkiri.project.entity.dto.member.MemberGetDto;
 import durikkiri.project.entity.dto.member.MemberUpdateDto;
 import durikkiri.project.entity.dto.member.SignInDto;
