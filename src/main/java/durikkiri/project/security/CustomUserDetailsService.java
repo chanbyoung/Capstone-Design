@@ -28,7 +28,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .password(member.getPassword())
                 .nickName(member.getNickname())
                 .authority(member.getRoles().isEmpty() ? "ROLE_USER" : member.getRoles().get(0)) // 권한 설정
-                .enabled(member.isEnabled()) // 활성화 상태 설정
                 .build();
 
     }

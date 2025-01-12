@@ -8,11 +8,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import java.util.Optional;
 @Slf4j
 public class SpringSecurityAuditorAware implements AuditorAware<String> {
+
     @Override
     public Optional<String> getCurrentAuditor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if(authentication == null || !authentication.isAuthenticated()) {
+        if (authentication == null || !authentication.isAuthenticated()) {
             return Optional.empty();
         }
 

@@ -23,8 +23,10 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @EqualsAndHashCode(of = "id")
-public class Member implements UserDetails {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class Member {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
     private Long id;
     @NotBlank
@@ -39,13 +41,12 @@ public class Member implements UserDetails {
     @Pattern(regexp = "^(?=.*[a-z])(?=.*\\d)[a-zA-Z\\d!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?]*$",
             message = "비밀번호는 적어도 하나의 소문자와 하나의 숫자를 포함해야 합니다")
     private String password;
-
     @NotBlank
     @Email
     private String email;
     @NotBlank
     private String major;
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection
     @Builder.Default
     private List<String> roles = new ArrayList<>();
 
@@ -57,34 +58,6 @@ public class Member implements UserDetails {
 
     @OneToMany(mappedBy = "member", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Apply> appliesList;
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.roles.stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
-    }
-
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 
     public void updateMember(MemberUpdateDto memberUpdateDto) {
         this.nickname = memberUpdateDto.getNickname();

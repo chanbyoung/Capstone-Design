@@ -10,5 +10,6 @@ public class RefreshTokenInfoDto {
     private String account;
     private String refreshToken;
     private String authorities;
+    private String nickName;
 
 }
