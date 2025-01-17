@@ -11,6 +11,6 @@ public class SecurityUtils {
         if (!(principal instanceof CustomUserDetails)) {
             throw new AuthenticationException("Invalid principal type: " + principal.getClass().getName());
         }
-        return principal;
+        return Long.valueOf(((CustomUserDetails) principal).getUsername());
     }
 }
