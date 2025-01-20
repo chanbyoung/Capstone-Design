@@ -1,5 +1,6 @@
 package durikkiri.project.controller;
 
+import durikkiri.project.annotation.AuthUser;
 import durikkiri.project.service.LikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,8 +16,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class LikeController {
     private final LikeService likeService;
     @PostMapping("/{postId}")
-    public ResponseEntity<String> addLike(@PathVariable Long postId) {
-        likeService.toggleLike(postId);
+    public ResponseEntity<String> addLike(
+            @AuthUser Long memberId,
+            @PathVariable Long postId) {
+        likeService.toggleLike(postId, memberId);
         return new ResponseEntity<>("Like add successfully", HttpStatus.OK);
     }
 }

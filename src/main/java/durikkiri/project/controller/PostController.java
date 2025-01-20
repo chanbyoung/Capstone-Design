@@ -42,7 +42,7 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<PostResponseDto> getPosts(@PageableDefault Pageable pageable,
-                                                    @ModelAttribute PostSearchContent postSearchContent) {
+            @ModelAttribute PostSearchContent postSearchContent) {
         log.info("postSearchContent = {}", postSearchContent);
         Slice<PostsGetDto> posts = postService.getPosts(pageable, postSearchContent);
         PostResponseDto responseDto = new PostResponseDto(posts);
@@ -56,28 +56,30 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<Map<String, String>> addPost(@Valid @RequestPart(value = "json") PostAddDto postAddDto,
-                                          @RequestPart(value = "image", required = false) MultipartFile image,
-                                          @AuthUser CustomUserDetails loginUser,
-                                          BindingResult bindingResult
-                                          ) throws IOException {
+    public ResponseEntity<Map<String, String>> addPost(
+            @Valid @RequestPart(value = "json") PostAddDto postAddDto,
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            @AuthUser Long memberId,
+            BindingResult bindingResult
+    ) throws IOException {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(getErrorMap(bindingResult));
         }
-        postService.addPost(postAddDto,loginUser, image);
-        return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("message", "Post created successfully"));
+        postService.addPost(postAddDto, memberId, image);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Collections.singletonMap("message", "Post created successfully"));
     }
 
     @GetMapping("/{postId}")
     public ResponseEntity<PostGetDto> getPost(@PathVariable Long postId,
-                                              @AuthUser CustomUserDetails loginUser,
-                                              HttpServletRequest request, HttpServletResponse response) {
+            @AuthUser Long memberId,
+            HttpServletRequest request, HttpServletResponse response) {
         Cookie viewCookie = findViewCookie(postId, request);
         boolean shouldIncreaseViewCount = (viewCookie == null);
         if (shouldIncreaseViewCount) {
             addViewCountCookie(postId, response);
         }
-        PostGetDto post = postService.getPost(postId, loginUser, shouldIncreaseViewCount);
+        PostGetDto post = postService.getPost(postId, memberId, shouldIncreaseViewCount);
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
@@ -101,33 +103,38 @@ public class PostController {
     }
 
     @PatchMapping("/{postId}")
-    public ResponseEntity<Map<String, String>> updatePost(@Valid @RequestPart(value = "json") PostUpdateDto postUpdateDto,
-                                             @AuthUser CustomUserDetails loginUser,
-                                             @RequestPart(value = "image", required = false) MultipartFile image,
-                                             @PathVariable Long postId,
-                                             BindingResult bindingResult
-                                             ) throws IOException {
+    public ResponseEntity<Map<String, String>> updatePost(
+            @Valid @RequestPart(value = "json") PostUpdateDto postUpdateDto,
+            @AuthUser Long memberId,
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            @PathVariable Long postId,
+            BindingResult bindingResult
+    ) throws IOException {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(getErrorMap(bindingResult));
         }
-        postService.updatePost(postId, loginUser, image, postUpdateDto);
-        return ResponseEntity.status(HttpStatus.OK).body(Collections.singletonMap("message", "Post updated successfully"));
+        postService.updatePost(postId, memberId, image, postUpdateDto);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Collections.singletonMap("message", "Post updated successfully"));
     }
 
     @DeleteMapping("/{postId}")
-    public ResponseEntity<String> deletePost(@PathVariable Long postId, @AuthUser CustomUserDetails loginUser) {
-        postService.deletePost(postId, loginUser);
+    public ResponseEntity<String> deletePost(@PathVariable Long postId,
+            @AuthUser Long memberId) {
+        postService.deletePost(postId, memberId);
         return new ResponseEntity<>("Post deleted successfully", HttpStatus.OK);
     }
 
     @PostMapping("/{postId}/comment")
-    public ResponseEntity<String> addComment(@PathVariable Long postId, @RequestBody CommentDto commentDto) {
+    public ResponseEntity<String> addComment(@PathVariable Long postId,
+            @RequestBody CommentDto commentDto) {
         postService.addComment(postId, commentDto);
         return new ResponseEntity<>("Comment added successfully", HttpStatus.CREATED);
     }
 
     @PatchMapping("/{postId}/comment/{commentId}")
-    public ResponseEntity<String> updateComment(@PathVariable Long commentId, @RequestBody CommentDto commentDto) {
+    public ResponseEntity<String> updateComment(@PathVariable Long commentId,
+            @RequestBody CommentDto commentDto) {
         postService.updateComment(commentId, commentDto);
         return new ResponseEntity<>("Comment updated successfully", HttpStatus.OK);
     }

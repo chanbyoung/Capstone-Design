@@ -22,9 +22,8 @@ public class LikeService {
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
     @Transactional
-    public void toggleLike(Long postId) {
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Optional<Like> existingLike = likeRepository.findByPostIdAndMemberId(postId, memberLoginId);
+    public void toggleLike(Long postId, Long memberId) {
+        Optional<Like> existingLike = likeRepository.findByPostIdAndMemberId(postId, memberId);
 
         if (existingLike.isPresent()) {
             Like like = existingLike.get();
@@ -32,9 +31,10 @@ public class LikeService {
             like.getPost().updateLikeCount(false);
             return;
         }
+
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("Post not found"));
-        Member member = memberRepository.findByLoginId(memberLoginId)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException("Member not found"));
 
         // 새로운 Like 엔티티 생성 후 저장

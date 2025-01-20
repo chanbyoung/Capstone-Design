@@ -37,6 +37,7 @@ import static durikkiri.project.entity.post.Category.*;
 @Transactional(readOnly = true)
 @Slf4j
 public class PostServiceImpl implements PostService {
+
     private final PostRepository postRepository;
     private final ImageRepository imageRepository;
     private final LikeRepository likeRepository;
@@ -48,8 +49,9 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public void addPost(PostAddDto postAddDto, CustomUserDetails loginUser, MultipartFile image) throws IOException {
-        Member member = memberRepository.findByLoginId(loginUser.getUsername())
+    public void addPost(PostAddDto postAddDto, Long memberId, MultipartFile image)
+            throws IOException {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
         if (!postAddDto.getCategory().equals(GENERAL)) {
             checkFieldValid(postAddDto.getFieldList());
@@ -85,7 +87,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public PostGetDto getPost(Long postId, CustomUserDetails loginUser, boolean flag) {
+    public PostGetDto getPost(Long postId, Long memberId, boolean flag) {
         Post post = postRepository.findPostWithField(postId)
                 .orElseThrow(() -> new NotFoundException("Post not found"));
         if (flag) {
@@ -94,18 +96,21 @@ public class PostServiceImpl implements PostService {
         if (!post.getCategory().equals(GENERAL)) {
             post.updateStatus();
         }
-        if(loginUser.isAnonymous()) {
+        if (memberId.equals(-1)) {
             return PostGetDto.toDto(post, new PostUserStatusDto(null, null));
         }
-        PostUserStatusDto postUserStatusDto = getPostAuthInfo(loginUser, postId, post.getMember().getLoginId());
+        PostUserStatusDto postUserStatusDto = getPostAuthInfo(memberId, postId,
+                post.getMember().getId());
 
         return PostGetDto.toDto(post, postUserStatusDto);
     }
 
-    private PostUserStatusDto getPostAuthInfo(CustomUserDetails loginUser, Long postId, String postOwnerLoginId) {
+    private PostUserStatusDto getPostAuthInfo(Long memberId, Long postId,
+            Long postOwnerId) {
 
-        boolean isLiked = likeRepository.findByPostIdAndMemberId(postId, loginUser.getUsername()).isPresent();
-        boolean isOwner = postOwnerLoginId.equals(loginUser.getUsername());
+        boolean isLiked = likeRepository.findByPostIdAndMemberId(postId, memberId)
+                .isPresent();
+        boolean isOwner = postOwnerId.equals(memberId);
 
         return new PostUserStatusDto(isLiked, isOwner);
     }
@@ -113,19 +118,22 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public List<HomeGetDto> getHome() {
-        return postRepository.getHome(GENERAL, RecruitmentStatus.Y).stream().map(HomeGetDto::toDto).toList();
+        return postRepository.getHome(GENERAL, RecruitmentStatus.Y).stream().map(HomeGetDto::toDto)
+                .toList();
     }
 
     @Override
     public List<HomeGetDto> getLikePostList(Category category) {
         return postRepository.getLikePostList(category).stream().map(HomeGetDto::toDto).toList();
     }
+
     @Override
     @Transactional
-    public void updatePost(Long postId, CustomUserDetails loginUser, MultipartFile image, PostUpdateDto postUpdateDto) throws IOException {
+    public void updatePost(Long postId, Long memberId, MultipartFile image,
+            PostUpdateDto postUpdateDto) throws IOException {
         Post post = postRepository.findPostWithField(postId)
                 .orElseThrow(() -> new NotFoundException("Post not found"));
-        if (!post.getMember().getLoginId().equals(loginUser.getUsername())) {
+        if (!post.getMember().getId().equals(memberId)) {
             throw new ForbiddenException("User not authorized to update this post");
         }
         if (postUpdateDto.getStartDate().isAfter(postUpdateDto.getEndDate())) {
@@ -156,13 +164,13 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public void deletePost(Long postId, CustomUserDetails loginUser) {
+    public void deletePost(Long postId, Long memberId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new NotFoundException("Post not found"));
-        if (!post.getMember().getLoginId().equals(loginUser.getUsername())) {
+        if (!post.getMember().getId().equals(memberId)) {
             throw new ForbiddenException("User not authorized to delete this post");
         }
-        if(post.getImage() != null) {
+        if (post.getImage() != null) {
             deleteImage(post.getImage());
         }
         postRepository.delete(post);
