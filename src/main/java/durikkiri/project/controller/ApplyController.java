@@ -37,11 +37,12 @@ public class ApplyController {
     @PostMapping("/apply/{postId}")
     public ResponseEntity<Map<String, String>> addApply(@PathVariable Long postId,
             @Valid @RequestBody ApplyAddDto applyAddDto,
+            @AuthUser Long memberId,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(getErrorMap(bindingResult));
         }
-        applyService.addApply(postId, applyAddDto);
+        applyService.addApply(postId, applyAddDto, memberId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Collections.singletonMap("message", "Apply created successfully"));
     }

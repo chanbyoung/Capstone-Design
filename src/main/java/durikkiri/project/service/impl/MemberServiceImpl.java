@@ -22,7 +22,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -94,9 +93,8 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public MemberGetDto getMyInfo() {
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findByLoginId(memberLoginId)
+    public MemberGetDto getMyInfo(Long memberId) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException("Member not found"));
         List<Post> progressProject = postRepository.progressProject(member);
         List<Post> recruitingProject = postRepository.myRecruitingProject(member);
@@ -110,18 +108,16 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public void updateMember(MemberUpdateDto memberUpdateDto) {
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findByLoginId(memberLoginId)
+    public void updateMember(MemberUpdateDto memberUpdateDto, Long memberId) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException("Member not found"));
         member.updateMember(memberUpdateDto);
     }
 
     @Override
     @Transactional
-    public void deleteMember() {
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findByLoginId(memberLoginId)
+    public void deleteMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException("Member not found"));
         memberRepository.delete(member);
     }

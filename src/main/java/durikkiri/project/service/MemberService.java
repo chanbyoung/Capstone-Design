@@ -10,13 +10,13 @@ import durikkiri.project.security.JwtToken;
 public interface MemberService {
     void signUp(SignUpDto signUpDto);
     JwtToken signIn(SignInDto signInDto);
-    MemberGetDto getMyInfo();
+    MemberGetDto getMyInfo(Long memberId);
 
     MemberGetDto getMember(String nickname);
 
-    void updateMember(MemberUpdateDto memberUpdateDto);
+    void updateMember(MemberUpdateDto memberUpdateDto, Long memberId);
 
-    void deleteMember();
+    void deleteMember(Long memberId);
 
     String findLoginIdByEmailAndUsername(String email);
     void changePassword(ExistDto existDto);
