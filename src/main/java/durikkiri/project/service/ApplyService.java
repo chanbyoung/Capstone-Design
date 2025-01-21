@@ -9,16 +9,19 @@ import durikkiri.project.entity.dto.apply.ApplyGetDto;
 import java.util.List;
 
 public interface ApplyService {
-    List<AppliesGetsDto> getApplies();
-    List<AppliesGetsDto> getMyApplies();
-    void addApply(Long postId, ApplyAddDto applyAddDto);
+
+    List<AppliesGetsDto> getApplies(Long memberId);
+
+    List<AppliesGetsDto> getMyApplies(Long memberId);
+
+    void addApply(Long postId, ApplyAddDto applyAddDto, Long memberId);
 
     ApplyGetDto getApply(Long applyId);
 
-    void updateApplyStatus(Long applyId, ApplyStatus applyStatus);
+    void updateApplyStatus(Long applyId, ApplyStatus applyStatus, Long memberId);
 
-    void updateApply(Long applyId, ApplyUpdateDto applyUpdateDto);
+    void updateApply(Long applyId, ApplyUpdateDto applyUpdateDto, Long memberId);
 
-    void deleteApply(Long applyId);
+    void deleteApply(Long applyId, Long memberId);
 
 }

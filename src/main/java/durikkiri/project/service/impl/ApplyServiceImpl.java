@@ -34,27 +34,27 @@ public class ApplyServiceImpl implements ApplyService {
     private final PostRepository postRepository;
 
     @Override
-    public List<AppliesGetsDto> getApplies() {
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findByLoginId(memberLoginId)
-                .orElseThrow(() -> new ForbiddenException("User not found"));
-
-        return applyRepository.findApply(member.getId()).stream().map(AppliesGetsDto::toDto).toList();
+    public List<AppliesGetsDto> getApplies(Long memberId) {
+        return applyRepository.findApply(memberId)
+                .stream()
+                .map(AppliesGetsDto::toDto)
+                .toList();
     }
 
     @Override
-    public List<AppliesGetsDto> getMyApplies() {
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findByLoginId(memberLoginId)
+    public List<AppliesGetsDto> getMyApplies(Long memberId) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
-        return applyRepository.findMyApply(member).stream().map(AppliesGetsDto::toDto).toList();
+        return applyRepository.findMyApply(member)
+                .stream()
+                .map(AppliesGetsDto::toDto)
+                .toList();
     }
 
     @Override
     @Transactional
-    public void addApply(Long postId, ApplyAddDto applyAddDto) {
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findByLoginId(memberLoginId)
+    public void addApply(Long postId, ApplyAddDto applyAddDto, Long memberId) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
         Post post = postRepository.findPostWithField(postId)
                 .orElseThrow(() -> new NotFoundException("Post not found"));
@@ -93,12 +93,11 @@ public class ApplyServiceImpl implements ApplyService {
 
     @Override
     @Transactional
-    public void updateApplyStatus(Long applyId, ApplyStatus applyStatus) {
+    public void updateApplyStatus(Long applyId, ApplyStatus applyStatus,Long memberId) {
         Apply apply = applyRepository.findApplyWithPost(applyId)
                 .orElseThrow(() -> new NotFoundException("Apply not found"));
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
         // 게시물 작성자 검증
-        if (!apply.getPost().getMember().getLoginId().equals(memberLoginId)) {
+        if (!apply.getPost().getMember().getId().equals(memberId)) {
             throw new ForbiddenException("User not authorized to accept or reject this apply");
         }
         if (applyStatus.equals(ACCEPT)) {
@@ -123,13 +122,12 @@ public class ApplyServiceImpl implements ApplyService {
 
     @Override
     @Transactional
-    public void updateApply(Long applyId, ApplyUpdateDto applyUpdateDto) {
+    public void updateApply(Long applyId, ApplyUpdateDto applyUpdateDto, Long memberId) {
         Apply apply = applyRepository.findById(applyId)
                 .orElseThrow(() -> new NotFoundException("Apply not found"));
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
 
         // 신청자 검증
-        if (!apply.getMember().getLoginId().equals(memberLoginId)) {
+        if (!apply.getMember().getId().equals(memberId)) {
             throw new ForbiddenException("User not authorized to update this apply");
         }
         if (apply.getApplyStatus().equals(ACCEPT) || apply.getApplyStatus().equals(REJECT)) {
@@ -140,12 +138,11 @@ public class ApplyServiceImpl implements ApplyService {
 
     @Override
     @Transactional
-    public void deleteApply(Long applyId) {
+    public void deleteApply(Long applyId, Long memberId) {
         Apply apply = applyRepository.findById(applyId)
                 .orElseThrow(() -> new NotFoundException("Apply not found"));
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
     // 신청자 검증
-        if (!apply.getMember().getLoginId().equals(memberLoginId)) {
+        if (!apply.getMember().getId().equals(memberId)) {
             throw new ForbiddenException("User not authorized to delete this apply");
         }
         applyRepository.delete(apply);
