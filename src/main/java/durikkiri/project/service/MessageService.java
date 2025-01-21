@@ -6,18 +6,18 @@ import java.util.List;
 
 public interface MessageService {
 
-    void sendMessage(MessageCreateDto messageCreateDto);
+    void sendMessage(MessageCreateDto messageCreateDto, Long memberId);
 
     MessageDto getMessage(Long messageId);
 
-    void updateMessage(Long messageId, MessageUpdateDto messageUpdateDto);
+    void updateMessage(Long messageId, MessageUpdateDto messageUpdateDto, Long memberId);
 
-    void deleteMessage(Long messageId);
+    void deleteMessage(Long messageId, Long memberId);
 
 
-    List<ConversationsGetDto> getConversationFromMember();
+    List<ConversationsGetDto> getConversationFromMember(Long memberId);
 
-    ConversationGetDto getConversation(Long conversationId);
+    ConversationGetDto getConversation(Long conversationId, Long memberId);
 
-    ConversationGetDto createOrRetrieveConversation(ConversationRequestDto conversationRequestDto);
+    ConversationGetDto createOrRetrieveConversation(ConversationRequestDto conversationRequestDto, Long memberId);
 }

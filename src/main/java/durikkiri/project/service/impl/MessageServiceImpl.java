@@ -35,9 +35,9 @@ public class MessageServiceImpl implements MessageService {
 
 
     @Override
-    public List<ConversationsGetDto> getConversationFromMember() {
+    public List<ConversationsGetDto> getConversationFromMember(Long memberId) {
         String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findByLoginId(memberLoginId)
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
         return conversationRepository.findByConversation(member).stream()
                 .map(conversation -> ConversationsGetDto.toDto(conversation,member))
@@ -45,12 +45,12 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public ConversationGetDto getConversation(Long conversationId) {
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findByLoginId(memberLoginId)
+    public ConversationGetDto getConversation(Long conversationId, Long memberId) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
         log.info("{}", member.getId());
-        Conversation findConversation = conversationRepository.findByIdWithMessage(conversationId, member.getId())
+        Conversation findConversation = conversationRepository.findByIdWithMessage(conversationId,
+                        member.getId())
                 .orElseThrow(() -> new ForbiddenException("Conversation not found"));
 
         Long opponentId = findConversation.getMember1().getId().equals(member.getId())
@@ -62,9 +62,8 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     @Transactional
-    public ConversationGetDto createOrRetrieveConversation(ConversationRequestDto conversationRequestDto) {
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member sender = memberRepository.findByLoginId(memberLoginId)
+    public ConversationGetDto createOrRetrieveConversation(ConversationRequestDto conversationRequestDto, Long memberId) {
+        Member sender = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
         if (sender.getId().equals(conversationRequestDto.getReceiverId())) {
             throw new BadRequestException("자기 자신과의 채팅방 생성은 불가능합니다");
@@ -84,9 +83,8 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     @Transactional
-    public void sendMessage(MessageCreateDto messageCreateDto) {
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member sender = memberRepository.findByLoginId(memberLoginId)
+    public void sendMessage(MessageCreateDto messageCreateDto, Long memberId) {
+        Member sender = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
         Member receiver = memberRepository.findById(messageCreateDto.getReceiverId())
                 .orElseThrow(() -> new ForbiddenException("Receiver not found"));
@@ -114,9 +112,8 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     @Transactional
-    public void updateMessage(Long messageId, MessageUpdateDto messageUpdateDto) {
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findByLoginId(memberLoginId)
+    public void updateMessage(Long messageId, MessageUpdateDto messageUpdateDto, Long memberId) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
 
         Message message = messageRepository.findById(messageId)
@@ -130,9 +127,8 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     @Transactional
-    public void deleteMessage(Long messageId) {
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findByLoginId(memberLoginId)
+    public void deleteMessage(Long messageId, Long memberId) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
 
         Message message = messageRepository.findById(messageId)

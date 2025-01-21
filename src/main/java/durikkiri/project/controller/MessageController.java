@@ -1,5 +1,6 @@
 package durikkiri.project.controller;
 
+import durikkiri.project.annotation.AuthUser;
 import durikkiri.project.entity.dto.message.*;
 import durikkiri.project.service.MessageService;
 import lombok.RequiredArgsConstructor;
@@ -16,31 +17,38 @@ import static org.springframework.http.HttpStatus.CREATED;
 @RequiredArgsConstructor
 @Slf4j
 public class MessageController {
+
     private final MessageService messageService;
 
     @GetMapping("/conversation")
-    public ResponseEntity<List<ConversationsGetDto>> getAllConversation() {
-        List<ConversationsGetDto> conversationFromMember = messageService.getConversationFromMember();
+    public ResponseEntity<List<ConversationsGetDto>> getAllConversation(@AuthUser Long memberId) {
+        List<ConversationsGetDto> conversationFromMember = messageService.getConversationFromMember(memberId);
         return ResponseEntity.ok(conversationFromMember);
     }
 
     @GetMapping("/conversation/{conversationId}")
-    public ResponseEntity<ConversationGetDto> getConversation(@PathVariable Long conversationId) {
-        ConversationGetDto conversation = messageService.getConversation(conversationId);
+    public ResponseEntity<ConversationGetDto> getConversation(@PathVariable Long conversationId,
+            @AuthUser Long memberId) {
+        ConversationGetDto conversation = messageService.getConversation(conversationId, memberId);
         log.info("{}", conversation.getId());
         return ResponseEntity.ok(conversation);
     }
 
     @PostMapping("/conversation")
-    public ResponseEntity<ConversationGetDto> createOrRetrieveConversation(@RequestBody ConversationRequestDto conversationRequestDto) {
-        log.info("postId={}, receiverId={}",conversationRequestDto.getPostId(), conversationRequestDto.getReceiverId());
-        return ResponseEntity.ok(messageService.createOrRetrieveConversation(conversationRequestDto));
+    public ResponseEntity<ConversationGetDto> createOrRetrieveConversation(
+            @RequestBody ConversationRequestDto conversationRequestDto,
+            @AuthUser Long memberId) {
+        log.info("postId={}, receiverId={}", conversationRequestDto.getPostId(),
+                conversationRequestDto.getReceiverId());
+        return ResponseEntity.ok(
+                messageService.createOrRetrieveConversation(conversationRequestDto, memberId));
     }
 
 
     @PostMapping
-    public ResponseEntity<String> sendMessage(@RequestBody MessageCreateDto messageCreateDto) {
-        messageService.sendMessage(messageCreateDto);
+    public ResponseEntity<String> sendMessage(@RequestBody MessageCreateDto messageCreateDto,
+            @AuthUser Long memberId) {
+        messageService.sendMessage(messageCreateDto, memberId);
         return ResponseEntity.status(CREATED).body("Message sent successfully");
     }
 
@@ -51,14 +59,17 @@ public class MessageController {
     }
 
     @PatchMapping("/{messageId}")
-    public ResponseEntity<String> updateMessage(@PathVariable Long messageId, @RequestBody MessageUpdateDto messageUpdateDto) {
-        messageService.updateMessage(messageId, messageUpdateDto);
+    public ResponseEntity<String> updateMessage(@PathVariable Long messageId,
+            @RequestBody MessageUpdateDto messageUpdateDto,
+            @AuthUser Long memberId) {
+        messageService.updateMessage(messageId, messageUpdateDto, memberId);
         return ResponseEntity.ok("Message updated successfully");
     }
 
     @DeleteMapping("/{messageId}")
-    public ResponseEntity<String> deleteMessage(@PathVariable Long messageId) {
-        messageService.deleteMessage(messageId);
+    public ResponseEntity<String> deleteMessage(@PathVariable Long messageId,
+            @AuthUser Long memberId) {
+        messageService.deleteMessage(messageId, memberId);
         return ResponseEntity.ok("Message deleted successfully");
     }
 }
