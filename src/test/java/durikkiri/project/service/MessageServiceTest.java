@@ -61,9 +61,7 @@ class MessageServiceTest {
                 .password("testPassword")
                 .username(testUser)
                 .build();
-        lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
-        lenient().when(authentication.getName()).thenReturn(testUser);
-        lenient().when(memberRepository.findByLoginId(testUser)).thenReturn(Optional.ofNullable(member));
+        lenient().when(memberRepository.findById(member.getId())).thenReturn(Optional.ofNullable(member));
     }
 
 
@@ -78,13 +76,12 @@ class MessageServiceTest {
         Member receiverMember = mock(Member.class);
         Post mockPost = mock(Post.class);
 
-        when(memberRepository.findByLoginId(member.getLoginId())).thenReturn(Optional.of(member));
         when(memberRepository.findById(messageCreateDto.getReceiverId())).thenReturn(Optional.of(receiverMember));
         when(postRepository.findById(messageCreateDto.getPostId())).thenReturn(Optional.of(mockPost));
         when(conversationRepository.findByMember1OrMember2(member, receiverMember, mockPost)).thenReturn(Optional.of(mock(Conversation.class)));
 
         // when
-        messageService.sendMessage(messageCreateDto);
+        messageService.sendMessage(messageCreateDto, member.getId());
 
         // then
         verify(messageRepository, times(1)).save(any());
@@ -123,7 +120,7 @@ class MessageServiceTest {
         when(messageRepository.findById(message.getId())).thenReturn(Optional.of(message));
 
         //when
-        messageService.updateMessage(message.getId(), messageUpdateDto);
+        messageService.updateMessage(message.getId(), messageUpdateDto, member.getId());
 
         //then
         assertThat(message.getContent()).isEqualTo(messageUpdateDto.getContent());
@@ -145,7 +142,7 @@ class MessageServiceTest {
 
         //when
         ForbiddenException exception = assertThrows(ForbiddenException.class, () ->
-                messageService.updateMessage(message.getId(), messageUpdateDto));
+                messageService.updateMessage(message.getId(), messageUpdateDto, member.getId()));
 
         //then
         assertEquals(exception.getMessage(), "You do not have permission to update this message");
@@ -163,7 +160,7 @@ class MessageServiceTest {
         when(messageRepository.findById(message.getId())).thenReturn(Optional.of(message));
 
         //when
-         messageService.deleteMessage(message.getId());
+         messageService.deleteMessage(message.getId(), member.getId());
 
          //then
         verify(messageRepository, times(1)).deleteById(message.getId());
@@ -183,7 +180,7 @@ class MessageServiceTest {
         when(conversationRepository.findByConversation(member)).thenReturn(conversationList);
 
         //when
-        List<ConversationsGetDto> conversationDtoList = messageService.getConversationFromMember();
+        List<ConversationsGetDto> conversationDtoList = messageService.getConversationFromMember(member.getId());
 
         //then
         assertThat(conversationDtoList.get(0).getId()).isEqualTo(conversation.getId());
@@ -208,7 +205,7 @@ class MessageServiceTest {
         when(conversationRepository.findByIdWithMessage(conversation.getId(),member.getId())).thenReturn(Optional.of(conversation));
         when(mockMessage.getSender()).thenReturn(member);
         //when
-        ConversationGetDto conversationDto = messageService.getConversation(conversation.getId());
+        ConversationGetDto conversationDto = messageService.getConversation(conversation.getId(), member.getId());
 
         //then
         assertThat(conversationDto.getId()).isEqualTo(conversation.getId());
@@ -229,7 +226,7 @@ class MessageServiceTest {
         when(postRepository.findById(conversationRequestDto.getPostId())).thenReturn(Optional.of(mock(Post.class)));
 
         //when
-        ConversationGetDto newConversationDto = messageService.createOrRetrieveConversation(conversationRequestDto);
+        ConversationGetDto newConversationDto = messageService.createOrRetrieveConversation(conversationRequestDto,member.getId());
 
         //then
         assertThat(newConversationDto.getOpponentId()).isEqualTo(receiverMember.getId());
@@ -247,7 +244,7 @@ class MessageServiceTest {
 
         //when
         BadRequestException exception = assertThrows(BadRequestException.class, () ->
-                messageService.createOrRetrieveConversation(conversationRequestDto));
+                messageService.createOrRetrieveConversation(conversationRequestDto,member.getId()));
 
         //then
         assertEquals("자기 자신과의 채팅방 생성은 불가능합니다", exception.getMessage());

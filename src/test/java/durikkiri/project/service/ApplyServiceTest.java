@@ -50,11 +50,10 @@ class ApplyServiceTest {
     private PostRepository postRepository;
     @Mock
     private SecurityContext securityContext;
-    @Mock
-    private Authentication authentication;
     private ApplyService applyService;
-    private final String testUser = "TESTUSER";
     private Member member;
+
+    private static final Long memberId = 1L;
 
     @BeforeEach
     void setUp() {
@@ -62,15 +61,11 @@ class ApplyServiceTest {
         SecurityContextHolder.setContext(securityContext);
 
         member = Member.builder()
-                .id(1L)
+                .id(memberId)
                 .email("test@test.com")
-                .loginId(testUser)
                 .password("testPassword")
-                .username(testUser)
                 .build();
-        lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
-        lenient().when(authentication.getName()).thenReturn(testUser);
-        lenient().when(memberRepository.findByLoginId(testUser)).thenReturn(Optional.ofNullable(member));
+        lenient().when(memberRepository.findById(memberId)).thenReturn(Optional.ofNullable(member));
     }
 
 
@@ -83,9 +78,9 @@ class ApplyServiceTest {
                 .member(member)
                 .build();
         List<Apply> applyList = List.of(apply);
-        when(applyRepository.findApply(member.getId())).thenReturn(applyList);
+        when(applyRepository.findApply(memberId)).thenReturn(applyList);
         //when
-        List<AppliesGetsDto> applies = applyService.getApplies();
+        List<AppliesGetsDto> applies = applyService.getApplies(member.getId());
 
         //then
         assertThat(applies.size()).isEqualTo(1);
@@ -104,7 +99,7 @@ class ApplyServiceTest {
         when(applyRepository.findMyApply(member)).thenReturn(applyList);
 
         //when
-        List<AppliesGetsDto> myApplies = applyService.getMyApplies();
+        List<AppliesGetsDto> myApplies = applyService.getMyApplies(memberId);
 
         //then
         assertThat(myApplies.size()).isEqualTo(1);
@@ -127,7 +122,7 @@ class ApplyServiceTest {
         when(postRepository.findPostWithField(post.getId())).thenReturn(Optional.of(post));
 
         //when
-        applyService.addApply(1L, applyAddDto);
+        applyService.addApply(1L, applyAddDto, memberId);
 
         //then
         verify(applyRepository, times(1)).save(any());
@@ -153,7 +148,7 @@ class ApplyServiceTest {
 
         //when
         Throwable exception = assertThrows(BadRequestException.class, () -> {
-            applyService.addApply(1L, applyAddDto);
+            applyService.addApply(1L, applyAddDto, memberId);
         });
 
         //then
@@ -180,7 +175,7 @@ class ApplyServiceTest {
 
         //when
         Throwable exception = assertThrows(BadRequestException.class, () -> {
-            applyService.addApply(1L, applyAddDto);
+            applyService.addApply(1L, applyAddDto, memberId);
         });
 
         //then
@@ -208,7 +203,7 @@ class ApplyServiceTest {
 
         //when
         Throwable exception = assertThrows(BadRequestException.class, () -> {
-            applyService.addApply(1L, applyAddDto);
+            applyService.addApply(1L, applyAddDto, memberId);
         });
 
         //then
@@ -260,7 +255,7 @@ class ApplyServiceTest {
         when(applyRepository.findApplyWithPost(apply.getId())).thenReturn(Optional.of(apply));
 
         //when
-        applyService.updateApplyStatus(1L, ApplyStatus.ACCEPT);
+        applyService.updateApplyStatus(1L, ApplyStatus.ACCEPT, memberId);
 
         //then
         assertThat(apply.getApplyStatus()).isEqualTo(ApplyStatus.ACCEPT);
@@ -289,7 +284,7 @@ class ApplyServiceTest {
 
         //then
         assertThrows(BadRequestException.class, () ->
-                applyService.updateApplyStatus(apply.getId(), ApplyStatus.ACCEPT));
+                applyService.updateApplyStatus(apply.getId(), ApplyStatus.ACCEPT, memberId));
     }
 
     @Test
@@ -317,7 +312,7 @@ class ApplyServiceTest {
         when(applyRepository.findApplyWithPost(apply.getId())).thenReturn(Optional.of(apply));
 
         // when
-        applyService.updateApplyStatus(apply.getId(), ApplyStatus.REJECT);
+        applyService.updateApplyStatus(apply.getId(), ApplyStatus.REJECT, memberId);
 
         //then
         assertThat(apply.getApplyStatus()).isEqualTo(ApplyStatus.REJECT);
@@ -339,7 +334,7 @@ class ApplyServiceTest {
         when(applyRepository.findById(apply.getId())).thenReturn(Optional.of(apply));
 
         //when
-        applyService.updateApply(apply.getId(), applyUpdateDto);
+        applyService.updateApply(apply.getId(), applyUpdateDto, memberId);
 
         //then
         assertThat(apply.getContent()).isEqualTo(applyUpdateDto.getContent());
@@ -356,7 +351,7 @@ class ApplyServiceTest {
         when(applyRepository.findById(apply.getId())).thenReturn(Optional.of(apply));
 
         //when
-        applyService.deleteApply(apply.getId());
+        applyService.deleteApply(apply.getId(), memberId);
 
         //then
         verify(applyRepository,times(1)).delete(apply);

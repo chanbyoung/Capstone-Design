@@ -1,5 +1,6 @@
 package durikkiri.project.controller;
 
+import durikkiri.project.annotation.AuthUser;
 import durikkiri.project.entity.dto.auth.ExistDto;
 import durikkiri.project.entity.dto.auth.FindDto;
 import durikkiri.project.entity.dto.member.MemberGetDto;
@@ -133,23 +134,24 @@ public class MemberController {
     }
 
     @GetMapping("/member")
-    public ResponseEntity<MemberGetDto> getMyInfo() {
-        MemberGetDto member = memberService.getMyInfo();
+    public ResponseEntity<MemberGetDto> getMyInfo(@AuthUser Long memberId) {
+        MemberGetDto member = memberService.getMyInfo(memberId);
         return ResponseEntity.ok(member);
     }
 
     @PatchMapping("/member")
-    public ResponseEntity<Map<String , String>>  updateMember(@Valid @RequestBody MemberUpdateDto memberUpdateDto, BindingResult bindingResult) {
+    public ResponseEntity<Map<String , String>> updateMember(@Valid @RequestBody MemberUpdateDto memberUpdateDto,
+            @AuthUser Long memberId, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(getErrorMap(bindingResult));
         }
-        memberService.updateMember(memberUpdateDto);
+        memberService.updateMember(memberUpdateDto, memberId);
         return ResponseEntity.status(HttpStatus.OK).body(Collections.singletonMap("message", "Member updated successfully"));
     }
 
     @DeleteMapping("/member")
-    public ResponseEntity<String> deleteMember() {
-        memberService.deleteMember();
+    public ResponseEntity<String> deleteMember(@AuthUser Long memberId) {
+        memberService.deleteMember(memberId);
         return ResponseEntity.ok("Member deleted successfully");
     }
     private Map<String, String> getErrorMap(BindingResult bindingResult) {

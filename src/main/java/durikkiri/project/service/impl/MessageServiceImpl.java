@@ -36,7 +36,6 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public List<ConversationsGetDto> getConversationFromMember(Long memberId) {
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
         return conversationRepository.findByConversation(member).stream()

@@ -57,10 +57,7 @@ class PostServiceTest {
     void setUp() {
         postService = postServiceImpl;
         SecurityContextHolder.setContext(securityContext);
-        lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
-        lenient().when(authentication.getPrincipal()).thenReturn(customUserDetails);
-        lenient().when(customUserDetails.getUsername()).thenReturn(testUser); // 여기에 로그인 ID 반환
-        lenient().when(memberRepository.findByLoginId(testUser)).thenReturn(Optional.ofNullable(mock(Member.class)));
+        lenient().when(memberRepository.findById(1L)).thenReturn(Optional.ofNullable(mock(Member.class)));
     }
     @Test
     void addPost() throws IOException {
@@ -80,7 +77,7 @@ class PostServiceTest {
 
 
         //when
-        postService.addPost(postAddDto, customUserDetails, mockFile);
+        postService.addPost(postAddDto, 1L, mockFile);
 
         //then
         verify(postRepository, times(1)).save(any(Post.class));
@@ -97,7 +94,7 @@ class PostServiceTest {
 
         //then
         assertThrows(BadRequestException.class,
-                () -> postService.addPost(postAddDto, customUserDetails, null));
+                () -> postService.addPost(postAddDto, 1L, null));
 
     }
 
@@ -132,11 +129,9 @@ class PostServiceTest {
                 .viewCount(0L)
                 .build();
         when(postRepository.findPostWithField(1L)).thenReturn(Optional.of(testPost));
-        when(customUserDetails.isAnonymous()).thenReturn(true); // 여기에 로그인 ID 반환
-
 
         //when
-        PostGetDto result = postService.getPost(1L, customUserDetails, true);
+        PostGetDto result = postService.getPost(1L, 1L, true);
 
         //then
         assertNotNull(result);
@@ -155,10 +150,10 @@ class PostServiceTest {
         Member mockMember = mock(Member.class);
         when(postRepository.findPostWithField(anyLong())).thenReturn(Optional.of(mockPost));
         when(mockPost.getMember()).thenReturn(mockMember);
-        when(mockMember.getLoginId()).thenReturn(testUser);
+        when(mockMember.getId()).thenReturn(1L);
 
         // when
-        postService.updatePost(1L, customUserDetails, null, postUpdateDto);
+        postService.updatePost(1L, 1L, null, postUpdateDto);
 
         // then
         verify(mockPost, times(1)).updatePost(postUpdateDto);
@@ -173,10 +168,10 @@ class PostServiceTest {
         when(postRepository.findById(anyLong())).thenReturn(Optional.of(mockPost));
         Member mockMember = mock(Member.class);
         when(mockPost.getMember()).thenReturn(mockMember);
-        when(mockMember.getLoginId()).thenReturn(testUser);
+        when(mockMember.getId()).thenReturn(1L);
 
         //when
-        postService.deletePost(1L, customUserDetails);
+        postService.deletePost(1L, 1L);
 
         //then
         verify(postRepository, times(1)).delete(mockPost);
