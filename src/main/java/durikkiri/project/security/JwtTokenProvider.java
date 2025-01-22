@@ -1,10 +1,7 @@
 package durikkiri.project.security;
 
-import durikkiri.project.entity.Member;
 import durikkiri.project.entity.dto.auth.RefreshTokenInfoDto;
 import durikkiri.project.exception.BadRequestException;
-import durikkiri.project.exception.ForbiddenException;
-import durikkiri.project.repository.MemberRepository;
 import durikkiri.project.repository.RedisRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -12,10 +9,6 @@ import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.RedisConnectionFailureException;
-import org.springframework.data.redis.RedisSystemException;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,7 +17,6 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -52,8 +44,8 @@ public class JwtTokenProvider {
         String nickName = ((CustomUserDetails) authentication.getPrincipal()).getNickName();
 
         // Access, Refresh Token 생성
-        String accessToken = createToken(authentication.getName(), roles, ACCESS_TOKEN_EXPIRATION, nickName);
-        String refreshToken = createToken(authentication.getName(), null, REFRESH_TOKEN_EXPIRATION, null);
+        String accessToken = createToken(authentication.getName(), roles, ACCESS_TOKEN_EXPIRATION);
+        String refreshToken = createToken(authentication.getName(), null, REFRESH_TOKEN_EXPIRATION);
 
         RefreshTokenInfoDto refreshTokenInfoDto = new RefreshTokenInfoDto(authentication.getName(),
                 refreshToken, roles, nickName);
@@ -68,7 +60,7 @@ public class JwtTokenProvider {
     }
 
     // 공통 토큰 생성 로직
-    private String createToken(String userId, String roles, long expiration, String nickname) {
+    private String createToken(String userId, String roles, long expiration) {
         Claims claims = Jwts.claims().setSubject(userId);
         if (roles != null) {
             claims.put("roles", roles);
@@ -103,10 +95,9 @@ public class JwtTokenProvider {
 
         // 4. Redis에서 사용자 권한 정보 추출
         String authorities = redisRepository.getAuthorities(userId);
-        String nickName = redisRepository.getNickName(userId);
 
         // 5. 새로운 Access 토큰 생성
-        String newAccessToken = createToken(userId, authorities, ACCESS_TOKEN_EXPIRATION, nickName);
+        String newAccessToken = createToken(userId, authorities, ACCESS_TOKEN_EXPIRATION);
 
         // 7. 새로운 AuthResponseDto 반환 (기존 Refresh 토큰 유지)
         return new JwtToken(newAccessToken, refreshToken);
@@ -121,11 +112,7 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String accessToken) {
         Claims claims = parseClaims(accessToken);
 
-        if (claims.get("auth") == null) {
-            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
-        }
-
-        Collection<? extends GrantedAuthority> authorities = Arrays.stream(claims.get("auth").toString().split(","))
+        Collection<? extends GrantedAuthority> authorities = Arrays.stream(claims.get("roles").toString().split(","))
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
@@ -142,13 +129,12 @@ public class JwtTokenProvider {
     }
 
     // 토큰 정보를 검증하는 메서드
-    public boolean validateToken(String token) {
+    public void validateToken(String token) {
         try {
             Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token);
-            return true;
         } catch (SecurityException | MalformedJwtException e) {
             log.info("invalid JWT Token", e);
         } catch (ExpiredJwtException e) {
@@ -158,7 +144,6 @@ public class JwtTokenProvider {
         } catch (IllegalArgumentException e) {
             log.info("JWT claims string is empty", e);
         }
-        return false;
     }
 
     // Claims 파싱

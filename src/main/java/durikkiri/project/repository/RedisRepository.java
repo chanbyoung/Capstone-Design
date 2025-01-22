@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class RedisRepository {
-    private static final int TEMP_TOKEN_EXPIRATION = 300;
 
     private final RedisTemplate<String, Object> redisTemplate;
 
@@ -93,6 +92,7 @@ public class RedisRepository {
         HashMap<String, Object> tokenDataMap = new HashMap<>();
         tokenDataMap.put("refreshToken", tokenData.getRefreshToken());
         tokenDataMap.put("authorities", tokenData.getAuthorities());
+        tokenDataMap.put("nickName", tokenData.getNickName());
         return tokenDataMap;
     }
 
