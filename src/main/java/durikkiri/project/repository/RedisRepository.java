@@ -26,7 +26,7 @@ public class RedisRepository {
             redisTemplate.delete(tokenData.getAccount());
 
             HashOperations<String, Object, Object> hashOperations = redisTemplate.opsForHash();
-            hashOperations.putAll(tokenData.getRefreshToken(), createTokenDataMap(tokenData));
+            hashOperations.putAll(tokenData.getAccount(), createTokenDataMap(tokenData));
             redisTemplate.expire(tokenData.getAccount(), 7, TimeUnit.DAYS);
         } catch (Exception e) {
             log.warn("Redis에 Refresh Token 저장 실패: {}", e.getMessage());
@@ -92,7 +92,7 @@ public class RedisRepository {
         HashMap<String, Object> tokenDataMap = new HashMap<>();
         tokenDataMap.put("refreshToken", tokenData.getRefreshToken());
         tokenDataMap.put("authorities", tokenData.getAuthorities());
-        tokenDataMap.put("nickName", tokenData.getNickName());
+        tokenDataMap.put("nickname", tokenData.getNickName());
         return tokenDataMap;
     }
 

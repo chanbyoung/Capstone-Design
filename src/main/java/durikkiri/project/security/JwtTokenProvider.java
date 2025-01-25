@@ -117,7 +117,7 @@ public class JwtTokenProvider {
                 .collect(Collectors.toList());
 
         String authority = authorities.isEmpty() ? "ROLE_USER" : authorities.iterator().next().getAuthority();
-        String nickName = (String) claims.get("nickName");
+        String nickName = redisRepository.getNickName(claims.getSubject());
         log.info("authentication nickName ={} ",nickName);
 
         CustomUserDetails principal = CustomUserDetails.builder()
