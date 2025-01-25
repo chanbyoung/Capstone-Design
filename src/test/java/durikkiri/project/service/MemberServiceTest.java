@@ -1,21 +1,20 @@
 package durikkiri.project.service;
 
 import durikkiri.project.entity.Member;
-import durikkiri.project.entity.dto.ExistDto;
+import durikkiri.project.entity.dto.auth.ExistDto;
 import durikkiri.project.entity.dto.member.MemberGetDto;
 import durikkiri.project.entity.dto.member.MemberUpdateDto;
 import durikkiri.project.entity.dto.member.SignInDto;
 import durikkiri.project.entity.dto.member.SignUpDto;
-import durikkiri.project.entity.post.Like;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.exception.AuthenticationException;
 import durikkiri.project.repository.LikeRepository;
-import durikkiri.project.repository.PostCustomRepositoryImpl;
 import durikkiri.project.repository.MemberRepository;
 import durikkiri.project.repository.PostRepository;
 import durikkiri.project.security.JwtToken;
 import durikkiri.project.security.JwtTokenProvider;
 import durikkiri.project.service.impl.MemberServiceImpl;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,7 +31,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -46,6 +44,11 @@ class MemberServiceTest {
     private MemberServiceImpl memberServiceImpl;
     @Mock
     private MemberRepository memberRepository;
+    @Mock
+    private PostRepository postRepository;
+    @Mock
+    private LikeRepository likeRepository;
+
     @Mock
     private AuthenticationManagerBuilder authenticationManagerBuilder;
 
@@ -66,8 +69,6 @@ class MemberServiceTest {
     @Mock
     private ValueOperations<String, String> valueOperations;
 
-    @Mock
-    private Authentication authentication;
     private final String testUser = "TESTUSER";
     private final String jwtToken = "testJwtToken";
 
@@ -85,9 +86,7 @@ class MemberServiceTest {
                 .password("testPassword")
                 .username(testUser)
                 .build();
-        lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
-        lenient().when(authentication.getName()).thenReturn(testUser);
-        lenient().when(memberRepository.findByLoginId(testUser)).thenReturn(Optional.ofNullable(member));
+        lenient().when(memberRepository.findById(member.getId())).thenReturn(Optional.ofNullable(member));
     }
 
 
@@ -156,7 +155,7 @@ class MemberServiceTest {
     void getMyInfo() {
 
         //when
-        MemberGetDto myInfo = memberService.getMyInfo();
+        MemberGetDto myInfo = memberService.getMyInfo(member.getId());
 
         //then beforeEach 에서 정한 멤버 정보와 같은지 확인
         assertThat(myInfo.getId()).isEqualTo(1L);
@@ -183,7 +182,7 @@ class MemberServiceTest {
         memberUpdateDto.setMajor("컴퓨터공학과");
 
         //when
-        memberService.updateMember(memberUpdateDto);
+        memberService.updateMember(memberUpdateDto, member.getId());
 
         //then
         assertThat(member.getMajor()).isEqualTo("컴퓨터공학과");
@@ -193,7 +192,7 @@ class MemberServiceTest {
     void deleteMember() {
         //given
         //when
-        memberService.deleteMember();
+        memberService.deleteMember(member.getId());
 
         //then
         verify(memberRepository, times(1)).delete(member);

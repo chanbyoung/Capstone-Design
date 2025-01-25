@@ -12,11 +12,11 @@ import java.util.Collection;
 @Builder
 @Getter
 public class CustomUserDetails implements UserDetails {
+
     private String username;
     private String password;
     private String nickName;
     private String authority;
-    private boolean enabled;
     private boolean anonymous;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -37,6 +37,11 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
         return true;
     }
 

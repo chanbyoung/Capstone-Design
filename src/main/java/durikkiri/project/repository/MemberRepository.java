@@ -10,8 +10,8 @@ import java.util.Optional;
 
 @Repository
 public interface MemberRepository extends JpaRepository<Member, Long> {
-    @Query("select m from Member m join fetch m.roles where m.loginId = :loginId")
-    Optional<Member> findByLoginId(@Param("loginId") String loginId);
+    @Query("select m from Member m join fetch m.roles where m.id = :id")
+    Optional<Member> findById(@Param("id") Long id);
 
     boolean existsByLoginId(String loginId);
 
@@ -24,4 +24,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findMemberByEmail(String email);
 
     Optional<Member> findMemberByNickname(String nickname);
+
+    Optional<Member> findMemberByLoginId(String loginId);
 }

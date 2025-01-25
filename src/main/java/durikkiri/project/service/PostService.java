@@ -14,15 +14,15 @@ import java.util.List;
 
 public interface PostService {
 
-    void addPost(PostAddDto postAddDto, CustomUserDetails loginUser, MultipartFile multipartFile) throws IOException;
+    void addPost(PostAddDto postAddDto, Long memberId, MultipartFile multipartFile) throws IOException;
 
     Slice<PostsGetDto> getPosts(Pageable pageable, PostSearchContent postSearchContent);
 
-    PostGetDto getPost(Long postId, CustomUserDetails loginUser, boolean flag);
+    PostGetDto getPost(Long postId, Long memberId, boolean flag);
 
-    void updatePost(Long postId, CustomUserDetails loginUser, MultipartFile multipartFile, PostUpdateDto postUpdateDto) throws IOException;
+    void updatePost(Long postId, Long memberId, MultipartFile multipartFile, PostUpdateDto postUpdateDto) throws IOException;
 
-    void deletePost(Long postId, CustomUserDetails loginUser);
+    void deletePost(Long postId, Long memberId);
 
     List<HomeGetDto> getLikePostList(Category category);
 

@@ -1,11 +1,13 @@
 package durikkiri.project.config;
 
+import durikkiri.project.repository.RedisRepository;
 import durikkiri.project.security.JwtAuthenticationFilter;
 import durikkiri.project.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -25,8 +27,19 @@ import java.util.List;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
     private final JwtTokenProvider jwtTokenProvider;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisRepository redisRepository;
+
+
+    /**
+     * AuthenticationManager 빈 등록
+     */
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        return authenticationManagerBuilder.build();
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception{
@@ -42,11 +55,12 @@ public class SecurityConfig {
                                 .requestMatchers("/api/members/**").permitAll()
                                 .requestMatchers("/api/members/find/**").permitAll()
                                 .requestMatchers("/api/members/exists/**").permitAll()
+                                .requestMatchers("/api/members/refresh").permitAll()
                                 .requestMatchers("/api/members/member/find").permitAll()
                                 .requestMatchers("/api/members/test").hasRole("USER")
                                 .requestMatchers("/api/messages/conversation/**").permitAll()
                                 .anyRequest().authenticated())
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisTemplate), UsernamePasswordAuthenticationFilter.class).build();
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider, redisRepository), UsernamePasswordAuthenticationFilter.class).build();
     }
 
     @Bean

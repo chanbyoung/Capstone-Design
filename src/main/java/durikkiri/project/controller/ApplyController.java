@@ -1,5 +1,6 @@
 package durikkiri.project.controller;
 
+import durikkiri.project.annotation.AuthUser;
 import durikkiri.project.entity.ApplyStatus;
 import durikkiri.project.entity.dto.apply.*;
 import durikkiri.project.service.ApplyService;
@@ -19,26 +20,31 @@ import java.util.Map;
 @RequestMapping("/api/applies")
 @RequiredArgsConstructor
 public class ApplyController {
+
     private final ApplyService applyService;
 
     @GetMapping
-    public ResponseEntity<List<AppliesGetsDto>> getApplies() {
-        List<AppliesGetsDto> applies = applyService.getApplies();
+    public ResponseEntity<List<AppliesGetsDto>> getApplies(@AuthUser Long memberId) {
+        List<AppliesGetsDto> applies = applyService.getApplies(memberId);
         return ResponseEntity.ok(applies);
     }
+
     @GetMapping("/my")
-    public ResponseEntity<List<AppliesGetsDto>> getMyApplies() {
-        return ResponseEntity.ok(applyService.getMyApplies());
+    public ResponseEntity<List<AppliesGetsDto>> getMyApplies(@AuthUser Long memberId) {
+        return ResponseEntity.ok(applyService.getMyApplies(memberId));
     }
 
     @PostMapping("/apply/{postId}")
-    public ResponseEntity<Map<String, String>> addApply(@PathVariable Long postId, @Valid @RequestBody ApplyAddDto applyAddDto,
-                                           BindingResult bindingResult) {
+    public ResponseEntity<Map<String, String>> addApply(@PathVariable Long postId,
+            @Valid @RequestBody ApplyAddDto applyAddDto,
+            @AuthUser Long memberId,
+            BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(getErrorMap(bindingResult));
         }
-        applyService.addApply(postId, applyAddDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("message", "Apply created successfully"));
+        applyService.addApply(postId, applyAddDto, memberId);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Collections.singletonMap("message", "Apply created successfully"));
     }
 
     @GetMapping("/{applyId}")
@@ -48,35 +54,42 @@ public class ApplyController {
     }
 
     @PostMapping("/{applyId}")
-    public ResponseEntity<Map<String, String>> acceptApply(@PathVariable Long applyId,@Valid @RequestBody ApplyPostDto applyPostDto,
-                                              BindingResult bindingResult) {
-        applyService.updateApplyStatus(applyId, applyPostDto.getApplyStatus());
+    public ResponseEntity<Map<String, String>> acceptApply(@PathVariable Long applyId,
+            @Valid @RequestBody ApplyPostDto applyPostDto,
+            @AuthUser Long memberId,
+            BindingResult bindingResult) {
+        applyService.updateApplyStatus(applyId, applyPostDto.getApplyStatus(), memberId);
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(getErrorMap(bindingResult));
         }
-        return ResponseEntity.status(HttpStatus.OK).body(Collections.singletonMap("message", "Apply status updated successfully"));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Collections.singletonMap("message", "Apply status updated successfully"));
     }
 
     //지원이 수락된 지원서를 취소하는 메서드
     @PatchMapping("/{applyId}/cancel")
-    public ResponseEntity<String> cancelApply(@PathVariable Long applyId) {
-        applyService.updateApplyStatus(applyId, ApplyStatus.REJECT);
+    public ResponseEntity<String> cancelApply(@PathVariable Long applyId, @AuthUser Long memberId) {
+        applyService.updateApplyStatus(applyId, ApplyStatus.REJECT, memberId);
         return ResponseEntity.ok("Apply cancel successfully");
     }
 
     @PatchMapping("/{applyId}")
-    public ResponseEntity<Map<String, String>> updateApply(@PathVariable Long applyId,@Valid @RequestBody ApplyUpdateDto applyUpdateDto,
-                                              BindingResult bindingResult) {
+    public ResponseEntity<Map<String, String>> updateApply(@PathVariable Long applyId,
+            @Valid @RequestBody ApplyUpdateDto applyUpdateDto,
+            @AuthUser Long memberId,
+            BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return ResponseEntity.badRequest().body(getErrorMap(bindingResult));
         }
-        applyService.updateApply(applyId, applyUpdateDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(Collections.singletonMap("message", "Apply updated successfully"));
+        applyService.updateApply(applyId, applyUpdateDto, memberId);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Collections.singletonMap("message", "Apply updated successfully"));
     }
 
     @DeleteMapping("/{applyId}")
-    public ResponseEntity<String> deleteApply(@PathVariable Long applyId) {
-        applyService.deleteApply(applyId);
+    public ResponseEntity<String> deleteApply(@PathVariable Long applyId,
+            @AuthUser Long memberId) {
+        applyService.deleteApply(applyId, memberId);
         return ResponseEntity.ok("Apply deleted successfully");
     }
 

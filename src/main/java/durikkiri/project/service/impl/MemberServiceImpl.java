@@ -1,6 +1,6 @@
 package durikkiri.project.service.impl;
 import durikkiri.project.entity.Member;
-import durikkiri.project.entity.dto.ExistDto;
+import durikkiri.project.entity.dto.auth.ExistDto;
 import durikkiri.project.entity.dto.member.MemberGetDto;
 import durikkiri.project.entity.dto.member.MemberUpdateDto;
 import durikkiri.project.entity.dto.member.SignInDto;
@@ -19,10 +19,9 @@ import durikkiri.project.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
+    private final AuthenticationManager authenticationManager;
     private final RedisTemplate<String, Object> redisTemplate;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
@@ -62,14 +61,13 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public JwtToken signIn(SignInDto signInDto) {
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(signInDto.getLoginId(), signInDto.getPassword());
-        try {
-            Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-            return jwtTokenProvider.generateToken(authentication);
-        } catch (Exception e) {
-            throw new AuthenticationException("Invalid login credentials");
-        }
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(signInDto.getLoginId(),
+                        signInDto.getPassword())
+        );
+
+        // JwtTokenProvider에서 Access, Refresh 토큰 생성 및 AuthResponse 반환
+        return jwtTokenProvider.generateToken(authentication);
     }
 
     @Override
@@ -94,9 +92,8 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public MemberGetDto getMyInfo() {
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findByLoginId(memberLoginId)
+    public MemberGetDto getMyInfo(Long memberId) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException("Member not found"));
         List<Post> progressProject = postRepository.progressProject(member);
         List<Post> recruitingProject = postRepository.myRecruitingProject(member);
@@ -110,18 +107,16 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public void updateMember(MemberUpdateDto memberUpdateDto) {
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findByLoginId(memberLoginId)
+    public void updateMember(MemberUpdateDto memberUpdateDto, Long memberId) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException("Member not found"));
         member.updateMember(memberUpdateDto);
     }
 
     @Override
     @Transactional
-    public void deleteMember() {
-        String memberLoginId = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findByLoginId(memberLoginId)
+    public void deleteMember(Long memberId) {
+        Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException("Member not found"));
         memberRepository.delete(member);
     }

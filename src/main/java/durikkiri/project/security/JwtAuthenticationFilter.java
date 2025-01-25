@@ -1,90 +1,77 @@
 package durikkiri.project.security;
 
-import durikkiri.project.exception.AuthenticationException;
-import durikkiri.project.exception.ForbiddenException;
+import durikkiri.project.repository.RedisRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
-import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
+import org.springframework.web.filter.OncePerRequestFilter;
 
+@Slf4j
 @RequiredArgsConstructor
-public class JwtAuthenticationFilter extends GenericFilterBean {
-    private final JwtTokenProvider jwtTokenProvider;
-    private final RedisTemplate<String, Object> redisTemplate;
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final String REFRESH_ENDPOINT = "/api/members/refresh";
+    private final JwtTokenProvider tokenProvider;
+    private final RedisRepository redisRepository;
+
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String BEARER_PREFIX = "Bearer ";
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest httpRequest = (HttpServletRequest) request;
-        String requestURI = httpRequest.getRequestURI();
-
-        if (REFRESH_ENDPOINT.equals(requestURI)) {
-            chain.doFilter(request, response);
-            return;
-        }
+    protected void doFilterInternal(HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain) throws ServletException, IOException {
+        // 요청 헤더에서 JWT 토큰을 추출
+        String token = resolveToken(request);
 
         try {
-            // 1. Request Header에서 JWT 토큰 추출
-            String token = resolveToken(httpRequest);
-
-            // 2. validateToken 으로 토큰 유효성 검사
+            // 토큰이 존재하면 검증을 진행
             if (token != null) {
-                if (jwtTokenProvider.validateToken(token)) {
-                    // 토큰이 블랙리스트에 있는지 확인
-                    Boolean isBlacklisted = redisTemplate.hasKey(token);
-                    if (Boolean.TRUE.equals(isBlacklisted)) {
-                        throw new ForbiddenException("Token is blacklisted");
-                    }
+                // JWT 토큰의 유효성을 검증
+                tokenProvider.validateToken(token);
 
-                    // 토큰이 유효하고 블랙리스트에 없을 경우 Authentication 객체를 가져와서 SecurityContext에 저장
-                    Authentication authentication = jwtTokenProvider.getAuthentication(token);
+                // 토큰이 블랙리스트에 포함되어 있지 않은 경우
+                if (!isTokenBlacklisted(token)) {
+                    // 토큰에서 인증 정보를 가져와 SecurityContext에 설정
+                    Authentication authentication = tokenProvider.getAuthentication(token);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                } else {
-                    throw new AuthenticationException("Token validation failed");
                 }
             }
-        } catch (ExpiredJwtException ex) {
-            SecurityContextHolder.clearContext();
-            ((HttpServletResponse) response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            ((HttpServletResponse) response).getWriter().write("Token expired");
-            return;
-        } catch (AuthenticationException ex) {
-            SecurityContextHolder.clearContext();
-            ((HttpServletResponse) response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            ((HttpServletResponse) response).getWriter().write("Authentication failed");
-            return;
-        } catch (ForbiddenException ex) {
-            SecurityContextHolder.clearContext();
-            ((HttpServletResponse) response).setStatus(HttpServletResponse.SC_FORBIDDEN);
-            ((HttpServletResponse) response).getWriter().write("Token is blacklisted");
-            return;
-        } catch (Exception ex) {
-            SecurityContextHolder.clearContext();
-            ((HttpServletResponse) response).setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            ((HttpServletResponse) response).getWriter().write("Internal server error");
-            return;
+        } catch (ExpiredJwtException e) {
+            // 만료된 토큰 예외 발생 시 로그 기록
+            log.warn("만료된 토큰: {}", e.getMessage());
         }
-        chain.doFilter(request, response);
+
+        // 필터 체인의 다음 필터로 요청과 응답을 전달
+        filterChain.doFilter(request, response);
     }
 
     // Request Header 에서 토큰 정보 추출
     private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring("Bearer ".length());
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
+            return bearerToken.substring(BEARER_PREFIX.length());
         }
         return null;
     }
+
+    /**
+     * Redis 블랙리스트에서 토큰의 존재 여부를 확인하는 메서드
+     *
+     * @param token JWT 토큰
+     * @return 토큰이 블랙리스트에 있으면 true 반환
+     */
+    private boolean isTokenBlacklisted(String token) {
+        String userId = tokenProvider.getMemberIdFromToken(token);
+        return Boolean.TRUE.equals(redisRepository.isValidRefreshToken(userId, token));
+    }
+
 }

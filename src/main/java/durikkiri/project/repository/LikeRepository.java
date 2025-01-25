@@ -9,8 +9,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface LikeRepository extends JpaRepository<Like, Long> {
-    @Query("select l from Like l join fetch l.post p join fetch l.member m where p.id = :postId and m.loginId = :loginId")
-    Optional<Like> findByPostIdAndMemberId(@Param("postId") Long postId,@Param("loginId") String memberLoginId);
+
+    @Query("select l from Like l join fetch l.post p join fetch l.member m where p.id = :postId and m.id = :memberId")
+    Optional<Like> findByPostIdAndMemberId(@Param("postId") Long postId,
+            @Param("memberId") Long memberId);
+
     @Query("select l from Like l join fetch l.post p join fetch l.member m where m.id = :memberId")
     List<Like> findMyLikePost(@Param("memberId") Long memberId);
 
