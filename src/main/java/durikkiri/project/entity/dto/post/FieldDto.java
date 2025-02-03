@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 public class FieldDto {
     @NotNull(message = "필드 값을 선택해주세요")
-    private FieldCategory fieldCategory;
+    private String fieldCategory;
     @Positive
     private int totalRecruitment;
 

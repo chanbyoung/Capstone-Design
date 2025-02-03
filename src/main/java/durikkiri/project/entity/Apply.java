@@ -3,7 +3,7 @@ package durikkiri.project.entity;
 import durikkiri.project.entity.dto.apply.ApplyUpdateDto;
 import durikkiri.project.entity.post.Field;
 import durikkiri.project.entity.post.Post;
-import durikkiri.project.entity.post.RecuruitmentInfo;
+import durikkiri.project.entity.post.RecruitmentInfo;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,7 +22,7 @@ public class Apply extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recuruitment_info_id")
-    private RecuruitmentInfo recuruitmentInfo;
+    private RecruitmentInfo recruitmentInfo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
@@ -38,7 +38,7 @@ public class Apply extends BaseEntity {
     }
 
     public void postFieldUpdate(Boolean flag) {
-        Field field = recuruitmentInfo.getFieldList().stream()
+        Field field = recruitmentInfo.getFieldList().stream()
                 .filter(f -> f.getFieldCategory().equals(fieldCategory))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Field not found"));

@@ -19,7 +19,7 @@ public class Field {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private RecuruitmentInfo recuruitmentInfo;
+    private RecruitmentInfo recuruitmentInfo;
 
     private String fieldCategory;
 

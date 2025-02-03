@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.springframework.data.util.Lazy;
 
 @Entity
 @Getter
@@ -47,8 +48,8 @@ public class Post extends BaseEntity {
     @OneToOne(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private Image image;
 
-    @OneToOne(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
-    private RecuruitmentInfo recuruitmentInfo;
+    @OneToOne(mappedBy = "post", fetch = FetchType.LAZY, orphanRemoval = true, cascade = CascadeType.ALL)
+    private RecruitmentInfo recruitmentInfo;
 
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Comment> commentList;
@@ -56,39 +57,12 @@ public class Post extends BaseEntity {
     public void updatePost(PostUpdateDto postUpdateDto) {
         this.title = postUpdateDto.getTitle();
         this.content = postUpdateDto.getContent();
-        this.retechnologyStackList =postUpdateDto.getTechnologyStackList();
-        this.startDate = postUpdateDto.getStartDate();
-        this.endDate = postUpdateDto.getEndDate();
-        if (!postUpdateDto.getCategory().equals(Category.GENERAL)) { //일반글일 경우 필드 수정 로직 실행 안함
-            fieldUpdate(postUpdateDto);
+        if (postUpdateDto.getCategory() != Category.GENERAL) { //일반글일 경우 필드 수정 로직 실행 안함
+            recruitmentInfo.updateRecuruitmentInfo(postUpdateDto);
         }
     }
 
-    private void fieldUpdate(PostUpdateDto postUpdateDto) {
-        Set<String> processedFieldCategories = new HashSet<>();
-        Map<String, FieldDto> fieldDtoMap = postUpdateDto.getFieldList().stream().collect(Collectors.toMap(FieldDto::getFieldCategory, Function.identity()));
 
-        fieldList.removeIf(field -> {
-            String fieldCategory = field.getFieldCategory();
-            FieldDto fieldDto = fieldDtoMap.get(fieldCategory);
-
-            // 일치하는 카테고리가 있어 업데이트 할 필드 목록이 존재하는 경우
-            if (fieldDto != null) {
-                field.updateField(fieldDto);
-                processedFieldCategories.add(fieldCategory);
-                return false;
-            }
-            return true; // 일치하는 카테고리가 없으면 삭제
-        } );
-
-        //새로 추가해야 할 필드 추가
-        fieldDtoMap.keySet().stream()
-                .filter(fieldCategory -> !processedFieldCategories.contains(fieldCategory))
-                .forEach(fieldCategory -> {
-                    Field newField = fieldDtoMap.get(fieldCategory).toEntity(this);
-                    this.fieldList.add(newField);
-                });
-    }
 
     public void updateViewCount() {
         this.viewCount ++;

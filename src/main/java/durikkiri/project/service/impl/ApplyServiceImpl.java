@@ -67,7 +67,7 @@ public class ApplyServiceImpl implements ApplyService {
         if (post.getMember().equals(member)) {
             throw new BadRequestException("You cannot apply to your own post");
         }
-        if (post.getRecuruitmentInfo().getStatus().equals("closed")) {
+        if (post.getRecruitmentInfo().getStatus().equals("closed")) {
             throw new BadRequestException("이미 모집이 완료된 게시글입니다.");
         }
         //중복 신청 방지
@@ -95,7 +95,7 @@ public class ApplyServiceImpl implements ApplyService {
         Apply apply = applyRepository.findApplyWithPost(applyId)
                 .orElseThrow(() -> new NotFoundException("Apply not found"));
         // 게시물 작성자 검증
-        if (!apply.getRecuruitmentInfo().getPost().getMember().getId().equals(memberId)) {
+        if (!apply.getRecruitmentInfo().getPost().getMember().getId().equals(memberId)) {
             throw new ForbiddenException("User not authorized to accept or reject this apply");
         }
         if (applyStatus.equals(ACCEPT)) {
@@ -104,7 +104,7 @@ public class ApplyServiceImpl implements ApplyService {
             }
             apply.updateStatus(ACCEPT);
             apply.postFieldUpdate(true);
-            apply.getRecuruitmentInfo().updateStatus();
+            apply.getRecruitmentInfo().updateStatus();
 
         } else if (applyStatus.equals(REJECT)) {
             if (apply.getApplyStatus().equals(REJECT)) {
@@ -112,7 +112,7 @@ public class ApplyServiceImpl implements ApplyService {
             }
             apply.updateStatus(REJECT);
             apply.postFieldUpdate(false);
-            apply.getRecuruitmentInfo().updateStatus();
+            apply.getRecruitmentInfo().updateStatus();
         } else {
             apply.updateStatus(applyStatus);
         }
