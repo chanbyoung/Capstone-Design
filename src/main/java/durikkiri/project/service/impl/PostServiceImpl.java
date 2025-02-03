@@ -8,10 +8,8 @@ import durikkiri.project.entity.dto.post.*;
 import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Comment;
 import durikkiri.project.entity.post.Post;
-import durikkiri.project.entity.post.RecruitmentStatus;
 import durikkiri.project.exception.*;
 import durikkiri.project.repository.*;
-import durikkiri.project.security.CustomUserDetails;
 import durikkiri.project.service.PostService;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
@@ -53,7 +51,7 @@ public class PostServiceImpl implements PostService {
             throws IOException {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
-        if (!postAddDto.getCategory().equals(GENERAL)) {
+        if (!(postAddDto.getCategory() == GENERAL)) {
             checkFieldValid(postAddDto.getFieldList());
         }
         Post savePost = postRepository.save(postAddDto.toEntity(member));
@@ -94,7 +92,7 @@ public class PostServiceImpl implements PostService {
             post.updateViewCount();
         }
         if (!post.getCategory().equals(GENERAL)) {
-            post.updateStatus();
+            post.getRecuruitmentInfo().updateStatus();
         }
         if (memberId.equals(-1)) {
             return PostGetDto.toDto(post, new PostUserStatusDto(null, null));

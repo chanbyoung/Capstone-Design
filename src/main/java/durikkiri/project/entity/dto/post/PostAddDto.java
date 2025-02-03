@@ -4,7 +4,6 @@ import durikkiri.project.entity.Member;
 import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Field;
 import durikkiri.project.entity.post.Post;
-import durikkiri.project.entity.post.TechnologyStack;
 import durikkiri.project.exception.BadRequestException;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -16,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static durikkiri.project.entity.post.RecruitmentStatus.*;
 
 @Getter
 @Setter
@@ -30,11 +28,12 @@ public class PostAddDto {
 
     @NotBlank
     private String content;
+
     private LocalDate startDate;
 
     private LocalDate endDate;
 
-    private List<TechnologyStack> technologyStackList = new ArrayList<>();
+    private List<String> technologyStackList = new ArrayList<>();
 
     private List<FieldDto> fieldList= new ArrayList<>();
 
@@ -49,7 +48,7 @@ public class PostAddDto {
                 .technologyStackList(technologyStackList)
                 .fieldList(new ArrayList<>()) // 빈 리스트로 초기화
                 .content(content)
-                .status(Y)
+                .status("모집중")
                 .likeCount(0L)
                 .viewCount(0L)
                 .startDate(Optional.ofNullable(startDate).orElse(LocalDate.of(1111,1,1)))

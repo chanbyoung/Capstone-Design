@@ -7,7 +7,6 @@ import durikkiri.project.entity.Apply;
 import durikkiri.project.entity.ApplyStatus;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.entity.dto.apply.ApplyAddDto;
-import durikkiri.project.entity.post.RecruitmentStatus;
 import durikkiri.project.exception.*;
 import durikkiri.project.repository.ApplyRepository;
 import durikkiri.project.repository.MemberRepository;
@@ -16,7 +15,6 @@ import durikkiri.project.entity.dto.apply.ApplyGetDto;
 import durikkiri.project.service.ApplyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,7 +67,7 @@ public class ApplyServiceImpl implements ApplyService {
         if (post.getMember().equals(member)) {
             throw new BadRequestException("You cannot apply to your own post");
         }
-        if (post.getStatus().equals(RecruitmentStatus.N)) {
+        if (post.getRecuruitmentInfo().getStatus().equals("closed")) {
             throw new BadRequestException("이미 모집이 완료된 게시글입니다.");
         }
         //중복 신청 방지
@@ -97,7 +95,7 @@ public class ApplyServiceImpl implements ApplyService {
         Apply apply = applyRepository.findApplyWithPost(applyId)
                 .orElseThrow(() -> new NotFoundException("Apply not found"));
         // 게시물 작성자 검증
-        if (!apply.getPost().getMember().getId().equals(memberId)) {
+        if (!apply.getRecuruitmentInfo().getPost().getMember().getId().equals(memberId)) {
             throw new ForbiddenException("User not authorized to accept or reject this apply");
         }
         if (applyStatus.equals(ACCEPT)) {
@@ -106,7 +104,7 @@ public class ApplyServiceImpl implements ApplyService {
             }
             apply.updateStatus(ACCEPT);
             apply.postFieldUpdate(true);
-            apply.getPost().updateStatus();
+            apply.getRecuruitmentInfo().updateStatus();
 
         } else if (applyStatus.equals(REJECT)) {
             if (apply.getApplyStatus().equals(REJECT)) {
@@ -114,7 +112,7 @@ public class ApplyServiceImpl implements ApplyService {
             }
             apply.updateStatus(REJECT);
             apply.postFieldUpdate(false);
-            apply.getPost().updateStatus();
+            apply.getRecuruitmentInfo().updateStatus();
         } else {
             apply.updateStatus(applyStatus);
         }

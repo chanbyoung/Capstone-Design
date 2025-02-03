@@ -6,8 +6,6 @@ import durikkiri.project.entity.*;
 import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.entity.dto.post.PostSearchContent;
-import durikkiri.project.entity.post.QField;
-import durikkiri.project.entity.post.TechnologyStack;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
@@ -18,7 +16,6 @@ import java.util.List;
 import static durikkiri.project.entity.QApply.*;
 import static durikkiri.project.entity.QImage.*;
 import static durikkiri.project.entity.post.Category.*;
-import static durikkiri.project.entity.post.QField.*;
 import static durikkiri.project.entity.post.QPost.post;
 import static durikkiri.project.entity.post.RecruitmentStatus.*;
 

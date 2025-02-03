@@ -2,7 +2,6 @@ package durikkiri.project.entity.dto.post;
 
 import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Post;
-import durikkiri.project.entity.post.TechnologyStack;
 import lombok.Builder;
 import lombok.Getter;
 

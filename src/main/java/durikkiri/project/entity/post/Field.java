@@ -17,11 +17,14 @@ public class Field {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    private Post post;
-    @Enumerated(EnumType.STRING)
-    private FieldCategory fieldCategory;
+    private RecuruitmentInfo recuruitmentInfo;
+
+    private String fieldCategory;
+
     private int currentRecruitment;
+
     private int totalRecruitment;
 
     public void updateField(FieldDto fieldDto) {

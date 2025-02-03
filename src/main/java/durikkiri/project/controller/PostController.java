@@ -36,9 +36,10 @@ import java.util.Map;
 @Slf4j
 public class PostController {
 
-    private final PostService postService;
     private static final String VIEWED_COOKIE_PREFIX = "viewed_";
     private static final int COOKIE_EXPIRE_SECONDS = 24 * 60 * 60; // 24 hours
+
+    private final PostService postService;
 
     @GetMapping
     public ResponseEntity<PostResponseDto> getPosts(@PageableDefault Pageable pageable,

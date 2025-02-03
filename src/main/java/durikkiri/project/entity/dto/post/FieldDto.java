@@ -2,7 +2,6 @@ package durikkiri.project.entity.dto.post;
 
 
 import durikkiri.project.entity.post.Field;
-import durikkiri.project.entity.post.FieldCategory;
 import durikkiri.project.entity.post.Post;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
