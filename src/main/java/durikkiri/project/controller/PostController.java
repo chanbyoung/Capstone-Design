@@ -126,26 +126,6 @@ public class PostController {
         return new ResponseEntity<>("Post deleted successfully", HttpStatus.OK);
     }
 
-    @PostMapping("/{postId}/comment")
-    public ResponseEntity<String> addComment(@PathVariable Long postId,
-            @RequestBody CommentDto commentDto) {
-        postService.addComment(postId, commentDto);
-        return new ResponseEntity<>("Comment added successfully", HttpStatus.CREATED);
-    }
-
-    @PatchMapping("/{postId}/comment/{commentId}")
-    public ResponseEntity<String> updateComment(@PathVariable Long commentId,
-            @RequestBody CommentDto commentDto) {
-        postService.updateComment(commentId, commentDto);
-        return new ResponseEntity<>("Comment updated successfully", HttpStatus.OK);
-    }
-
-    @DeleteMapping("/{postId}/comment/{commentId}")
-    public ResponseEntity<String> deleteComment(@PathVariable Long commentId) {
-        postService.deleteComment(commentId);
-        return new ResponseEntity<>("Comment deleted successfully", HttpStatus.OK);
-    }
-
 
     private Map<String, String> getErrorMap(BindingResult bindingResult) {
         Map<String, String> errors = new HashMap<>();

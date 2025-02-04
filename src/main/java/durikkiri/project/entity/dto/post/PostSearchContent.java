@@ -14,11 +14,11 @@ public class PostSearchContent {
     private Category category;
     private String title;
     private String createdBy;
-    private List<TechnologyStack> technologyStackList;
+    private List<String> technologyStackList;
     private Long cursorId;
     private LocalDateTime cursorCreatedAt;
 
-    public PostSearchContent(Category category, String title, String createdBy, List<TechnologyStack> technologyStackList, Long cursorId, LocalDateTime cursorCreatedAt) {
+    public PostSearchContent(Category category, String title, String createdBy, List<String> technologyStackList, Long cursorId, LocalDateTime cursorCreatedAt) {
         this.category = category;
         this.title = title;
         this.createdBy = createdBy;

@@ -6,6 +6,9 @@ import durikkiri.project.entity.*;
 import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.entity.dto.post.PostSearchContent;
+import durikkiri.project.entity.post.QRecruitmentInfo;
+import durikkiri.project.entity.post.QRecruitmentTechStack;
+import durikkiri.project.entity.post.QTechnologyStack;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
@@ -17,6 +20,9 @@ import static durikkiri.project.entity.QApply.*;
 import static durikkiri.project.entity.QImage.*;
 import static durikkiri.project.entity.post.Category.*;
 import static durikkiri.project.entity.post.QPost.post;
+import static durikkiri.project.entity.post.QRecruitmentInfo.*;
+import static durikkiri.project.entity.post.QRecruitmentTechStack.*;
+import static durikkiri.project.entity.post.QTechnologyStack.*;
 
 @Repository
 @Slf4j
@@ -34,6 +40,9 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
         List<Post> posts = query.select(post)
                 .from(post)
                 .leftJoin(post.image, image).fetchJoin()
+                .join(post.recruitmentInfo, recruitmentInfo).fetchJoin()
+                .join(recruitmentInfo.recruitmentTechStackList, recruitmentTechStack).fetchJoin()
+                .join(recruitmentTechStack.technologyStack, technologyStack).fetchJoin()
                 .where(builder)
                 .orderBy(post.createdAt.desc(), post.id.desc())
                 .limit(pageable.getPageSize() + 1)
@@ -42,7 +51,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
         if (hasNext) {
             posts.remove(posts.size() - 1);
         }
-        log.info("dslpostRepository.hasNext = {}" , hasNext);
+        log.info("dslpostRepository.hasNext = {}", hasNext);
         return new SliceImpl<>(posts, pageable, hasNext);
     }
 
@@ -58,13 +67,22 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
             if (postSearchContent.getCreatedBy() != null) {
                 builder.and(post.createdBy.contains(postSearchContent.getCreatedBy()));
             }
-//            if (postSearchContent.getTechnologyStackList() != null && !postSearchContent.getTechnologyStackList().isEmpty()) {
-//                builder.and(post.technologyStackList.any().in(postSearchContent.getTechnologyStackList()));
-//            }
+            if (postSearchContent.getTechnologyStackList() != null
+                    && !postSearchContent.getTechnologyStackList().isEmpty()) {
+                List<String> technologyStackList = postSearchContent.getTechnologyStackList();
+                BooleanBuilder techBuilder = new BooleanBuilder();
+                technologyStackList.forEach(
+                        tech -> techBuilder.or(
+                                post.recruitmentInfo.recruitmentTechStackList.any().technologyStack.name.eq(
+                                        tech))
+                );
+                builder.and(techBuilder);
+            }
             if (postSearchContent.getCursorCreatedAt() != null) {
                 builder.and(
                         post.createdAt.lt(postSearchContent.getCursorCreatedAt())
-                                .or(post.createdAt.eq(postSearchContent.getCursorCreatedAt()).and(post.id.lt(postSearchContent.getCursorId())))
+                                .or(post.createdAt.eq(postSearchContent.getCursorCreatedAt())
+                                        .and(post.id.lt(postSearchContent.getCursorId())))
                 );
             }
         }
