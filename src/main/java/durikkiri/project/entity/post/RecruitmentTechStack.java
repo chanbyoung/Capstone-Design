@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -28,4 +29,12 @@ public class RecruitmentTechStack {
     @ManyToOne
     @JoinColumn(name = "technology_stack_id")
     private TechnologyStack technologyStack;
+
+    @Builder
+    public RecruitmentTechStack(Long id, RecruitmentInfo recruitmentInfo,
+            TechnologyStack technologyStack) {
+        this.id = id;
+        this.recruitmentInfo = recruitmentInfo;
+        this.technologyStack = technologyStack;
+    }
 }

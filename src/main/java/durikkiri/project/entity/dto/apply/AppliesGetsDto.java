@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class AppliesGetsDto {
     private Long id;
     private String postTitle;
-    private FieldCategory fieldCategory; // 지원 분야
+    private String fieldCategory; // 지원 분야
     private ApplyStatus applyStatus;
     private String memberName;
     private LocalDateTime createdAt;
@@ -22,7 +22,7 @@ public class AppliesGetsDto {
     public static AppliesGetsDto toDto(Apply apply) {
         return AppliesGetsDto.builder()
                 .id(apply.getId())
-                .postTitle(apply.getPost().getTitle())
+                .postTitle(apply.getRecruitmentInfo().getPost().getTitle())
                 .applyStatus(apply.getApplyStatus())
                 .fieldCategory(apply.getFieldCategory())
                 .memberName(apply.getCreatedBy())

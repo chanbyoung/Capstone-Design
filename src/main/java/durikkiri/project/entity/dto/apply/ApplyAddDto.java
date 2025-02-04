@@ -13,17 +13,17 @@ import static durikkiri.project.entity.ApplyStatus.*;
 @Builder
 public class ApplyAddDto {
     @NotNull
-    private FieldCategory fieldCategory;
+    private String fieldCategory;
     @NotBlank
     private String content;
 
     public Apply toEntity(Post post,Member member) {
-        return post.getFieldList().stream()
+        return post.getRecruitmentInfo().getFieldList().stream()
                 .filter(field -> field.getFieldCategory().equals(fieldCategory))
                 .findFirst()
                 .map(field -> Apply.builder()
                         .fieldCategory(fieldCategory)
-                        .post(post)
+//                        .post(post)
                         .member(member)
                         .content(content)
                         .applyStatus(UNREAD)

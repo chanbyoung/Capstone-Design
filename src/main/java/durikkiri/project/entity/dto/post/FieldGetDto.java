@@ -13,7 +13,7 @@ public class FieldGetDto {
 
     static public FieldGetDto toDto(Field field) {
         return FieldGetDto.builder()
-                .fieldCategory(field.getFieldCategory().getValue())
+                .fieldCategory(field.getFieldCategory())
                 .currentRecruitment(field.getCurrentRecruitment())
                 .totalRecruitment(field.getTotalRecruitment())
                 .build();

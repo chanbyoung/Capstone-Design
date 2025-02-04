@@ -3,6 +3,7 @@ package durikkiri.project.entity.dto.post;
 
 import durikkiri.project.entity.post.Field;
 import durikkiri.project.entity.post.Post;
+import durikkiri.project.entity.post.RecruitmentInfo;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
@@ -16,10 +17,10 @@ public class FieldDto {
     @Positive
     private int totalRecruitment;
 
-    public Field toEntity(Post post) {
+    public Field toEntity(RecruitmentInfo recruitmentInfo) {
         return Field.builder()
                 .fieldCategory(fieldCategory)
-                .post(post)
+                .recruitmentInfo(recruitmentInfo)
                 .currentRecruitment(0)
                 .totalRecruitment(totalRecruitment)
                 .build();

@@ -26,11 +26,6 @@ public interface PostService {
 
     List<HomeGetDto> getLikePostList(Category category);
 
-    void addComment(Long postId, CommentDto commentDto);
-
-    void updateComment(Long commentId, CommentDto commentDto);
-
-    void deleteComment(Long commentId);
 
     List<HomeGetDto> getHome();
 }

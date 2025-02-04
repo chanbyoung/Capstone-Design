@@ -90,7 +90,7 @@ class PostServiceTest {
         //given
         PostAddDto postAddDto = new PostAddDto();
         postAddDto.setCategory(Category.PROJECT);
-        postAddDto.setFieldList(new ArrayList<>());
+//        postAddDto.setFieldList(new ArrayList<>());
 
         //then
         assertThrows(BadRequestException.class,
@@ -125,7 +125,7 @@ class PostServiceTest {
                 .category(Category.GENERAL)
                 .member(mock(Member.class))
                 .commentList(new ArrayList<>())
-                .fieldList(new ArrayList<>())
+//                .fieldList(new ArrayList<>())
                 .viewCount(0L)
                 .build();
         when(postRepository.findPostWithField(1L)).thenReturn(Optional.of(testPost));

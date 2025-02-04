@@ -71,10 +71,10 @@ public class ApplyServiceImpl implements ApplyService {
             throw new BadRequestException("이미 모집이 완료된 게시글입니다.");
         }
         //중복 신청 방지
-        boolean alreadyApplied = applyRepository.existsByPostAndMember(post, member);
-        if (alreadyApplied) {
-            throw new BadRequestException("You have already applied to this post");
-        }
+//        boolean alreadyApplied = applyRepository.existsByPostAndMember(post, member);
+//        if (alreadyApplied) {
+//            throw new BadRequestException("You have already applied to this post");
+//        }
     }
 
     @Override

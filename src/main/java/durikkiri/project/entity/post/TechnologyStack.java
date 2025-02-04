@@ -8,6 +8,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import java.util.List;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,5 +27,8 @@ public class TechnologyStack {
 
     private String name;
 
-
+    @Builder
+    public TechnologyStack(String name) {
+        this.name = name;
+    }
 }

@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -43,7 +44,7 @@ public class RecruitmentInfo {
     private Post post;
 
     @OneToMany(mappedBy = "recruitmentInfo", cascade = CascadeType.PERSIST , orphanRemoval = true)
-    private List<RecruitmentTechStack> recruitmentTechStackList = new ArrayList<>();
+    private List<RecruitmentTechStack> recruitmentTechStackList;
 
     @OneToMany(mappedBy = "recruitmentInfo", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Field> fieldList;
@@ -51,6 +52,18 @@ public class RecruitmentInfo {
     @OneToMany(mappedBy = "recruitmentInfo", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Apply> appliesList;
 
+    @Builder
+    public RecruitmentInfo(Long id, LocalDate startDate, LocalDate endDate, String status,
+            Post post) {
+        this.id = id;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.status = status;
+        this.post = post;
+        this.recruitmentTechStackList = new ArrayList<>();
+        this.fieldList = new ArrayList<>();
+        this.appliesList = new ArrayList<>();
+    }
 
     public void updateStatus() {
         boolean recruitmentDeadline = this.fieldList.stream()
@@ -98,5 +111,9 @@ public class RecruitmentInfo {
                     Field newField = fieldDtoMap.get(fieldCategory).toEntity(this);
                     this.fieldList.add(newField);
                 });
+    }
+
+    public void updateFiledList(List<Field> addFieldList) {
+        this.fieldList = addFieldList;
     }
 }

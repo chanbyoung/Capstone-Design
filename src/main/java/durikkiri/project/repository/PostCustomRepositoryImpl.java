@@ -17,12 +17,15 @@ import static durikkiri.project.entity.QApply.*;
 import static durikkiri.project.entity.QImage.*;
 import static durikkiri.project.entity.post.Category.*;
 import static durikkiri.project.entity.post.QPost.post;
-import static durikkiri.project.entity.post.RecruitmentStatus.*;
 
 @Repository
 @Slf4j
 @RequiredArgsConstructor
 public class PostCustomRepositoryImpl implements PostCustomRepository {
+
+    private static final String OPEN = "open";
+    private static final String CLOSED = "closed";
+
     private final JPAQueryFactory query;
     @Override
     public Slice<Post> getPostsByCursor(Pageable pageable, PostSearchContent postSearchContent) {
@@ -45,7 +48,6 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
 
     private static BooleanBuilder searchCondition(PostSearchContent postSearchContent) {
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(post.status.eq(Y));
         if (postSearchContent != null) {
             if (postSearchContent.getCategory() != null) {
                 builder.and(post.category.eq(postSearchContent.getCategory()));
@@ -56,9 +58,9 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
             if (postSearchContent.getCreatedBy() != null) {
                 builder.and(post.createdBy.contains(postSearchContent.getCreatedBy()));
             }
-            if (postSearchContent.getTechnologyStackList() != null && !postSearchContent.getTechnologyStackList().isEmpty()) {
-                builder.and(post.technologyStackList.any().in(postSearchContent.getTechnologyStackList()));
-            }
+//            if (postSearchContent.getTechnologyStackList() != null && !postSearchContent.getTechnologyStackList().isEmpty()) {
+//                builder.and(post.technologyStackList.any().in(postSearchContent.getTechnologyStackList()));
+//            }
             if (postSearchContent.getCursorCreatedAt() != null) {
                 builder.and(
                         post.createdAt.lt(postSearchContent.getCursorCreatedAt())
@@ -72,7 +74,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
     public List<Post> getLikePostList(Category category) {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(post.category.eq(category));
-        builder.and(post.status.eq(Y));
+//        builder.and(post.status.eq());
         return query.select(post)
                 .from(post)
                 .leftJoin(post.image, image)
@@ -91,7 +93,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
 
         return query.select(post)
                 .from(post)
-                .leftJoin(post.appliesList, apply)
+//                .leftJoin(post.appliesList, apply)
                 .fetchJoin()
                 .where(builder)
                 .fetch();
@@ -106,7 +108,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
     public List<Post> myRecruitingProject(Member member) {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(post.member.eq(member));
-        builder.and(post.status.eq(Y));
+//        builder.and(post.status.eq(Y));
         builder.and(post.category.notIn(GENERAL));
         return query.select(post)
                 .from(post)
@@ -128,7 +130,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
 
         return query.select(post)
                 .from(post)
-                .join(post.appliesList, apply).fetchJoin()
+//                .join(post.appliesList, apply).fetchJoin()
                 .join(apply.member, QMember.member).fetchJoin()
                 .where(apply.member.eq(member))
                 .distinct()

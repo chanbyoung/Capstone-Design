@@ -19,7 +19,8 @@ public class Field {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private RecruitmentInfo recuruitmentInfo;
+    @JoinColumn(name = "recruitment_info_id")
+    private RecruitmentInfo recruitmentInfo;
 
     private String fieldCategory;
 

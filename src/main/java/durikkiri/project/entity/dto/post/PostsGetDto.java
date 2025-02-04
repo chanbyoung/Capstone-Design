@@ -14,7 +14,7 @@ public class PostsGetDto {
     private Long id;
     private String title;
     private Category category;
-    private List<TechnologyStack> technologyStackList;
+    private List<String> technologyStackList;
     private String createdBy;
     private LocalDateTime createdAt;
     private Long viewCount;
@@ -26,7 +26,7 @@ public class PostsGetDto {
                 .category(post.getCategory())
                 .createdBy(post.getCreatedBy())
                 .createdAt(post.getCreatedAt())
-                .technologyStackList(post.getTechnologyStackList())
+//                .technologyStackList(post.getRecruitmentInfo().getRecruitmentTechStackList())
                 .likeCount(post.getLikeCount())
                 .viewCount(post.getViewCount()).build();
     }
