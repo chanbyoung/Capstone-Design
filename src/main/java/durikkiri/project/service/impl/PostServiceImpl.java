@@ -14,6 +14,7 @@ import durikkiri.project.entity.post.TechnologyStack;
 import durikkiri.project.exception.*;
 import durikkiri.project.repository.*;
 import durikkiri.project.service.PostService;
+import durikkiri.project.service.RecruitmentService;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import java.util.ArrayList;
@@ -42,14 +43,11 @@ public class PostServiceImpl implements PostService {
 
     private final static Long GUEST_USER = -1L;
 
+    private final RecruitmentService recruitmentService;
     private final PostRepository postRepository;
     private final ImageRepository imageRepository;
     private final LikeRepository likeRepository;
-    private final RecruitmentRepository recruitmentRepository;
-    private final TechnologyStackRepository technologyStackRepository;
-    private final RecruitmentInfoTechStackRepository recruitmentInfoTechStackRepository;
     private final MemberRepository memberRepository;
-    private final Validator validator;
     @Value("${file.dir}")
     private String fileDir;
 
@@ -65,7 +63,7 @@ public class PostServiceImpl implements PostService {
 
         // 게시글이 일반 게시글이 아닌 경우 모집 정보 처리
         if (!postAddDto.isGeneralCategory()) {
-            processRecruitmentInfo(postAddDto.getRecruitmentAddDto(), savedPost);
+            recruitmentService.processRecruitmentInfo(postAddDto.getRecruitmentAddDto(), savedPost);
         }
 
         // 이미지 처리
@@ -123,7 +121,7 @@ public class PostServiceImpl implements PostService {
             throw new BadRequestException("시작 날짜는 종료 날짜보다 이후일 수 없습니다.");
         }
         if (!postUpdateDto.getCategory().equals(GENERAL)) {
-            checkFieldValid(postUpdateDto.getFieldList());
+            recruitmentService.checkFieldValid(postUpdateDto.getFieldList());
         }
         post.updatePost(postUpdateDto);
         updateImage(image, post);
@@ -170,26 +168,6 @@ public class PostServiceImpl implements PostService {
     }
 
     /**
-     * 모집 정보를 처리합니다.
-     */
-    private void processRecruitmentInfo(RecruitmentAddDto recruitmentAddDto, Post post) {
-        // 필드 리스트 유효성 검사
-        checkFieldValid(recruitmentAddDto.getFieldList());
-
-        // 기술 스택 리스트 처리 (조회 후 존재하지 않는 경우 새로 생성)
-        List<TechnologyStack> technologyStacks = getOrCreateTechnologyStacks(
-                recruitmentAddDto.getTechnologyStackList());
-
-        // 모집 정보 저장
-        RecruitmentInfo savedRecruitment = recruitmentRepository.save(
-                recruitmentAddDto.toEntity(post));
-        log.info("Recruitment info created for post id: {}", post.getId());
-
-        // 매핑 테이블 저장
-        saveRecruitmentInfoTechStack(technologyStacks, savedRecruitment);
-    }
-
-    /**
      * 이미지 파일을 저장합니다.
      */
     private void processImage(MultipartFile image, Post post) throws IOException {
@@ -211,64 +189,6 @@ public class PostServiceImpl implements PostService {
             log.error("Failed to process image for post id {}: {}", post.getId(), e.getMessage());
             throw e;
         }
-    }
-
-
-    private void saveRecruitmentInfoTechStack(List<TechnologyStack> saveTechnologyStacks,
-            RecruitmentInfo saveRecruitment) {
-        List<RecruitmentTechStack> saveList = saveTechnologyStacks.stream()
-                .map(techStack -> RecruitmentTechStack.builder()
-                        .recruitmentInfo(saveRecruitment)
-                        .technologyStack(techStack)
-                        .build())
-                .toList();
-
-        recruitmentInfoTechStackRepository.saveAll(saveList);
-    }
-
-    /**
-     * 모집 정보에 포함된 Field 리스트의 유효성을 검사합니다.
-     */
-    private void checkFieldValid(List<FieldDto> fields) {
-        if (fields == null || fields.isEmpty()) {
-            throw new BadRequestException("Field list is empty for non-general category");
-        }
-        for (FieldDto field : fields) {
-            Set<ConstraintViolation<FieldDto>> violations = validator.validate(field);
-            if (!violations.isEmpty()) {
-                String errorMessage = violations.stream()
-                        .map(ConstraintViolation::getMessage)
-                        .collect(Collectors.joining(", "));
-                throw new BadRequestException("Field validation failed: " + errorMessage);
-            }
-        }
-    }
-
-
-    /**
-     * 기술 스택 리스트를 받아 DB에 존재하는 스택은 조회하고, 존재하지 않는 경우 새 엔티티를 생성 및 저장한 후 전체 리스트를 반환합니다.
-     */
-    public List<TechnologyStack> getOrCreateTechnologyStacks(List<String> technologyStackNames) {
-        // DB에 존재하는 기술 스택 조회
-        List<TechnologyStack> existingStacks = technologyStackRepository.findByNameIn(
-                technologyStackNames);
-        Set<String> existingNames = existingStacks.stream()
-                .map(TechnologyStack::getName)
-                .collect(Collectors.toSet());
-
-        // 존재하지 않는 기술 스택을 찾아서 새 엔티티 생성
-        List<TechnologyStack> newStacks = technologyStackNames.stream()
-                .filter(name -> !existingNames.contains(name))
-                .map(TechnologyStack::new)
-                .collect(Collectors.toList());
-
-        // 새 엔티티가 있다면 DB에 저장 후 전체 리스트에 추가
-        if (!newStacks.isEmpty()) {
-            List<TechnologyStack> savedStacks = technologyStackRepository.saveAll(newStacks);
-            existingStacks.addAll(savedStacks);
-            log.info("Created new TechnologyStacks: {}", savedStacks);
-        }
-        return existingStacks;
     }
 
     private PostUserStatusDto getPostAuthInfo(Long memberId, Long postId,
