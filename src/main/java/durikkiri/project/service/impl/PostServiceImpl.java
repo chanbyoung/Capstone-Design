@@ -79,23 +79,47 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public PostGetDto getPost(Long postId, Long memberId, boolean flag) {
+    public PostGetDto getGeneralPost(Long postId, Long memberId, boolean flag) {
         Post post = postRepository.findPostWithField(postId)
                 .orElseThrow(() -> new NotFoundException("Post not found"));
-        if (flag) {
-            post.updateViewCount();
-        }
-        if (!post.getCategory().equals(GENERAL)) {
-            post.getRecruitmentInfo().updateStatus();
-        }
+
+        // 조회수 추가
+        if (flag) post.updateViewCount();
+
+        // 로그인 하지 않은 사용자의 경우 게시글만 반환
         if (memberId.equals(GUEST_USER)) {
-            return PostGetDto.toDto(post, new PostUserStatusDto(null, null));
+            return PostGetDto.toDto(post, new PostUserStatusDto());
         }
+
+        // 좋아요 표시 여부 및 작성자 여부
         PostUserStatusDto postUserStatusDto = getPostAuthInfo(memberId, postId,
                 post.getMember().getId());
 
         return PostGetDto.toDto(post, postUserStatusDto);
     }
+
+    @Override
+    @Transactional
+    public PostGetDto getPost(Long postId, Long memberId, boolean flag) {
+        Post post = postRepository.findPostWithField(postId)
+                .orElseThrow(() -> new NotFoundException("Post not found"));
+
+        // 조회수 추가
+        if (flag) post.updateViewCount();
+
+        // 로그인 하지 않은 사용자의 경우 게시글만 반환
+        if (memberId.equals(GUEST_USER)) {
+            return PostGetDto.toDto(post, new PostUserStatusDto());
+        }
+
+        // 좋아요 표시 여부 및 작성자 여부
+        PostUserStatusDto postUserStatusDto = getPostAuthInfo(memberId, postId,
+                post.getMember().getId());
+
+        return PostGetDto.toDto(post, postUserStatusDto);
+    }
+
+
 
     @Override
     public List<HomeGetDto> getHome() {

@@ -69,10 +69,8 @@ public class RecruitmentInfo {
         boolean recruitmentDeadline = this.fieldList.stream()
                 .allMatch(field ->
                         field.getCurrentRecruitment() == field.getTotalRecruitment());
-        boolean dateDeadline= endDate.isBefore(LocalDate.now());
-        if (recruitmentDeadline || dateDeadline) {
+        if (recruitmentDeadline) {
             // 모든 field의 currentRecruitment와 totalRecruitment가 같은 경우
-            // Post 엔티티 업데이트 로직 실행
             this.status = "closed";
         } else {
             this.status = "open";

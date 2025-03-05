@@ -38,31 +38,31 @@ public class PostGetDto {
         return null;
     }
         // Post 엔티티 내의 Field 리스트를 FieldGetDto 리스트로 변환
-//        List<FieldGetDto> fieldGetDtoList = post.getFieldList().stream()
-//                .map(FieldGetDto::toDto) // 각 Field 엔티티를 FieldGetDto로 변환
-//                .collect(Collectors.toList());
-//
-//        List<CommentGetDto> commentGetDtoList = post.getCommentList().stream()
-//                .map(CommentGetDto::toDto)
-//                .toList();
-//
-//        return PostGetDto.builder()
-//                .postId(post.getId())
-//                .title(post.getTitle())
-//                .category(post.getCategory().getValue())
-//                .content(post.getContent())
-//                .memberId(post.getMember().getId())
-//                .memberNickname(post.getMember().getNickname())
-//                .technologyStackList(post.getTechnologyStackList())
-//                .commentList(commentGetDtoList)
-//                .fieldList(fieldGetDtoList) // 변환된 FieldGetDto 리스트 설정
-//                .image(Optional.ofNullable(post.getImage()).map(ImageGetDto::toDto).orElse(null))
-//                .viewCount(post.getViewCount())
-//                .likeCount(post.getLikeCount())
-//                .startDate(post.getStartDate())
-//                .endDate(post.getEndDate())
-//                .isLiked(postUserStatusDto.getLiked())
-//                .isOwner(postUserStatusDto.getOwner())
-//                .build();
-//    }
+        List<FieldGetDto> fieldGetDtoList = post.getFieldList().stream()
+                .map(FieldGetDto::toDto) // 각 Field 엔티티를 FieldGetDto로 변환
+                .collect(Collectors.toList());
+
+        List<CommentGetDto> commentGetDtoList = post.getCommentList().stream()
+                .map(CommentGetDto::toDto)
+                .toList();
+
+        return PostGetDto.builder()
+                .postId(post.getId())
+                .title(post.getTitle())
+                .category(post.getCategory().getValue())
+                .content(post.getContent())
+                .memberId(post.getMember().getId())
+                .memberNickname(post.getMember().getNickname())
+                .technologyStackList(post.getTechnologyStackList())
+                .commentList(commentGetDtoList)
+                .fieldList(fieldGetDtoList) // 변환된 FieldGetDto 리스트 설정
+                .image(Optional.ofNullable(post.getImage()).map(ImageGetDto::toDto).orElse(null))
+                .viewCount(post.getViewCount())
+                .likeCount(post.getLikeCount())
+                .startDate(post.getStartDate())
+                .endDate(post.getEndDate())
+                .isLiked(postUserStatusDto.getLiked())
+                .isOwner(postUserStatusDto.getOwner())
+                .build();
+    }
 }

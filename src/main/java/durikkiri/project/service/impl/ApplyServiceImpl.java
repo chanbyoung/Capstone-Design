@@ -27,6 +27,7 @@ import static durikkiri.project.entity.ApplyStatus.*;
 @RequiredArgsConstructor
 @Slf4j
 public class ApplyServiceImpl implements ApplyService {
+
     private final ApplyRepository applyRepository;
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
@@ -91,30 +92,26 @@ public class ApplyServiceImpl implements ApplyService {
 
     @Override
     @Transactional
-    public void updateApplyStatus(Long applyId, ApplyStatus applyStatus,Long memberId) {
+    public void updateApplyStatus(Long applyId, ApplyStatus applyStatus, Long memberId) {
         Apply apply = applyRepository.findApplyWithPost(applyId)
                 .orElseThrow(() -> new NotFoundException("Apply not found"));
         // 게시물 작성자 검증
         if (!apply.getRecruitmentInfo().getPost().getMember().getId().equals(memberId)) {
             throw new ForbiddenException("User not authorized to accept or reject this apply");
         }
-        if (applyStatus.equals(ACCEPT)) {
-            if (apply.getApplyStatus().equals(ACCEPT)) {
-                throw new BadRequestException("이미 수락처리된 지원서입니다");
-            }
-            apply.updateStatus(ACCEPT);
-            apply.postFieldUpdate(true);
-            apply.getRecruitmentInfo().updateStatus();
 
-        } else if (applyStatus.equals(REJECT)) {
-            if (apply.getApplyStatus().equals(REJECT)) {
-                throw new BadRequestException("이미 취소처리된 지원서입니다");
-            }
-            apply.updateStatus(REJECT);
-            apply.postFieldUpdate(false);
+        // 이미 처리된 상태인지 검증
+        if (apply.getApplyStatus().equals(applyStatus)) {
+            throw new BadRequestException(String.format("이미 %s 처리된 지원서입니다", applyStatus));
+        }
+
+        // 상태 업데이트
+        apply.updateStatus(applyStatus);
+
+        // ACCEPT 또는 REJECT일 경우 추가 처리
+        if (applyStatus.equals(ACCEPT) || applyStatus.equals(REJECT)) {
+            apply.postFieldUpdate(applyStatus.equals(ACCEPT));
             apply.getRecruitmentInfo().updateStatus();
-        } else {
-            apply.updateStatus(applyStatus);
         }
     }
 
@@ -139,7 +136,7 @@ public class ApplyServiceImpl implements ApplyService {
     public void deleteApply(Long applyId, Long memberId) {
         Apply apply = applyRepository.findById(applyId)
                 .orElseThrow(() -> new NotFoundException("Apply not found"));
-    // 신청자 검증
+        // 신청자 검증
         if (!apply.getMember().getId().equals(memberId)) {
             throw new ForbiddenException("User not authorized to delete this apply");
         }
