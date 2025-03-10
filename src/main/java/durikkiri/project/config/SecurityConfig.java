@@ -4,6 +4,7 @@ import durikkiri.project.repository.RedisRepository;
 import durikkiri.project.security.JwtAuthenticationFilter;
 import durikkiri.project.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +32,8 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisRepository redisRepository;
 
+    @Value("${host.name}")
+    private String HOST_NAME;
 
     /**
      * AuthenticationManager 빈 등록
@@ -71,7 +74,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        configuration.setAllowedOrigins(List.of(HOST_NAME)); // 허용된 Origin
         configuration.setAllowedMethods(Arrays.asList("HEAD","GET","POST","DELETE", "PATCH")); // 모든 HTTP 메서드 허용
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true); // 쿠키를 포함한 요청 허용
