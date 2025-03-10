@@ -20,7 +20,9 @@ public interface PostService {
 
     PostGetDto getPost(Long postId, Long memberId, boolean flag);
 
-    void updatePost(Long postId, Long memberId, MultipartFile multipartFile, PostUpdateDto postUpdateDto) throws IOException;
+     GeneralPostGetDto getGeneralPost(Long postId, Long memberId, boolean flag);
+
+     void updatePost(Long postId, Long memberId, MultipartFile multipartFile, PostUpdateDto postUpdateDto) throws IOException;
 
     void deletePost(Long postId, Long memberId);
 

@@ -2,6 +2,7 @@ package durikkiri.project.entity.dto.post;
 
 import durikkiri.project.entity.dto.comment.CommentGetDto;
 import durikkiri.project.entity.post.Post;
+import durikkiri.project.entity.post.RecruitmentTechStack;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,16 +36,21 @@ public class PostGetDto {
 
     static public PostGetDto toDto(Post post, PostUserStatusDto postUserStatusDto) {
 
-        return null;
-    }
         // Post 엔티티 내의 Field 리스트를 FieldGetDto 리스트로 변환
-        List<FieldGetDto> fieldGetDtoList = post.getFieldList().stream()
+        List<FieldGetDto> fieldGetDtoList = post.getRecruitmentInfo().getFieldList().stream()
                 .map(FieldGetDto::toDto) // 각 Field 엔티티를 FieldGetDto로 변환
                 .collect(Collectors.toList());
 
         List<CommentGetDto> commentGetDtoList = post.getCommentList().stream()
                 .map(CommentGetDto::toDto)
                 .toList();
+
+        List<String> recruitmentTechStackList = post.getRecruitmentInfo()
+                .getRecruitmentTechStackList()
+                .stream()
+                .map(t -> t.getTechnologyStack().getName())
+                .toList();
+
 
         return PostGetDto.builder()
                 .postId(post.getId())
@@ -53,14 +59,14 @@ public class PostGetDto {
                 .content(post.getContent())
                 .memberId(post.getMember().getId())
                 .memberNickname(post.getMember().getNickname())
-                .technologyStackList(post.getTechnologyStackList())
+                .technologyStackList(recruitmentTechStackList)
                 .commentList(commentGetDtoList)
                 .fieldList(fieldGetDtoList) // 변환된 FieldGetDto 리스트 설정
                 .image(Optional.ofNullable(post.getImage()).map(ImageGetDto::toDto).orElse(null))
                 .viewCount(post.getViewCount())
                 .likeCount(post.getLikeCount())
-                .startDate(post.getStartDate())
-                .endDate(post.getEndDate())
+                .startDate(post.getRecruitmentInfo().getStartDate())
+                .endDate(post.getRecruitmentInfo().getEndDate())
                 .isLiked(postUserStatusDto.getLiked())
                 .isOwner(postUserStatusDto.getOwner())
                 .build();

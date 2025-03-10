@@ -23,6 +23,15 @@ public interface PostRepository extends JpaRepository<Post,Long>, PostCustomRepo
            """)
     Optional<Post> findPostWithField(@Param("id") Long id);
 
+
+    @Query("""
+           SELECT p
+           FROM Post p
+           JOIN FETCH p.member m
+           WHERE p.id = :id
+           """)
+    Optional<Post> findPostWithMember(@Param("id") Long id);
+
     @Query("select p from Post p left join fetch p.image where p.category != :category and p.recruitmentInfo.status = 'open' order by p.createdAt limit 10")
     List<Post> getHome(@Param("category") Category category);
 }

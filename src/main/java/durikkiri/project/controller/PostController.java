@@ -84,6 +84,20 @@ public class PostController {
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
+    @GetMapping("/{postId}/general")
+    public ResponseEntity<GeneralPostGetDto> getGeneralPost(@PathVariable Long postId,
+            @AuthUser Long memberId, HttpServletRequest request, HttpServletResponse response) {
+        Cookie viewCookie = findViewCookie(postId, request);
+        boolean shouldIncreaseViewCount = (viewCookie == null);
+        if (shouldIncreaseViewCount) {
+            addViewCountCookie(postId, response);
+        }
+        GeneralPostGetDto generalPost = postService.getGeneralPost(postId, memberId,
+                shouldIncreaseViewCount);
+
+        return ResponseEntity.ok(generalPost);
+    }
+
     private void addViewCountCookie(Long postId, HttpServletResponse response) {
         Cookie newCookie = new Cookie(VIEWED_COOKIE_PREFIX + postId, "true");
         newCookie.setMaxAge(COOKIE_EXPIRE_SECONDS);
