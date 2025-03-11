@@ -97,6 +97,8 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
                 .from(post)
                 .leftJoin(post.image, image)
                 .fetchJoin()
+                .leftJoin(post.recruitmentInfo, recruitmentInfo)
+                .fetchJoin()
                 .where(builder)
                 .orderBy(post.likeCount.desc())
                 .orderBy(post.viewCount.desc())
