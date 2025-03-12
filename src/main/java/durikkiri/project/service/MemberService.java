@@ -1,10 +1,10 @@
 package durikkiri.project.service;
 
-import durikkiri.project.entity.dto.auth.ExistDto;
-import durikkiri.project.entity.dto.member.MemberGetDto;
-import durikkiri.project.entity.dto.member.MemberUpdateDto;
-import durikkiri.project.entity.dto.member.SignInDto;
-import durikkiri.project.entity.dto.member.SignUpDto;
+import durikkiri.project.dto.auth.ExistDto;
+import durikkiri.project.dto.member.MemberGetDto;
+import durikkiri.project.dto.member.MemberUpdateDto;
+import durikkiri.project.dto.member.SignInDto;
+import durikkiri.project.dto.member.SignUpDto;
 import durikkiri.project.security.JwtToken;
 
 public interface MemberService {

@@ -1,23 +1,21 @@
 package durikkiri.project.service.impl;
 
+import durikkiri.project.dto.post.GeneralPostGetDto;
+import durikkiri.project.dto.post.PostAddDto;
+import durikkiri.project.dto.post.PostGetDto;
+import durikkiri.project.dto.post.PostSearchContent;
+import durikkiri.project.dto.post.PostUpdateDto;
+import durikkiri.project.dto.post.PostUserStatusDto;
+import durikkiri.project.dto.post.PostsGetDto;
 import durikkiri.project.entity.Member;
 import durikkiri.project.entity.Image;
-import durikkiri.project.entity.dto.HomeGetDto;
-import durikkiri.project.entity.dto.comment.CommentDto;
-import durikkiri.project.entity.dto.post.*;
+import durikkiri.project.dto.HomeGetDto;
 import durikkiri.project.entity.post.Category;
-import durikkiri.project.entity.post.Comment;
 import durikkiri.project.entity.post.Post;
-import durikkiri.project.entity.post.RecruitmentInfo;
-import durikkiri.project.entity.post.RecruitmentTechStack;
-import durikkiri.project.entity.post.TechnologyStack;
 import durikkiri.project.exception.*;
 import durikkiri.project.repository.*;
 import durikkiri.project.service.PostService;
 import durikkiri.project.service.RecruitmentService;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
-import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,8 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static durikkiri.project.entity.post.Category.*;
 

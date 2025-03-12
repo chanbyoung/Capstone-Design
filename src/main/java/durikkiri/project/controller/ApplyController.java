@@ -1,8 +1,12 @@
 package durikkiri.project.controller;
 
 import durikkiri.project.annotation.AuthUser;
+import durikkiri.project.dto.apply.AppliesGetsDto;
+import durikkiri.project.dto.apply.ApplyAddDto;
+import durikkiri.project.dto.apply.ApplyGetDto;
+import durikkiri.project.dto.apply.ApplyPostDto;
+import durikkiri.project.dto.apply.ApplyUpdateDto;
 import durikkiri.project.entity.ApplyStatus;
-import durikkiri.project.entity.dto.apply.*;
 import durikkiri.project.service.ApplyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

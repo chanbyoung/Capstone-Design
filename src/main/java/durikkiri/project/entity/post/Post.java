@@ -1,11 +1,9 @@
 package durikkiri.project.entity.post;
 
-import durikkiri.project.entity.Apply;
 import durikkiri.project.entity.BaseEntity;
 import durikkiri.project.entity.Image;
 import durikkiri.project.entity.Member;
-import durikkiri.project.entity.dto.post.FieldDto;
-import durikkiri.project.entity.dto.post.PostUpdateDto;
+import durikkiri.project.dto.post.PostUpdateDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,11 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.time.LocalDate;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import org.springframework.data.util.Lazy;
 
 @Entity
 @Getter

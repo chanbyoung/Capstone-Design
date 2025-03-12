@@ -1,12 +1,15 @@
 package durikkiri.project.controller;
 
 import durikkiri.project.annotation.AuthUser;
-import durikkiri.project.entity.dto.HomeGetDto;
-import durikkiri.project.entity.dto.post.PostResponseDto;
-import durikkiri.project.entity.dto.comment.CommentDto;
-import durikkiri.project.entity.dto.post.*;
+import durikkiri.project.dto.HomeGetDto;
+import durikkiri.project.dto.post.GeneralPostGetDto;
+import durikkiri.project.dto.post.PostAddDto;
+import durikkiri.project.dto.post.PostGetDto;
+import durikkiri.project.dto.post.PostResponseDto;
+import durikkiri.project.dto.post.PostSearchContent;
+import durikkiri.project.dto.post.PostUpdateDto;
+import durikkiri.project.dto.post.PostsGetDto;
 import durikkiri.project.entity.post.Category;
-import durikkiri.project.security.CustomUserDetails;
 import durikkiri.project.service.PostService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

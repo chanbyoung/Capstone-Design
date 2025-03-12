@@ -1,6 +1,6 @@
 package durikkiri.project.entity.post;
 
-import durikkiri.project.entity.dto.post.FieldDto;
+import durikkiri.project.dto.post.FieldDto;
 import durikkiri.project.exception.RecruitmentException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -1,10 +1,13 @@
 package durikkiri.project.service;
 
-import durikkiri.project.entity.dto.HomeGetDto;
-import durikkiri.project.entity.dto.comment.CommentDto;
-import durikkiri.project.entity.dto.post.*;
+import durikkiri.project.dto.HomeGetDto;
+import durikkiri.project.dto.post.GeneralPostGetDto;
+import durikkiri.project.dto.post.PostAddDto;
+import durikkiri.project.dto.post.PostGetDto;
+import durikkiri.project.dto.post.PostSearchContent;
+import durikkiri.project.dto.post.PostUpdateDto;
+import durikkiri.project.dto.post.PostsGetDto;
 import durikkiri.project.entity.post.Category;
-import durikkiri.project.security.CustomUserDetails;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.web.multipart.MultipartFile;

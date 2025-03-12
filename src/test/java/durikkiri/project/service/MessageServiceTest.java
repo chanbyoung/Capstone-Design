@@ -1,9 +1,14 @@
 package durikkiri.project.service;
 
+import durikkiri.project.dto.message.ConversationGetDto;
+import durikkiri.project.dto.message.ConversationRequestDto;
+import durikkiri.project.dto.message.ConversationsGetDto;
+import durikkiri.project.dto.message.MessageCreateDto;
+import durikkiri.project.dto.message.MessageDto;
+import durikkiri.project.dto.message.MessageUpdateDto;
 import durikkiri.project.entity.Conversation;
 import durikkiri.project.entity.Member;
 import durikkiri.project.entity.Message;
-import durikkiri.project.entity.dto.message.*;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.exception.BadRequestException;
 import durikkiri.project.exception.ForbiddenException;

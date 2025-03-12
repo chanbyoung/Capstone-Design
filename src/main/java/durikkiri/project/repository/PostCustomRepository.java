@@ -1,7 +1,7 @@
 package durikkiri.project.repository;
 
 import durikkiri.project.entity.Member;
-import durikkiri.project.entity.dto.post.PostSearchContent;
+import durikkiri.project.dto.post.PostSearchContent;
 import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Post;
 import org.springframework.data.domain.Pageable;

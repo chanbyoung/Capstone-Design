@@ -1,8 +1,7 @@
 package durikkiri.project.entity;
 
-import durikkiri.project.entity.dto.apply.ApplyUpdateDto;
+import durikkiri.project.dto.apply.ApplyUpdateDto;
 import durikkiri.project.entity.post.Field;
-import durikkiri.project.entity.post.Post;
 import durikkiri.project.entity.post.RecruitmentInfo;
 import jakarta.persistence.*;
 import lombok.*;

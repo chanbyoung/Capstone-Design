@@ -1,8 +1,8 @@
 package durikkiri.project.entity.post;
 
 import durikkiri.project.entity.Apply;
-import durikkiri.project.entity.dto.post.FieldDto;
-import durikkiri.project.entity.dto.post.PostUpdateDto;
+import durikkiri.project.dto.post.FieldDto;
+import durikkiri.project.dto.post.PostUpdateDto;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

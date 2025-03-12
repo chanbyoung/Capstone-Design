@@ -36,3 +36,5 @@ out/
 
 ### VS Code ###
 .vscode/
+.env.prod
+project-0.0.1-SNAPSHOT.jar

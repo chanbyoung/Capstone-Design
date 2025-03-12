@@ -5,7 +5,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import durikkiri.project.entity.*;
 import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Post;
-import durikkiri.project.entity.dto.post.PostSearchContent;
+import durikkiri.project.dto.post.PostSearchContent;
 import durikkiri.project.entity.post.QRecruitmentInfo;
 import durikkiri.project.entity.post.QRecruitmentTechStack;
 import durikkiri.project.entity.post.QTechnologyStack;

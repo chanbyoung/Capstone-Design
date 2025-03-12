@@ -1,8 +1,8 @@
 package durikkiri.project.service;
 
-import durikkiri.project.entity.dto.auth.ExistDto;
-import durikkiri.project.entity.dto.auth.FindDto;
-import durikkiri.project.entity.dto.auth.MailDto;
+import durikkiri.project.dto.auth.ExistDto;
+import durikkiri.project.dto.auth.FindDto;
+import durikkiri.project.dto.auth.MailDto;
 import durikkiri.project.exception.BadRequestException;
 import durikkiri.project.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;

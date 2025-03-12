@@ -1,17 +1,17 @@
 package durikkiri.project.service.impl;
 
 import durikkiri.project.entity.Member;
-import durikkiri.project.entity.dto.apply.AppliesGetsDto;
-import durikkiri.project.entity.dto.apply.ApplyUpdateDto;
+import durikkiri.project.dto.apply.AppliesGetsDto;
+import durikkiri.project.dto.apply.ApplyUpdateDto;
 import durikkiri.project.entity.Apply;
 import durikkiri.project.entity.ApplyStatus;
 import durikkiri.project.entity.post.Post;
-import durikkiri.project.entity.dto.apply.ApplyAddDto;
+import durikkiri.project.dto.apply.ApplyAddDto;
 import durikkiri.project.exception.*;
 import durikkiri.project.repository.ApplyRepository;
 import durikkiri.project.repository.MemberRepository;
 import durikkiri.project.repository.PostRepository;
-import durikkiri.project.entity.dto.apply.ApplyGetDto;
+import durikkiri.project.dto.apply.ApplyGetDto;
 import durikkiri.project.service.ApplyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,9 +1,14 @@
 package durikkiri.project.service.impl;
 
+import durikkiri.project.dto.message.ConversationGetDto;
+import durikkiri.project.dto.message.ConversationRequestDto;
+import durikkiri.project.dto.message.ConversationsGetDto;
+import durikkiri.project.dto.message.MessageCreateDto;
+import durikkiri.project.dto.message.MessageDto;
+import durikkiri.project.dto.message.MessageUpdateDto;
 import durikkiri.project.entity.Conversation;
 import durikkiri.project.entity.Member;
 import durikkiri.project.entity.Message;
-import durikkiri.project.entity.dto.message.*;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.exception.BadRequestException;
 import durikkiri.project.exception.ForbiddenException;
@@ -15,7 +20,6 @@ import durikkiri.project.repository.PostRepository;
 import durikkiri.project.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,7 +65,8 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     @Transactional
-    public ConversationGetDto createOrRetrieveConversation(ConversationRequestDto conversationRequestDto, Long memberId) {
+    public ConversationGetDto createOrRetrieveConversation(
+            ConversationRequestDto conversationRequestDto, Long memberId) {
         Member sender = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
         if (sender.getId().equals(conversationRequestDto.getReceiverId())) {

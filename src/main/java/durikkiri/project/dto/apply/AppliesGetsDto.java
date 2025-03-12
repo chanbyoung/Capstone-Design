@@ -1,0 +1,33 @@
+package durikkiri.project.dto.apply;
+
+import durikkiri.project.entity.Apply;
+import durikkiri.project.entity.ApplyStatus;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
+@Builder
+public class AppliesGetsDto {
+    private Long id;
+    private String postTitle;
+    private String fieldCategory; // 지원 분야
+    private ApplyStatus applyStatus;
+    private String memberName;
+    private LocalDateTime createdAt;
+
+    public static AppliesGetsDto toDto(Apply apply) {
+        return AppliesGetsDto.builder()
+                .id(apply.getId())
+                .postTitle(apply.getRecruitmentInfo().getPost().getTitle())
+                .applyStatus(apply.getApplyStatus())
+                .fieldCategory(apply.getFieldCategory())
+                .memberName(apply.getCreatedBy())
+                .createdAt(apply.getCreatedAt())
+                .build();
+
+    }
+}

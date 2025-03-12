@@ -1,7 +1,7 @@
 package durikkiri.project.service;
 
-import durikkiri.project.entity.dto.post.FieldDto;
-import durikkiri.project.entity.dto.post.RecruitmentAddDto;
+import durikkiri.project.dto.post.FieldDto;
+import durikkiri.project.dto.post.RecruitmentAddDto;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.entity.post.RecruitmentInfo;
 import durikkiri.project.entity.post.RecruitmentTechStack;
