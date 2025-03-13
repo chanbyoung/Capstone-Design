@@ -6,9 +6,6 @@ import durikkiri.project.entity.*;
 import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.dto.post.PostSearchContent;
-import durikkiri.project.entity.post.QRecruitmentInfo;
-import durikkiri.project.entity.post.QRecruitmentTechStack;
-import durikkiri.project.entity.post.QTechnologyStack;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
@@ -41,8 +38,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
                 .from(post)
                 .leftJoin(post.image, image).fetchJoin()
                 .join(post.recruitmentInfo, recruitmentInfo).fetchJoin()
-                .join(recruitmentInfo.recruitmentTechStackList, recruitmentTechStack).fetchJoin()
-                .join(recruitmentTechStack.technologyStack, technologyStack).fetchJoin()
+//                .join(recruitmentInfo, ).fetchJoin()
                 .where(builder)
                 .orderBy(post.createdAt.desc(), post.id.desc())
                 .limit(pageable.getPageSize() + 1)
@@ -92,7 +88,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
     public List<Post> getLikePostList(Category category) {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(post.category.eq(category));
-//        builder.and(post.status.eq());
+        builder.and(post.recruitmentInfo.status.eq(OPEN));
         return query.select(post)
                 .from(post)
                 .leftJoin(post.image, image)
@@ -113,7 +109,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
 
         return query.select(post)
                 .from(post)
-//                .leftJoin(post.appliesList, apply)
+                .join(post.recruitmentInfo, recruitmentInfo)
                 .fetchJoin()
                 .where(builder)
                 .fetch();

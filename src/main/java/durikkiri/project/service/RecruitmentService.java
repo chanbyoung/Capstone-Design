@@ -1,13 +1,12 @@
 package durikkiri.project.service;
 
 import durikkiri.project.dto.post.FieldDto;
+import durikkiri.project.dto.post.PostUpdateDto;
 import durikkiri.project.dto.post.RecruitmentAddDto;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.entity.post.RecruitmentInfo;
-import durikkiri.project.entity.post.RecruitmentTechStack;
 import durikkiri.project.entity.post.TechnologyStack;
 import durikkiri.project.exception.BadRequestException;
-import durikkiri.project.repository.RecruitmentInfoTechStackRepository;
 import durikkiri.project.repository.RecruitmentRepository;
 import durikkiri.project.repository.TechnologyStackRepository;
 import jakarta.validation.ConstraintViolation;
@@ -28,7 +27,6 @@ public class RecruitmentService {
 
     private final RecruitmentRepository recruitmentRepository;
     private final TechnologyStackRepository technologyStackRepository;
-    private final RecruitmentInfoTechStackRepository recruitmentInfoTechStackRepository;
     private final Validator validator;
 
     /**
@@ -43,12 +41,7 @@ public class RecruitmentService {
                 recruitmentAddDto.getTechnologyStackList());
 
         // 모집 정보 저장
-        RecruitmentInfo savedRecruitment = recruitmentRepository.save(
-                recruitmentAddDto.toEntity(post));
-        log.info("Recruitment info created for post id: {}", post.getId());
-
-        // 매핑 테이블 저장
-        saveRecruitmentInfoTechStack(technologyStacks, savedRecruitment);
+        recruitmentRepository.save(recruitmentAddDto.toEntity(post, technologyStacks));
     }
 
 
@@ -71,17 +64,6 @@ public class RecruitmentService {
     }
 
 
-    private void saveRecruitmentInfoTechStack(List<TechnologyStack> saveTechnologyStacks,
-            RecruitmentInfo saveRecruitment) {
-        List<RecruitmentTechStack> saveList = saveTechnologyStacks.stream()
-                .map(techStack -> RecruitmentTechStack.builder()
-                        .recruitmentInfo(saveRecruitment)
-                        .technologyStack(techStack)
-                        .build())
-                .toList();
-
-        recruitmentInfoTechStackRepository.saveAll(saveList);
-    }
 
     /**
      * 기술 스택 리스트를 받아 DB에 존재하는 스택은 조회하고, 존재하지 않는 경우 새 엔티티를 생성 및 저장한 후 전체 리스트를 반환합니다.
@@ -107,5 +89,15 @@ public class RecruitmentService {
             log.info("Created new TechnologyStacks: {}", savedStacks);
         }
         return existingStacks;
+    }
+
+    /**
+     * 모집 정보 업데이트
+     */
+    public void updateRecruitmentInfo(RecruitmentInfo recruitmentInfo,PostUpdateDto postUpdateDto) {
+        checkFieldValid(postUpdateDto.getFieldList());
+        List<TechnologyStack> technologyStackList = getOrCreateTechnologyStacks(
+                postUpdateDto.getTechnologyStackList());
+        recruitmentInfo.updateRecuruitmentInfo(postUpdateDto, technologyStackList);
     }
 }

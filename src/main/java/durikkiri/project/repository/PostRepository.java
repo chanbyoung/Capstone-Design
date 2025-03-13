@@ -15,9 +15,8 @@ public interface PostRepository extends JpaRepository<Post,Long>, PostCustomRepo
            from Post p
            join fetch p.member m
            join fetch p.recruitmentInfo r
+           join fetch r.technologyStackList t
            join fetch r.fieldList f
-           join fetch r.recruitmentTechStackList t
-           join fetch t.technologyStack
            left join fetch p.image
            where p.id = :id
            """)

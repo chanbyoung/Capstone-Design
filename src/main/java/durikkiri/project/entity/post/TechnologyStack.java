@@ -22,9 +22,6 @@ public class TechnologyStack {
     @Column(name = "technology_stack_id")
     private Long id;
 
-    @OneToMany(mappedBy = "technologyStack")
-    private List<RecruitmentTechStack> recruitmentTechStackList;
-
     private String name;
 
     @Builder

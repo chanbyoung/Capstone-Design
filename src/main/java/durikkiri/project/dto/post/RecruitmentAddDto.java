@@ -3,6 +3,7 @@ package durikkiri.project.dto.post;
 import durikkiri.project.entity.post.Field;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.entity.post.RecruitmentInfo;
+import durikkiri.project.entity.post.TechnologyStack;
 import durikkiri.project.exception.BadRequestException;
 import java.time.LocalDate;
 import java.util.List;
@@ -23,7 +24,7 @@ public class RecruitmentAddDto {
 
     private List<FieldDto> fieldList;
 
-    public RecruitmentInfo toEntity(Post post) {
+    public RecruitmentInfo toEntity(Post post, List<TechnologyStack> technologyStackList) {
         if (this.startDate.isAfter(this.endDate)) {
             throw new BadRequestException("시작 날짜는 종료 날짜보다 이후일 수 없습니다.");
         }
@@ -42,7 +43,7 @@ public class RecruitmentAddDto {
                 .stream()
                 .toList();
 
-        recruitmentInfo.updateFiledList(addFieldList);
+        recruitmentInfo.updateList(addFieldList, technologyStackList);
 
         return recruitmentInfo;
     }

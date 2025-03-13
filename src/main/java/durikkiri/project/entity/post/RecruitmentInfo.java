@@ -44,7 +44,7 @@ public class RecruitmentInfo {
     private Post post;
 
     @OneToMany(mappedBy = "recruitmentInfo", cascade = CascadeType.PERSIST , orphanRemoval = true)
-    private List<RecruitmentTechStack> recruitmentTechStackList;
+    private List<TechnologyStack> technologyStackList;
 
     @OneToMany(mappedBy = "recruitmentInfo", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Field> fieldList;
@@ -60,7 +60,7 @@ public class RecruitmentInfo {
         this.endDate = endDate;
         this.status = status;
         this.post = post;
-        this.recruitmentTechStackList = new ArrayList<>();
+        this.technologyStackList = new ArrayList<>();
         this.fieldList = new ArrayList<>();
         this.appliesList = new ArrayList<>();
     }
@@ -77,11 +77,11 @@ public class RecruitmentInfo {
         }
     }
 
-    public void updateRecuruitmentInfo(PostUpdateDto postUpdateDto) {
-//        this.technologySkillList = postUpdateDto.getTechnologyStackList();
+    public void updateRecuruitmentInfo(PostUpdateDto postUpdateDto, List<TechnologyStack> technologyStackList) {
         this.startDate = postUpdateDto.getStartDate();
         this.endDate = postUpdateDto.getEndDate();
         fieldUpdate(postUpdateDto);
+        technologyStackUpdate(technologyStackList);
     }
 
     private void fieldUpdate(PostUpdateDto postUpdateDto) {
@@ -111,7 +111,30 @@ public class RecruitmentInfo {
                 });
     }
 
-    public void updateFiledList(List<Field> addFieldList) {
+    private void technologyStackUpdate(List<TechnologyStack> newTechnologyStackList) {
+        // 새로운 기술 스택을 id 기준으로 매핑
+        Map<Long, TechnologyStack> newTechMap = newTechnologyStackList.stream()
+                .collect(Collectors.toMap(TechnologyStack::getId, Function.identity()));
+
+        // 기존 기술 스택 중, 새로운 목록에 포함되지 않는 항목을 제거
+        Set<Long> processedTechIds = new HashSet<>();
+        this.technologyStackList.removeIf(existingTech -> {
+            Long techId = existingTech.getId();
+            if (newTechMap.containsKey(techId)) {
+                processedTechIds.add(techId);
+                return false;
+            }
+            return true; // 새로운 목록에 없으면 제거
+        });
+
+        // 새로운 기술 스택 중 기존에 없던 항목 추가
+        newTechMap.keySet().stream()
+                .filter(techId -> !processedTechIds.contains(techId))
+                .forEach(techId -> this.technologyStackList.add(newTechMap.get(techId)));
+    }
+
+    public void updateList(List<Field> addFieldList, List<TechnologyStack> technologyStackList) {
         this.fieldList = addFieldList;
+        this.technologyStackList = technologyStackList;
     }
 }

@@ -2,6 +2,7 @@ package durikkiri.project.dto.post;
 
 import durikkiri.project.dto.comment.CommentGetDto;
 import durikkiri.project.entity.post.Post;
+import durikkiri.project.entity.post.TechnologyStack;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
@@ -45,9 +46,9 @@ public class PostGetDto {
                 .toList();
 
         List<String> recruitmentTechStackList = post.getRecruitmentInfo()
-                .getRecruitmentTechStackList()
+                .getTechnologyStackList()
                 .stream()
-                .map(t -> t.getTechnologyStack().getName())
+                .map(TechnologyStack::getName)
                 .toList();
 
 
