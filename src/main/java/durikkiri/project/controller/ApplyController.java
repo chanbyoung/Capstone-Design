@@ -52,8 +52,8 @@ public class ApplyController {
     }
 
     @GetMapping("/{applyId}")
-    public ResponseEntity<ApplyGetDto> getApply(@PathVariable Long applyId) {
-        ApplyGetDto apply = applyService.getApply(applyId);
+    public ResponseEntity<ApplyGetDto> getApply(@PathVariable Long applyId, @AuthUser Long memberId) {
+        ApplyGetDto apply = applyService.getApply(applyId, memberId);
         return ResponseEntity.ok(apply);
     }
 

@@ -18,8 +18,6 @@ import static durikkiri.project.entity.QImage.*;
 import static durikkiri.project.entity.post.Category.*;
 import static durikkiri.project.entity.post.QPost.post;
 import static durikkiri.project.entity.post.QRecruitmentInfo.*;
-import static durikkiri.project.entity.post.QRecruitmentTechStack.*;
-import static durikkiri.project.entity.post.QTechnologyStack.*;
 
 @Repository
 @Slf4j
@@ -101,6 +99,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
                 .limit(10)
                 .fetch();
     }
+
     //마이페이지에서 현재 진행중인 프로젝트/스터디를 찾는 로직
     @Override
     public List<Post> progressProject(Member member) {
@@ -120,6 +119,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
         builder.and(apply.createdBy.eq(member.getNickname()));
         builder.and(apply.applyStatus.eq(ApplyStatus.ACCEPT));
     }
+
     @Override
     public List<Post> myRecruitingProject(Member member) {
         BooleanBuilder builder = new BooleanBuilder();

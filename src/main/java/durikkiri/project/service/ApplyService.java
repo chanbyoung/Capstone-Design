@@ -16,7 +16,7 @@ public interface ApplyService {
 
     void addApply(Long postId, ApplyAddDto applyAddDto, Long memberId);
 
-    ApplyGetDto getApply(Long applyId);
+    ApplyGetDto getApply(Long applyId, Long memberId);
 
     void updateApplyStatus(Long applyId, ApplyStatus applyStatus, Long memberId);
 

@@ -32,6 +32,7 @@ public class ApplyServiceImpl implements ApplyService {
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
 
+    //내가 작성한 게시글의 지원한 지원자들의 지원서 조회
     @Override
     public List<AppliesGetsDto> getApplies(Long memberId) {
         return applyRepository.findApply(memberId)
@@ -72,21 +73,23 @@ public class ApplyServiceImpl implements ApplyService {
             throw new BadRequestException("이미 모집이 완료된 게시글입니다.");
         }
         //중복 신청 방지
-//        boolean alreadyApplied = applyRepository.existsByPostAndMember(post, member);
-//        if (alreadyApplied) {
-//            throw new BadRequestException("You have already applied to this post");
-//        }
+        boolean alreadyApplied = member.getAppliesList().stream()
+                .anyMatch(apply -> apply.getRecruitmentInfo().equals(post.getRecruitmentInfo()));
+
+        if (alreadyApplied) {
+            throw new BadRequestException("You have already applied to this post");
+        }
     }
 
     @Override
     @Transactional
-    public ApplyGetDto getApply(Long applyId) {
-        Apply apply = applyRepository.findById(applyId)
+    public ApplyGetDto getApply(Long applyId, Long memberId) {
+        Apply apply = applyRepository.findApplyWithRecruitmentById(applyId)
                 .orElseThrow(() -> new NotFoundException("Apply not found"));
 
-        if (apply.getApplyStatus().equals(UNREAD)) {
-            apply.updateStatus(READ);
-        }
+        validateAuthorization(apply, memberId);
+        updateStatusIfUnread(apply, memberId);
+
         return ApplyGetDto.toDto(apply);
     }
 
@@ -110,7 +113,7 @@ public class ApplyServiceImpl implements ApplyService {
 
         // ACCEPT 또는 REJECT일 경우 추가 처리
         if (applyStatus.equals(ACCEPT) || applyStatus.equals(REJECT)) {
-            apply.postFieldUpdate(applyStatus.equals(ACCEPT));
+            apply.postFieldUpdate(applyStatus.equals(ACCEPT)); // true이면 필드도 업데이트 함
             apply.getRecruitmentInfo().updateStatus();
         }
     }
@@ -141,5 +144,23 @@ public class ApplyServiceImpl implements ApplyService {
             throw new ForbiddenException("User not authorized to delete this apply");
         }
         applyRepository.delete(apply);
+    }
+
+    private void validateAuthorization(Apply apply, Long memberId) {
+        boolean isApplicant = apply.getMember().getId().equals(memberId);
+        boolean isPostOwner = apply.getRecruitmentInfo().getPost().getMember().getId().equals(memberId);
+
+        if (!(isApplicant || isPostOwner)) {
+            throw new BadRequestException("잘못된 지원서 조회입니다.");
+        }
+    }
+
+    private void updateStatusIfUnread(Apply apply, Long memberId) {
+        boolean isUnread = apply.getApplyStatus().equals(UNREAD);
+        boolean isPostOwner = apply.getRecruitmentInfo().getPost().getMember().getId().equals(memberId);
+
+        if (isUnread && isPostOwner) {
+            apply.updateStatus(READ);
+        }
     }
 }

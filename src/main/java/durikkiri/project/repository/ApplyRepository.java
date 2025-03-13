@@ -14,11 +14,18 @@ public interface ApplyRepository extends JpaRepository<Apply, Long> {
     @Query("select a from Apply a join fetch a.recruitmentInfo r join fetch r.fieldList join fetch r.post.member where a.id = :id")
     Optional<Apply> findApplyWithPost(@Param("id") Long id);
     @Query("select a from Apply a join fetch a.recruitmentInfo r join fetch r.post p where p.member.id = :memberId")
-    //내가 작성한 게시글의 지원한 지원자들의 게시글 조회
     List<Apply> findApply(@Param("memberId") Long id);
 
-    // 특정 게시물에 대해 특정 회원의 신청이 존재하는지 확인
-//    boolean existsByPostAndMember(Post post, Member member);
     @Query("select a from Apply a join fetch a.recruitmentInfo r join fetch a.member m where m = :member")
     List<Apply> findMyApply(@Param("member") Member member);
+
+    @Query("""
+           SELECT a
+           FROM Apply a
+           JOIN FETCH a.recruitmentInfo r
+           JOIN FETCH r.post p
+           JOIN FETCH p.member m
+           WHERE a.id = :apply_id
+           """)
+    Optional<Apply> findApplyWithRecruitmentById(@Param("apply_id") Long applyId);
 }
