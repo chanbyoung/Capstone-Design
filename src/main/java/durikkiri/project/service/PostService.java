@@ -8,6 +8,7 @@ import durikkiri.project.dto.post.PostSearchContent;
 import durikkiri.project.dto.post.PostUpdateDto;
 import durikkiri.project.dto.post.PostsGetDto;
 import durikkiri.project.entity.post.Category;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,7 +20,7 @@ public interface PostService {
 
     void addPost(PostAddDto postAddDto, Long memberId, MultipartFile multipartFile) throws IOException;
 
-    Slice<PostsGetDto> getPosts(Pageable pageable, PostSearchContent postSearchContent);
+    Page<PostsGetDto> getPosts(Pageable pageable, PostSearchContent postSearchContent);
 
     PostGetDto getPost(Long postId, Long memberId, boolean flag);
 

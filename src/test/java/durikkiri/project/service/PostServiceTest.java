@@ -19,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -107,14 +108,14 @@ class PostServiceTest {
     void getPosts() {
         //given
         Pageable pageable = Pageable.unpaged();
-        PostSearchContent postSearchContent = new PostSearchContent(null, null, null, null, null, null);
+        PostSearchContent postSearchContent = new PostSearchContent();
         List<Post> posts = Arrays.asList(new Post(), new Post());
         PageImpl<Post> postPage = new PageImpl<>(posts);
 
-        when(postRepository.getPostsByCursor(any(Pageable.class), any(PostSearchContent.class))).thenReturn(postPage);
+        when(postRepository.getPostsByOffset(any(Pageable.class), any(PostSearchContent.class))).thenReturn(postPage);
 
         //when
-        Slice<PostsGetDto> result = postService.getPosts(pageable, postSearchContent);
+        Page<PostsGetDto> result = postService.getPosts(pageable, postSearchContent);
 
         //then
         assertEquals(posts.size(),result.getContent().size());

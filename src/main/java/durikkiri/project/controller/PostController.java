@@ -17,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
@@ -48,7 +49,7 @@ public class PostController {
     public ResponseEntity<PostResponseDto> getPosts(@PageableDefault Pageable pageable,
             @ModelAttribute PostSearchContent postSearchContent) {
         log.info("postSearchContent = {}", postSearchContent);
-        Slice<PostsGetDto> posts = postService.getPosts(pageable, postSearchContent);
+        Page<PostsGetDto> posts = postService.getPosts(pageable, postSearchContent);
         PostResponseDto responseDto = new PostResponseDto(posts);
         return ResponseEntity.ok(responseDto);
     }

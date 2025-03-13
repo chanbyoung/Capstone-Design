@@ -19,8 +19,8 @@ import durikkiri.project.service.RecruitmentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -69,8 +69,8 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Slice<PostsGetDto> getPosts(Pageable pageable, PostSearchContent postSearchContent) {
-        return postRepository.getPostsByCursor(pageable, postSearchContent).map(PostsGetDto::toDto);
+    public Page<PostsGetDto> getPosts(Pageable pageable, PostSearchContent postSearchContent) {
+        return postRepository.getPostsByOffset(pageable, postSearchContent).map(PostsGetDto::toDto);
     }
 
     @Override
