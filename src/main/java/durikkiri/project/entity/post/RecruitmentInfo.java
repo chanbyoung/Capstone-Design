@@ -43,7 +43,8 @@ public class RecruitmentInfo {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    @OneToMany(mappedBy = "recruitmentInfo", cascade = CascadeType.PERSIST , orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.PERSIST, orphanRemoval = true)
+    @JoinColumn(name = "recruitment_info_id")
     private List<TechnologyStack> technologyStackList;
 
     @OneToMany(mappedBy = "recruitmentInfo", cascade = CascadeType.ALL, orphanRemoval = true)
