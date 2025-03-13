@@ -1,7 +1,9 @@
 spring:
-  profiles:
-    active: local
-    include: my
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://mysql:3306/dorikkiri?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true
+    username: root
+    password: ${DB_ROOT_PASSWORD}
   jpa:
     hibernate:
        ddl-auto: update
@@ -10,6 +12,7 @@ spring:
         default_batch_fetch_size: 100
         # show_sql: true
         format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
   servlet:
     multipart:
       max-file-size: 50MB
@@ -18,7 +21,19 @@ spring:
     redis:
       host: localhost
       port: 6379
-
+  mail:
+    host: smtp.naver.com
+    port: 587
+    username: pcb7893@naver.com
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        starttls:
+          enable: true
+          auth: true
+          ssl:
+            enable:
+              true:
   mvc:
     static-path-pattern: /images/**
 
@@ -27,5 +42,10 @@ logging.level:
 #  org.springframework.web: TRACE
 
 file:
-  dir: /Users/bagchanbyeong/Documents/File/
+  dir: ${FILE_DIR}
 
+jwt:
+  secret: ${JWT_SECRET}
+
+host:
+  name : ${HOST_NAME}
