@@ -2,7 +2,7 @@ package durikkiri.project.entity.post;
 
 import durikkiri.project.entity.BaseEntity;
 import durikkiri.project.entity.Member;
-import durikkiri.project.entity.dto.comment.CommentDto;
+import durikkiri.project.dto.comment.CommentDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

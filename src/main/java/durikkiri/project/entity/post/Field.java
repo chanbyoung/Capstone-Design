@@ -1,6 +1,6 @@
 package durikkiri.project.entity.post;
 
-import durikkiri.project.entity.dto.post.FieldDto;
+import durikkiri.project.dto.post.FieldDto;
 import durikkiri.project.exception.RecruitmentException;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -17,11 +17,15 @@ public class Field {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    private Post post;
-    @Enumerated(EnumType.STRING)
-    private FieldCategory fieldCategory;
+    @JoinColumn(name = "recruitment_info_id")
+    private RecruitmentInfo recruitmentInfo;
+
+    private String fieldCategory;
+
     private int currentRecruitment;
+
     private int totalRecruitment;
 
     public void updateField(FieldDto fieldDto) {

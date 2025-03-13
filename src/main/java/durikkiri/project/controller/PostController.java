@@ -1,12 +1,15 @@
 package durikkiri.project.controller;
 
 import durikkiri.project.annotation.AuthUser;
-import durikkiri.project.entity.dto.HomeGetDto;
-import durikkiri.project.entity.dto.post.PostResponseDto;
-import durikkiri.project.entity.dto.comment.CommentDto;
-import durikkiri.project.entity.dto.post.*;
+import durikkiri.project.dto.HomeGetDto;
+import durikkiri.project.dto.post.GeneralPostGetDto;
+import durikkiri.project.dto.post.PostAddDto;
+import durikkiri.project.dto.post.PostGetDto;
+import durikkiri.project.dto.post.PostResponseDto;
+import durikkiri.project.dto.post.PostSearchContent;
+import durikkiri.project.dto.post.PostUpdateDto;
+import durikkiri.project.dto.post.PostsGetDto;
 import durikkiri.project.entity.post.Category;
-import durikkiri.project.security.CustomUserDetails;
 import durikkiri.project.service.PostService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +17,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.web.PageableDefault;
@@ -36,15 +40,16 @@ import java.util.Map;
 @Slf4j
 public class PostController {
 
-    private final PostService postService;
     private static final String VIEWED_COOKIE_PREFIX = "viewed_";
     private static final int COOKIE_EXPIRE_SECONDS = 24 * 60 * 60; // 24 hours
+
+    private final PostService postService;
 
     @GetMapping
     public ResponseEntity<PostResponseDto> getPosts(@PageableDefault Pageable pageable,
             @ModelAttribute PostSearchContent postSearchContent) {
         log.info("postSearchContent = {}", postSearchContent);
-        Slice<PostsGetDto> posts = postService.getPosts(pageable, postSearchContent);
+        Page<PostsGetDto> posts = postService.getPosts(pageable, postSearchContent);
         PostResponseDto responseDto = new PostResponseDto(posts);
         return ResponseEntity.ok(responseDto);
     }
@@ -81,6 +86,20 @@ public class PostController {
         }
         PostGetDto post = postService.getPost(postId, memberId, shouldIncreaseViewCount);
         return new ResponseEntity<>(post, HttpStatus.OK);
+    }
+
+    @GetMapping("/{postId}/general")
+    public ResponseEntity<GeneralPostGetDto> getGeneralPost(@PathVariable Long postId,
+            @AuthUser Long memberId, HttpServletRequest request, HttpServletResponse response) {
+        Cookie viewCookie = findViewCookie(postId, request);
+        boolean shouldIncreaseViewCount = (viewCookie == null);
+        if (shouldIncreaseViewCount) {
+            addViewCountCookie(postId, response);
+        }
+        GeneralPostGetDto generalPost = postService.getGeneralPost(postId, memberId,
+                shouldIncreaseViewCount);
+
+        return ResponseEntity.ok(generalPost);
     }
 
     private void addViewCountCookie(Long postId, HttpServletResponse response) {
@@ -123,26 +142,6 @@ public class PostController {
             @AuthUser Long memberId) {
         postService.deletePost(postId, memberId);
         return new ResponseEntity<>("Post deleted successfully", HttpStatus.OK);
-    }
-
-    @PostMapping("/{postId}/comment")
-    public ResponseEntity<String> addComment(@PathVariable Long postId,
-            @RequestBody CommentDto commentDto) {
-        postService.addComment(postId, commentDto);
-        return new ResponseEntity<>("Comment added successfully", HttpStatus.CREATED);
-    }
-
-    @PatchMapping("/{postId}/comment/{commentId}")
-    public ResponseEntity<String> updateComment(@PathVariable Long commentId,
-            @RequestBody CommentDto commentDto) {
-        postService.updateComment(commentId, commentDto);
-        return new ResponseEntity<>("Comment updated successfully", HttpStatus.OK);
-    }
-
-    @DeleteMapping("/{postId}/comment/{commentId}")
-    public ResponseEntity<String> deleteComment(@PathVariable Long commentId) {
-        postService.deleteComment(commentId);
-        return new ResponseEntity<>("Comment deleted successfully", HttpStatus.OK);
     }
 
 

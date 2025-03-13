@@ -1,7 +1,12 @@
 package durikkiri.project.controller;
 
 import durikkiri.project.annotation.AuthUser;
-import durikkiri.project.entity.dto.message.*;
+import durikkiri.project.dto.message.ConversationGetDto;
+import durikkiri.project.dto.message.ConversationRequestDto;
+import durikkiri.project.dto.message.ConversationsGetDto;
+import durikkiri.project.dto.message.MessageCreateDto;
+import durikkiri.project.dto.message.MessageDto;
+import durikkiri.project.dto.message.MessageUpdateDto;
 import durikkiri.project.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

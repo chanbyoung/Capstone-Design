@@ -1,6 +1,6 @@
 package durikkiri.project.security;
 
-import durikkiri.project.entity.dto.auth.RefreshTokenInfoDto;
+import durikkiri.project.dto.auth.RefreshTokenInfoDto;
 import durikkiri.project.exception.BadRequestException;
 import durikkiri.project.repository.RedisRepository;
 import io.jsonwebtoken.*;

@@ -1,84 +1,102 @@
 package durikkiri.project.repository;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import durikkiri.project.entity.*;
 import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Post;
-import durikkiri.project.entity.dto.post.PostSearchContent;
-import durikkiri.project.entity.post.QField;
-import durikkiri.project.entity.post.TechnologyStack;
+import durikkiri.project.dto.post.PostSearchContent;
+import durikkiri.project.entity.post.QTechnologyStack;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import org.springframework.util.CollectionUtils;
 
 import static durikkiri.project.entity.QApply.*;
 import static durikkiri.project.entity.QImage.*;
 import static durikkiri.project.entity.post.Category.*;
-import static durikkiri.project.entity.post.QField.*;
 import static durikkiri.project.entity.post.QPost.post;
-import static durikkiri.project.entity.post.RecruitmentStatus.*;
+import static durikkiri.project.entity.post.QRecruitmentInfo.*;
+import static durikkiri.project.entity.post.QTechnologyStack.*;
 
 @Repository
 @Slf4j
 @RequiredArgsConstructor
 public class PostCustomRepositoryImpl implements PostCustomRepository {
+
+    private static final String OPEN = "open";
+
     private final JPAQueryFactory query;
     @Override
-    public Slice<Post> getPostsByCursor(Pageable pageable, PostSearchContent postSearchContent) {
-        BooleanBuilder builder = searchCondition(postSearchContent);
+    public Page<Post> getPostsByOffset(Pageable pageable, PostSearchContent postSearchContent) {
+        BooleanExpression condition = buildSearchConditionForOffset(postSearchContent);
 
-        List<Post> posts = query.select(post)
-                .from(post)
+        OrderSpecifier<?> orderSpecifier =
+                (postSearchContent.getCreatedByAsc() != null && postSearchContent.getCreatedByAsc())
+                        ? post.createdAt.asc()
+                        : post.createdAt.desc();
+
+        List<Post> posts = query.selectFrom(post)
+                .distinct() // 조인으로 인한 중복 제거
                 .leftJoin(post.image, image).fetchJoin()
-                .where(builder)
-                .orderBy(post.createdAt.desc(), post.id.desc())
-                .limit(pageable.getPageSize() + 1)
+                .join(post.recruitmentInfo, recruitmentInfo).fetchJoin()
+                .join(recruitmentInfo.technologyStackList, technologyStack).fetchJoin()
+                .where(condition)
+                .orderBy(orderSpecifier)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
-        boolean hasNext = posts.size() > pageable.getPageSize();
-        if (hasNext) {
-            posts.remove(posts.size() - 1);
-        }
-        log.info("dslpostRepository.hasNext = {}" , hasNext);
-        return new SliceImpl<>(posts, pageable, hasNext);
+
+        JPAQuery<Long> count = query.select(post.count())
+                .from(post)
+                .where(condition);
+
+        return PageableExecutionUtils.getPage(posts, pageable, count::fetchOne);
     }
 
-    private static BooleanBuilder searchCondition(PostSearchContent postSearchContent) {
-        BooleanBuilder builder = new BooleanBuilder();
-        builder.and(post.status.eq(Y));
-        if (postSearchContent != null) {
-            if (postSearchContent.getCategory() != null) {
-                builder.and(post.category.eq(postSearchContent.getCategory()));
-            }
-            if (postSearchContent.getTitle() != null) {
-                builder.and(post.title.contains(postSearchContent.getTitle()));
-            }
-            if (postSearchContent.getCreatedBy() != null) {
-                builder.and(post.createdBy.contains(postSearchContent.getCreatedBy()));
-            }
-            if (postSearchContent.getTechnologyStackList() != null && !postSearchContent.getTechnologyStackList().isEmpty()) {
-                builder.and(post.technologyStackList.any().in(postSearchContent.getTechnologyStackList()));
-            }
-            if (postSearchContent.getCursorCreatedAt() != null) {
-                builder.and(
-                        post.createdAt.lt(postSearchContent.getCursorCreatedAt())
-                                .or(post.createdAt.eq(postSearchContent.getCursorCreatedAt()).and(post.id.lt(postSearchContent.getCursorId())))
-                );
-            }
+    private BooleanExpression buildSearchConditionForOffset(PostSearchContent content) {
+        if (content == null) {
+            return null;
         }
-        return builder;
+
+        // 기본 조건: 항상 true인 조건으로 시작
+        BooleanExpression predicate = Expressions.asBoolean(true).isTrue();
+
+        if (!content.getWithClosed()) {
+            predicate.and(post.recruitmentInfo.status.eq(OPEN));
+        }
+        if (content.getCategory() != null) {
+            predicate = predicate.and(post.category.eq(content.getCategory()));
+        }
+        if (content.getTitle() != null) {
+            predicate = predicate.and(post.title.contains(content.getTitle()));
+        }
+        if (!CollectionUtils.isEmpty(content.getTechnologyStackList())) {
+            predicate = predicate.and(
+                    post.recruitmentInfo.technologyStackList.any()
+                            .technologyStack.name.in(content.getTechnologyStackList())
+            );
+        }
+        return predicate;
     }
     @Override
     public List<Post> getLikePostList(Category category) {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(post.category.eq(category));
-        builder.and(post.status.eq(Y));
+        builder.and(post.recruitmentInfo.status.eq(OPEN));
         return query.select(post)
                 .from(post)
                 .leftJoin(post.image, image)
+                .fetchJoin()
+                .leftJoin(post.recruitmentInfo, recruitmentInfo)
                 .fetchJoin()
                 .where(builder)
                 .orderBy(post.likeCount.desc())
@@ -86,6 +104,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
                 .limit(10)
                 .fetch();
     }
+
     //마이페이지에서 현재 진행중인 프로젝트/스터디를 찾는 로직
     @Override
     public List<Post> progressProject(Member member) {
@@ -94,7 +113,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
 
         return query.select(post)
                 .from(post)
-                .leftJoin(post.appliesList, apply)
+                .join(post.recruitmentInfo, recruitmentInfo)
                 .fetchJoin()
                 .where(builder)
                 .fetch();
@@ -105,11 +124,11 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
         builder.and(apply.createdBy.eq(member.getNickname()));
         builder.and(apply.applyStatus.eq(ApplyStatus.ACCEPT));
     }
+
     @Override
     public List<Post> myRecruitingProject(Member member) {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(post.member.eq(member));
-        builder.and(post.status.eq(Y));
         builder.and(post.category.notIn(GENERAL));
         return query.select(post)
                 .from(post)
@@ -131,7 +150,7 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
 
         return query.select(post)
                 .from(post)
-                .join(post.appliesList, apply).fetchJoin()
+//                .join(post.appliesList, apply).fetchJoin()
                 .join(apply.member, QMember.member).fetchJoin()
                 .where(apply.member.eq(member))
                 .distinct()

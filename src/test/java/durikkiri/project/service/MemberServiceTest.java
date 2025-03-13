@@ -1,12 +1,11 @@
 package durikkiri.project.service;
 
 import durikkiri.project.entity.Member;
-import durikkiri.project.entity.dto.auth.ExistDto;
-import durikkiri.project.entity.dto.member.MemberGetDto;
-import durikkiri.project.entity.dto.member.MemberUpdateDto;
-import durikkiri.project.entity.dto.member.SignInDto;
-import durikkiri.project.entity.dto.member.SignUpDto;
-import durikkiri.project.entity.post.Post;
+import durikkiri.project.dto.auth.ExistDto;
+import durikkiri.project.dto.member.MemberGetDto;
+import durikkiri.project.dto.member.MemberUpdateDto;
+import durikkiri.project.dto.member.SignInDto;
+import durikkiri.project.dto.member.SignUpDto;
 import durikkiri.project.exception.AuthenticationException;
 import durikkiri.project.repository.LikeRepository;
 import durikkiri.project.repository.MemberRepository;
@@ -14,7 +13,6 @@ import durikkiri.project.repository.PostRepository;
 import durikkiri.project.security.JwtToken;
 import durikkiri.project.security.JwtTokenProvider;
 import durikkiri.project.service.impl.MemberServiceImpl;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

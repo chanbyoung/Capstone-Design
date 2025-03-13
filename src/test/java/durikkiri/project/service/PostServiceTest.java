@@ -1,8 +1,12 @@
 package durikkiri.project.service;
 
+import durikkiri.project.dto.post.PostAddDto;
+import durikkiri.project.dto.post.PostGetDto;
+import durikkiri.project.dto.post.PostSearchContent;
+import durikkiri.project.dto.post.PostUpdateDto;
+import durikkiri.project.dto.post.PostsGetDto;
 import durikkiri.project.entity.Image;
 import durikkiri.project.entity.Member;
-import durikkiri.project.entity.dto.post.*;
 import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Post;
 import durikkiri.project.exception.BadRequestException;
@@ -15,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -90,7 +95,7 @@ class PostServiceTest {
         //given
         PostAddDto postAddDto = new PostAddDto();
         postAddDto.setCategory(Category.PROJECT);
-        postAddDto.setFieldList(new ArrayList<>());
+//        postAddDto.setFieldList(new ArrayList<>());
 
         //then
         assertThrows(BadRequestException.class,
@@ -103,14 +108,14 @@ class PostServiceTest {
     void getPosts() {
         //given
         Pageable pageable = Pageable.unpaged();
-        PostSearchContent postSearchContent = new PostSearchContent(null, null, null, null, null, null);
+        PostSearchContent postSearchContent = new PostSearchContent();
         List<Post> posts = Arrays.asList(new Post(), new Post());
         PageImpl<Post> postPage = new PageImpl<>(posts);
 
-        when(postRepository.getPostsByCursor(any(Pageable.class), any(PostSearchContent.class))).thenReturn(postPage);
+        when(postRepository.getPostsByOffset(any(Pageable.class), any(PostSearchContent.class))).thenReturn(postPage);
 
         //when
-        Slice<PostsGetDto> result = postService.getPosts(pageable, postSearchContent);
+        Page<PostsGetDto> result = postService.getPosts(pageable, postSearchContent);
 
         //then
         assertEquals(posts.size(),result.getContent().size());
@@ -125,7 +130,7 @@ class PostServiceTest {
                 .category(Category.GENERAL)
                 .member(mock(Member.class))
                 .commentList(new ArrayList<>())
-                .fieldList(new ArrayList<>())
+//                .fieldList(new ArrayList<>())
                 .viewCount(0L)
                 .build();
         when(postRepository.findPostWithField(1L)).thenReturn(Optional.of(testPost));

@@ -1,25 +1,26 @@
 package durikkiri.project.service.impl;
 
+import durikkiri.project.dto.post.GeneralPostGetDto;
+import durikkiri.project.dto.post.PostAddDto;
+import durikkiri.project.dto.post.PostGetDto;
+import durikkiri.project.dto.post.PostSearchContent;
+import durikkiri.project.dto.post.PostUpdateDto;
+import durikkiri.project.dto.post.PostUserStatusDto;
+import durikkiri.project.dto.post.PostsGetDto;
 import durikkiri.project.entity.Member;
 import durikkiri.project.entity.Image;
-import durikkiri.project.entity.dto.HomeGetDto;
-import durikkiri.project.entity.dto.comment.CommentDto;
-import durikkiri.project.entity.dto.post.*;
+import durikkiri.project.dto.HomeGetDto;
 import durikkiri.project.entity.post.Category;
-import durikkiri.project.entity.post.Comment;
 import durikkiri.project.entity.post.Post;
-import durikkiri.project.entity.post.RecruitmentStatus;
 import durikkiri.project.exception.*;
 import durikkiri.project.repository.*;
-import durikkiri.project.security.CustomUserDetails;
 import durikkiri.project.service.PostService;
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
+import durikkiri.project.service.RecruitmentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,8 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static durikkiri.project.entity.post.Category.*;
 
@@ -38,12 +37,13 @@ import static durikkiri.project.entity.post.Category.*;
 @Slf4j
 public class PostServiceImpl implements PostService {
 
+    private final static Long GUEST_USER = -1L;
+
+    private final RecruitmentService recruitmentService;
     private final PostRepository postRepository;
     private final ImageRepository imageRepository;
     private final LikeRepository likeRepository;
-    private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
-    private final Validator validator;
     @Value("${file.dir}")
     private String fileDir;
 
@@ -53,36 +53,45 @@ public class PostServiceImpl implements PostService {
             throws IOException {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ForbiddenException("User not found"));
-        if (!postAddDto.getCategory().equals(GENERAL)) {
-            checkFieldValid(postAddDto.getFieldList());
-        }
-        Post savePost = postRepository.save(postAddDto.toEntity(member));
-        if (image != null) {
-            Image saveImage = imageRepository.save(Image.toEntity(image, fileDir, savePost));
-            log.info("File saved fullPath = {}", saveImage.getFullPath());
-            image.transferTo(new File(saveImage.getFullPath()));
-        }
-    }
 
-    private void checkFieldValid(List<FieldDto> fieldDtoList) {
-        if (fieldDtoList.isEmpty()) {
-            throw new BadRequestException("Field list is empty for non-general category");
-        }
-        for (FieldDto fieldDto : fieldDtoList) {
-            Set<ConstraintViolation<FieldDto>> violations = validator.validate(fieldDto);
-            if (!violations.isEmpty()) {
-                String errorMessage = violations.stream()
-                        .map(ConstraintViolation::getMessage)
-                        .collect(Collectors.joining(", "));
-                throw new BadRequestException("Field validation failed: " + errorMessage);
-            }
+        // 게시글 저장
+        Post savedPost = postRepository.save(postAddDto.toEntity(member));
+
+        // 게시글이 일반 게시글이 아닌 경우 모집 정보 처리
+        if (!postAddDto.isGeneralCategory()) {
+            recruitmentService.processRecruitmentInfo(postAddDto.getRecruitmentAddDto(), savedPost);
         }
 
+        // 이미지 처리
+        if (image != null && !image.isEmpty()) {
+            processImage(image, savedPost);
+        }
     }
 
     @Override
-    public Slice<PostsGetDto> getPosts(Pageable pageable, PostSearchContent postSearchContent) {
-        return postRepository.getPostsByCursor(pageable, postSearchContent).map(PostsGetDto::toDto);
+    public Page<PostsGetDto> getPosts(Pageable pageable, PostSearchContent postSearchContent) {
+        return postRepository.getPostsByOffset(pageable, postSearchContent).map(PostsGetDto::toDto);
+    }
+
+    @Override
+    @Transactional
+    public GeneralPostGetDto getGeneralPost(Long postId, Long memberId, boolean flag) {
+        Post post = postRepository.findPostWithMember(postId)
+                .orElseThrow(() -> new NotFoundException("Post not found"));
+
+        // 조회수 추가
+        if (flag) post.updateViewCount();
+
+        // 로그인 하지 않은 사용자의 경우 게시글만 반환
+        if (memberId.equals(GUEST_USER)) {
+            return GeneralPostGetDto.toDto(post, new PostUserStatusDto());
+        }
+
+        // 좋아요 표시 여부 및 작성자 여부
+        PostUserStatusDto postUserStatusDto = getPostAuthInfo(memberId, postId,
+                post.getMember().getId());
+
+        return GeneralPostGetDto.toDto(post, postUserStatusDto);
     }
 
     @Override
@@ -90,35 +99,27 @@ public class PostServiceImpl implements PostService {
     public PostGetDto getPost(Long postId, Long memberId, boolean flag) {
         Post post = postRepository.findPostWithField(postId)
                 .orElseThrow(() -> new NotFoundException("Post not found"));
-        if (flag) {
-            post.updateViewCount();
+
+        // 조회수 추가
+        if (flag) post.updateViewCount();
+
+        // 로그인 하지 않은 사용자의 경우 게시글만 반환
+        if (memberId.equals(GUEST_USER)) {
+            return PostGetDto.toDto(post, new PostUserStatusDto());
         }
-        if (!post.getCategory().equals(GENERAL)) {
-            post.updateStatus();
-        }
-        if (memberId.equals(-1)) {
-            return PostGetDto.toDto(post, new PostUserStatusDto(null, null));
-        }
+
+        // 좋아요 표시 여부 및 작성자 여부
         PostUserStatusDto postUserStatusDto = getPostAuthInfo(memberId, postId,
                 post.getMember().getId());
 
         return PostGetDto.toDto(post, postUserStatusDto);
     }
 
-    private PostUserStatusDto getPostAuthInfo(Long memberId, Long postId,
-            Long postOwnerId) {
-
-        boolean isLiked = likeRepository.findByPostIdAndMemberId(postId, memberId)
-                .isPresent();
-        boolean isOwner = postOwnerId.equals(memberId);
-
-        return new PostUserStatusDto(isLiked, isOwner);
-    }
 
 
     @Override
     public List<HomeGetDto> getHome() {
-        return postRepository.getHome(GENERAL, RecruitmentStatus.Y).stream().map(HomeGetDto::toDto)
+        return postRepository.getHome(GENERAL).stream().map(HomeGetDto::toDto)
                 .toList();
     }
 
@@ -140,7 +141,7 @@ public class PostServiceImpl implements PostService {
             throw new BadRequestException("시작 날짜는 종료 날짜보다 이후일 수 없습니다.");
         }
         if (!postUpdateDto.getCategory().equals(GENERAL)) {
-            checkFieldValid(postUpdateDto.getFieldList());
+            recruitmentService.updateRecruitmentInfo(post.getRecruitmentInfo(), postUpdateDto);
         }
         post.updatePost(postUpdateDto);
         updateImage(image, post);
@@ -186,28 +187,38 @@ public class PostServiceImpl implements PostService {
         }
     }
 
-    @Override
-    @Transactional
-    public void addComment(Long postId, CommentDto commentDto) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new NotFoundException("Post not found"));
-        post.updateComment(commentDto.toEntity(post));
+    /**
+     * 이미지 파일을 저장합니다.
+     */
+    private void processImage(MultipartFile image, Post post) throws IOException {
+        try {
+            // Image 엔티티 생성 및 DB 저장
+            Image savedImage = imageRepository.save(Image.toEntity(image, fileDir, post));
+            log.info("Image entity saved with fullPath: {}", savedImage.getFullPath());
+
+            // 파일 저장을 위한 경로 확인 및 디렉토리 생성
+            File targetFile = new File(savedImage.getFullPath());
+            if (!targetFile.getParentFile().exists() && !targetFile.getParentFile().mkdirs()) {
+                throw new IOException("Failed to create directory for image storage");
+            }
+
+            // 실제 파일 저장
+            image.transferTo(targetFile);
+            log.info("Image file saved successfully at: {}", targetFile.getAbsolutePath());
+        } catch (IOException e) {
+            log.error("Failed to process image for post id {}: {}", post.getId(), e.getMessage());
+            throw e;
+        }
     }
 
-    @Override
-    @Transactional
-    public void updateComment(Long commentId, CommentDto commentDto) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new NotFoundException("Comment not found"));
-        comment.updateComment(commentDto);
-    }
+    private PostUserStatusDto getPostAuthInfo(Long memberId, Long postId,
+            Long postOwnerId) {
 
-    @Override
-    @Transactional
-    public void deleteComment(Long commentId) {
-        Comment comment = commentRepository.findById(commentId)
-                .orElseThrow(() -> new NotFoundException("Comment not found"));
-        commentRepository.delete(comment);
+        boolean isLiked = likeRepository.findByPostIdAndMemberId(postId, memberId)
+                .isPresent();
+        boolean isOwner = postOwnerId.equals(memberId);
+
+        return new PostUserStatusDto(isLiked, isOwner);
     }
 
 }

@@ -1,12 +1,12 @@
 package durikkiri.project.controller;
 
 import durikkiri.project.annotation.AuthUser;
-import durikkiri.project.entity.dto.auth.ExistDto;
-import durikkiri.project.entity.dto.auth.FindDto;
-import durikkiri.project.entity.dto.member.MemberGetDto;
-import durikkiri.project.entity.dto.member.MemberUpdateDto;
-import durikkiri.project.entity.dto.member.SignInDto;
-import durikkiri.project.entity.dto.member.SignUpDto;
+import durikkiri.project.dto.auth.ExistDto;
+import durikkiri.project.dto.auth.FindDto;
+import durikkiri.project.dto.member.MemberGetDto;
+import durikkiri.project.dto.member.MemberUpdateDto;
+import durikkiri.project.dto.member.SignInDto;
+import durikkiri.project.dto.member.SignUpDto;
 import durikkiri.project.exception.BadRequestException;
 import durikkiri.project.security.JwtToken;
 import durikkiri.project.service.MailService;

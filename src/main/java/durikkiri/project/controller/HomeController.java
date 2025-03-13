@@ -1,6 +1,6 @@
 package durikkiri.project.controller;
 
-import durikkiri.project.entity.dto.HomeGetDto;
+import durikkiri.project.dto.HomeGetDto;
 import durikkiri.project.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

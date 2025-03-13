@@ -1,6 +1,6 @@
 package durikkiri.project.repository;
 
-import durikkiri.project.entity.dto.auth.RefreshTokenInfoDto;
+import durikkiri.project.dto.auth.RefreshTokenInfoDto;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
