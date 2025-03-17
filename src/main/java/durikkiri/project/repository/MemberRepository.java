@@ -18,7 +18,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
            SELECT m
            FROM Member m
            LEFT JOIN FETCH m.appliesList
-           WHERE m.id = :memberId
+           WHERE m.id = :id
            """)
     Optional<Member> findMemberWithApplyById(@Param("id") Long id);
 

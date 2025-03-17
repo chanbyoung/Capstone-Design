@@ -48,7 +48,6 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
                 .distinct() // 조인으로 인한 중복 제거
                 .leftJoin(post.image, image).fetchJoin()
                 .join(post.recruitmentInfo, recruitmentInfo).fetchJoin()
-                .join(recruitmentInfo.technologyStackList, technologyStack).fetchJoin()
                 .where(condition)
                 .orderBy(orderSpecifier)
                 .offset(pageable.getOffset())
@@ -70,20 +69,15 @@ public class PostCustomRepositoryImpl implements PostCustomRepository {
         // 기본 조건: 항상 true인 조건으로 시작
         BooleanExpression predicate = Expressions.asBoolean(true).isTrue();
 
-        if (!content.getWithClosed()) {
-            predicate.and(post.recruitmentInfo.status.eq(OPEN));
+        // withClosed가 null이면 기본값 false로 처리
+        if (Boolean.FALSE.equals(content.getWithClosed())) {
+            predicate = predicate.and(post.recruitmentInfo.status.eq(OPEN));
         }
         if (content.getCategory() != null) {
             predicate = predicate.and(post.category.eq(content.getCategory()));
         }
         if (content.getTitle() != null) {
             predicate = predicate.and(post.title.contains(content.getTitle()));
-        }
-        if (!CollectionUtils.isEmpty(content.getTechnologyStackList())) {
-            predicate = predicate.and(
-                    post.recruitmentInfo.technologyStackList.any()
-                            .technologyStack.name.in(content.getTechnologyStackList())
-            );
         }
         return predicate;
     }

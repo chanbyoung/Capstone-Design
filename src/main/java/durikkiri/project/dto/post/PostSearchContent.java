@@ -17,7 +17,5 @@ public class PostSearchContent {
     private Boolean withClosed;
     private Boolean createdByAsc;
     private List<String> technologyStackList;
-    private Long cursorId;
-    private LocalDateTime cursorCreatedAt;
 
 }

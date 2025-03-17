@@ -2,6 +2,7 @@ package durikkiri.project.dto.post;
 
 import durikkiri.project.entity.post.Category;
 import durikkiri.project.entity.post.Post;
+import durikkiri.project.entity.post.TechnologyStack;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -20,13 +21,16 @@ public class PostsGetDto {
     private Long viewCount;
     private Long likeCount;
     static public PostsGetDto toDto(Post post) {
+        List<String> techList = post.getRecruitmentInfo().getTechnologyStackList().stream()
+                .map(TechnologyStack::getName)
+                .toList();
         return PostsGetDto.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .category(post.getCategory())
                 .createdBy(post.getCreatedBy())
                 .createdAt(post.getCreatedAt())
-//                .technologyStackList(post.getRecruitmentInfo().getRecruitmentTechStackList())
+                .technologyStackList(techList)
                 .likeCount(post.getLikeCount())
                 .viewCount(post.getViewCount()).build();
     }
