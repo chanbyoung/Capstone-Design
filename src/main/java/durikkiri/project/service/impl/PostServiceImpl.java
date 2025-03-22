@@ -55,7 +55,7 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new ForbiddenException("User not found"));
 
         // 게시글 저장
-        Post savedPost = postRepository.save(postAddDto.toEntity(member));
+        Post savedPost = postRepository.save(Post.of(postAddDto, member));
 
         // 게시글이 일반 게시글이 아닌 경우 모집 정보 처리
         if (!postAddDto.isGeneralCategory()) {

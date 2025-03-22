@@ -26,19 +26,6 @@ public class PostAddDto {
 
     private RecruitmentAddDto recruitmentAddDto;
 
-    public Post toEntity(Member member) {
-
-        Post post = Post.builder()
-                .title(title)
-                .category(category)
-                .member(member)
-                .commentList(new ArrayList<>())
-                .content(content)
-                .likeCount(0L)
-                .viewCount(0L)
-                .build();
-        return post;
-    }
 
     public boolean isGeneralCategory() {
         return category == Category.GENERAL;

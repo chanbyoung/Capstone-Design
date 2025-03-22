@@ -1,5 +1,6 @@
 package durikkiri.project.entity.post;
 
+import durikkiri.project.dto.post.PostAddDto;
 import durikkiri.project.entity.BaseEntity;
 import durikkiri.project.entity.Image;
 import durikkiri.project.entity.Member;
@@ -53,8 +54,6 @@ public class Post extends BaseEntity {
         this.content = postUpdateDto.getContent();
     }
 
-
-
     public void updateViewCount() {
         this.viewCount ++;
     }
@@ -71,4 +70,16 @@ public class Post extends BaseEntity {
         this.commentList.add(comment);
     }
 
+
+    public static Post of(PostAddDto postAddDto, Member member) {
+        return Post.builder()
+                .title(postAddDto.getTitle())
+                .category(postAddDto.getCategory())
+                .member(member)
+                .commentList(new ArrayList<>())
+                .content(postAddDto.getContent())
+                .likeCount(0L)
+                .viewCount(0L)
+                .build();
+    }
 }
