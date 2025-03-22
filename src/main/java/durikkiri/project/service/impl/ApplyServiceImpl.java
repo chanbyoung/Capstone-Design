@@ -60,8 +60,7 @@ public class ApplyServiceImpl implements ApplyService {
                 .orElseThrow(() -> new NotFoundException("Post not found"));
         valid(post, member);
 
-        Apply apply = applyAddDto.toEntity(post, member);
-        applyRepository.save(apply);
+        applyRepository.save(Apply.of(applyAddDto, post, member));
     }
 
     private void valid(Post post, Member member) {

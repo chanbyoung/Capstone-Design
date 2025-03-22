@@ -17,18 +17,4 @@ public class ApplyAddDto {
     @NotBlank
     private String content;
 
-    public Apply toEntity(Post post,Member member) {
-        return post.getRecruitmentInfo().getFieldList().stream()
-                .filter(field -> field.getFieldCategory().equals(fieldCategory))
-                .findFirst()
-                .map(field -> Apply.builder()
-                        .fieldCategory(fieldCategory)
-//                        .post(post)
-                        .member(member)
-                        .content(content)
-                        .applyStatus(UNREAD)
-                        .build())
-                .orElse(null);
-    }
-
 }

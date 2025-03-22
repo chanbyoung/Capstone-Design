@@ -1,7 +1,11 @@
 package durikkiri.project.entity;
 
+import static durikkiri.project.entity.ApplyStatus.UNREAD;
+
+import durikkiri.project.dto.apply.ApplyAddDto;
 import durikkiri.project.dto.apply.ApplyUpdateDto;
 import durikkiri.project.entity.post.Field;
+import durikkiri.project.entity.post.Post;
 import durikkiri.project.entity.post.RecruitmentInfo;
 import jakarta.persistence.*;
 import lombok.*;
@@ -50,5 +54,15 @@ public class Apply extends BaseEntity {
 
     public void updateContent(ApplyUpdateDto applyUpdateDto) {
         this.content = applyUpdateDto.getContent();
+    }
+
+    public static Apply of(ApplyAddDto applyAddDto, Post post, Member member) {
+        return Apply.builder()
+                .fieldCategory(applyAddDto.getFieldCategory())
+                .recruitmentInfo(post.getRecruitmentInfo())
+                .member(member)
+                .content(applyAddDto.getContent())
+                .applyStatus(UNREAD)
+                .build();
     }
 }
