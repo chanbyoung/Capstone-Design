@@ -12,6 +12,7 @@ import durikkiri.project.exception.NotFoundException;
 import durikkiri.project.repository.LikeRepository;
 import durikkiri.project.repository.MemberRepository;
 import durikkiri.project.repository.PostRepository;
+import durikkiri.project.repository.RedisRepository;
 import durikkiri.project.security.JwtToken;
 import durikkiri.project.security.JwtTokenProvider;
 import durikkiri.project.service.MemberService;
@@ -36,8 +37,8 @@ import java.util.concurrent.TimeUnit;
 public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final PostRepository postRepository;
+    private final RedisRepository redisRepository;
     private final AuthenticationManager authenticationManager;
-    private final RedisTemplate<String, Object> redisTemplate;
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
     private final LikeRepository likeRepository;
@@ -51,7 +52,7 @@ public class MemberServiceImpl implements MemberService {
         String encodedPassword = passwordEncoder.encode(signUpDto.getPassword());
         ArrayList<String> roles = new ArrayList<>();
         roles.add("USER");
-        Member member = memberRepository.save(signUpDto.toEntity(encodedPassword, roles));
+        Member member = memberRepository.save(Member.of(signUpDto, encodedPassword, roles));
         if (member.getId() == null) {
             throw new RuntimeException("Failed to sign up member");
         }
@@ -77,7 +78,8 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public void logout(String jwtToken) {
         long expiration = jwtTokenProvider.getExpiration(jwtToken);
-        redisTemplate.opsForValue().set(jwtToken, "blacklisted", expiration, TimeUnit.MILLISECONDS);
+        String memberId = jwtTokenProvider.getMemberIdFromToken(jwtToken);
+        redisRepository.logoutTokens(jwtToken, expiration, memberId);
     }
 
     @Override

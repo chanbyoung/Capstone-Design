@@ -7,6 +7,7 @@ import durikkiri.project.dto.member.MemberGetDto;
 import durikkiri.project.dto.member.MemberUpdateDto;
 import durikkiri.project.dto.member.SignInDto;
 import durikkiri.project.dto.member.SignUpDto;
+import durikkiri.project.entity.Member;
 import durikkiri.project.exception.BadRequestException;
 import durikkiri.project.security.JwtToken;
 import durikkiri.project.service.MailService;

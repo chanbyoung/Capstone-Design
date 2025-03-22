@@ -1,6 +1,7 @@
 package durikkiri.project.entity;
 
 import durikkiri.project.dto.member.MemberUpdateDto;
+import durikkiri.project.dto.member.SignUpDto;
 import durikkiri.project.entity.post.Comment;
 import durikkiri.project.entity.post.Post;
 import jakarta.persistence.*;
@@ -62,6 +63,21 @@ public class Member {
 
     public void updatePassword(String newPassword) {
         this.password = newPassword;
+    }
+
+    public static Member of(SignUpDto signUpDto, String encodedPassword, List<String> roles) {
+        return Member.builder()
+                .username(signUpDto.getUsername())
+                .nickname(signUpDto.getNickname())
+                .loginId(signUpDto.getLoginId())
+                .password(encodedPassword)
+                .email(signUpDto.getEmail())
+                .major(signUpDto.getMajor())
+                .roles(roles)
+                .postList(new ArrayList<>())
+                .commentList(new ArrayList<>())
+                .appliesList(new ArrayList<>())
+                .build();
     }
 
 }

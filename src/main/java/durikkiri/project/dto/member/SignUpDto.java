@@ -29,20 +29,5 @@ public class SignUpDto {
     private String major;
     private List<String> roles;
 
-    public Member toEntity(String encodedPassword, List<String> roles) {
-        return Member.builder()
-                .username(username)
-                .nickname(nickname)
-                .loginId(loginId)
-                .password(encodedPassword)
-                .email(email)
-                .major(major)
-                .roles(roles)
-                .postList(new ArrayList<>())
-                .commentList(new ArrayList<>())
-                .appliesList(new ArrayList<>())
-                .build();
-
-    }
 
 }
