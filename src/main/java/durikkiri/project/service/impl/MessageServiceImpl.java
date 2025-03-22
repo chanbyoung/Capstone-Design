@@ -104,7 +104,7 @@ public class MessageServiceImpl implements MessageService {
                 .conversation(conversation)
                 .build();
 
-        messageRepository.save(message);
+        messageRepository.save(Message.of(sender, message.getContent(), conversation));
     }
 
     @Override

@@ -41,7 +41,7 @@ public class RecruitmentService {
                 recruitmentAddDto.getTechnologyStackList());
 
         // 모집 정보 저장
-        recruitmentRepository.save(recruitmentAddDto.toEntity(post, technologyStacks));
+        recruitmentRepository.save(RecruitmentInfo.of(recruitmentAddDto, post, technologyStacks));
     }
 
 

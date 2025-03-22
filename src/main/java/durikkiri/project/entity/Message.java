@@ -28,10 +28,11 @@ public class Message extends BaseEntity{
     @JoinColumn(name = "conversation_id")
     private Conversation conversation;
 
-    public static Message toEntity(Member sender, String content) {
+    public static Message of(Member sender, String content, Conversation conversation) {
         return Message.builder()
                 .sender(sender)
                 .content(content)
+                .conversation(conversation)
                 .build();
     }
 

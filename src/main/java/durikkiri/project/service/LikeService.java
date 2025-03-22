@@ -38,8 +38,7 @@ public class LikeService {
                 .orElseThrow(() -> new NotFoundException("Member not found"));
 
         // 새로운 Like 엔티티 생성 후 저장
-        Like newLike = Like.toEntity(member, post);
-        likeRepository.save(newLike);
+        likeRepository.save(Like.toEntity(member, post));
         post.updateLikeCount(true);
     }
 }

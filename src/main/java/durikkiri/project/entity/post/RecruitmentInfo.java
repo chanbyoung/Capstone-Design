@@ -1,8 +1,10 @@
 package durikkiri.project.entity.post;
 
+import durikkiri.project.dto.post.RecruitmentAddDto;
 import durikkiri.project.entity.Apply;
 import durikkiri.project.dto.post.FieldDto;
 import durikkiri.project.dto.post.PostUpdateDto;
+import durikkiri.project.exception.BadRequestException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,6 +23,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,6 +31,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Builder
 public class RecruitmentInfo {
 
     @Id
@@ -53,17 +58,29 @@ public class RecruitmentInfo {
     @OneToMany(mappedBy = "recruitmentInfo", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Apply> appliesList;
 
-    @Builder
-    public RecruitmentInfo(Long id, LocalDate startDate, LocalDate endDate, String status,
-            Post post) {
-        this.id = id;
-        this.startDate = startDate;
-        this.endDate = endDate;
-        this.status = status;
-        this.post = post;
-        this.technologyStackList = new ArrayList<>();
-        this.fieldList = new ArrayList<>();
-        this.appliesList = new ArrayList<>();
+    public static RecruitmentInfo of(RecruitmentAddDto recruitmentAddDto, Post post,
+            List<TechnologyStack> technologyStackList) {
+        if (recruitmentAddDto.getStartDate().isAfter(recruitmentAddDto.getEndDate())) {
+            throw new BadRequestException("시작 날짜는 종료 날짜보다 이후일 수 없습니다.");
+        }
+
+        RecruitmentInfo recruitmentInfo = RecruitmentInfo.builder()
+                .startDate(recruitmentAddDto.getStartDate())
+                .endDate(recruitmentAddDto.getEndDate())
+                .status("open")
+                .post(post)
+                .build();
+
+        List<Field> addFieldList = recruitmentAddDto.getFieldList().stream()
+                .map(filed -> filed.toEntity(recruitmentInfo))
+                .collect(Collectors.toMap(Field::getFieldCategory, Function.identity(),
+                        (existing, replacement) -> existing)).values()
+                .stream()
+                .toList();
+
+        recruitmentInfo.updateList(addFieldList, technologyStackList);
+
+        return recruitmentInfo;
     }
 
     public void updateStatus() {
